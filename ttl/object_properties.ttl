@@ -1,0 +1,402 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+###############################################################################
+#
+#    Object Properties (객체 속성)
+#
+#    이 파일은 개체(Individual)들 간의 관계를 나타내는 객체 속성을 정의합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. Household (세대) 관련 속성
+###############################################################################
+
+:belongsToHousehold rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Household ;
+    owl:inverseOf :hasMember ;
+    rdfs:label "belongsToHousehold"@en ;
+    rdfs:label "세대에 속함"@ko ;
+    rdfs:comment "특정 세대구성원이 어느 세대에 속해 있는지를 나타냅니다."@ko .
+
+:hasMember rdf:type owl:ObjectProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :belongsToHousehold ;
+    rdfs:label "hasMember"@en ;
+    rdfs:label "구성원을 가짐"@ko ;
+    rdfs:comment "특정 세대가 어떤 세대구성원들을 포함하는지를 나타냅니다."@ko .
+
+:hasHead rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :HeadOfHousehold ;
+    owl:inverseOf :isHeadOf ;
+    rdfs:label "hasHead"@en ;
+    rdfs:label "세대주를 가짐"@ko ;
+    rdfs:comment "세대의 세대주가 누구인지를 나타냅니다. 한 세대는 한 명의 세대주만 가집니다."@ko .
+
+:isHeadOf rdf:type owl:ObjectProperty ;
+    rdfs:domain :HeadOfHousehold ;
+    rdfs:range :Household ;
+    owl:inverseOf :hasHead ;
+    rdfs:label "isHeadOf"@en ;
+    rdfs:label "~의 세대주임"@ko ;
+    rdfs:comment "특정인이 어느 세대의 세대주인지를 나타냅니다."@ko .
+
+###############################################################################
+#    2. Family Relationship (가족 관계) 속성
+###############################################################################
+
+:hasSpouse rdf:type owl:ObjectProperty , owl:SymmetricProperty , owl:IrreflexiveProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :HouseholdMember ;
+    rdfs:label "hasSpouse"@en ;
+    rdfs:label "배우자를 가짐"@ko ;
+    rdfs:comment "배우자 관계를 나타냅니다. A의 배우자가 B이면, B의 배우자도 A입니다."@ko .
+
+:hasChild rdf:type owl:ObjectProperty , owl:AsymmetricProperty , owl:IrreflexiveProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :hasParent ;
+    rdfs:label "hasChild"@en ;
+    rdfs:label "자녀를 가짐"@ko ;
+    rdfs:comment "자녀 관계를 나타냅니다."@ko .
+
+:hasParent rdf:type owl:ObjectProperty , owl:AsymmetricProperty , owl:IrreflexiveProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :hasChild ;
+    rdfs:label "hasParent"@en ;
+    rdfs:label "부모를 가짐"@ko ;
+    rdfs:comment "부모 관계를 나타냅니다."@ko .
+
+:isDependentOf rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Applicant ;
+    owl:inverseOf :hasDependent ;
+    rdfs:label "isDependentOf"@en ;
+    rdfs:label "~의 부양가족임"@ko ;
+    rdfs:comment "특정 세대구성원이 신청자의 부양가족임을 나타냅니다."@ko .
+
+:hasDependent rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :isDependentOf ;
+    rdfs:label "hasDependent"@en ;
+    rdfs:label "부양가족을 가짐"@ko ;
+    rdfs:comment "신청자가 부양하는 가족 구성원을 나타냅니다."@ko .
+
+###############################################################################
+#    3. Housing Ownership (주택 소유) 관련 속성
+###############################################################################
+
+:owns rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Housing ;
+    owl:inverseOf :isOwnedBy ;
+    rdfs:label "owns"@en ;
+    rdfs:label "소유함"@ko ;
+    rdfs:comment "세대구성원이 주택을 소유하고 있음을 나타냅니다."@ko .
+
+:isOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :owns ;
+    rdfs:label "isOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "주택이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+###############################################################################
+#    4. Subscription (청약) 관련 속성
+###############################################################################
+
+:hasSubscriptionAccount rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :SubscriptionAccount ;
+    rdfs:label "hasSubscriptionAccount"@en ;
+    rdfs:label "청약통장을 가짐"@ko ;
+    rdfs:comment "신청자가 보유한 청약통장을 나타냅니다."@ko .
+
+:appliesFor rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :SubscriptionApplication ;
+    rdfs:label "appliesFor"@en ;
+    rdfs:label "신청함"@ko ;
+    rdfs:comment "신청자가 어떤 청약에 신청하는지를 나타냅니다."@ko .
+
+:isForHousing rdf:type owl:ObjectProperty ;
+    rdfs:domain :SubscriptionApplication ;
+    rdfs:range :Housing ;
+    rdfs:label "isForHousing"@en ;
+    rdfs:label "~주택에 대한 신청"@ko ;
+    rdfs:comment "청약 신청이 어떤 주택을 대상으로 하는지 나타냅니다."@ko .
+
+###############################################################################
+#    5. Location (위치) 관련 속성
+###############################################################################
+
+:livesIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Region ;
+    rdfs:label "livesIn"@en ;
+    rdfs:label "~에 거주함"@ko ;
+    rdfs:comment "특정인이 거주하는 지역을 나타냅니다."@ko .
+
+:isLocatedIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range :Region ;
+    rdfs:label "isLocatedIn"@en ;
+    rdfs:label "~에 위치함"@ko ;
+    rdfs:comment "주택이 위치한 지역을 나타냅니다."@ko .
+
+###############################################################################
+#    6. Winning Record (당첨 이력) 관련 속성
+###############################################################################
+
+:hasWinningRecord rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :WinningRecord ;
+    rdfs:label "hasWinningRecord"@en ;
+    rdfs:label "당첨 이력을 가짐"@ko ;
+    rdfs:comment "세대구성원의 과거 청약 당첨 이력을 나타냅니다."@ko .
+
+###############################################################################
+#    7. Asset (자산) 관련 속성
+###############################################################################
+
+:hasTotalAsset rdf:type owl:ObjectProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :Asset ;
+    rdfs:label "hasTotalAsset"@en ;
+    rdfs:label "총 자산을 가짐"@ko ;
+    rdfs:comment "세대가 보유한 총 자산을 나타냅니다."@ko .
+
+:ownsAsset rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Asset ;
+    owl:inverseOf :isAssetOwnedBy ;
+    rdfs:label "ownsAsset"@en ;
+    rdfs:label "자산을 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 자산을 나타냅니다."@ko .
+
+:isAssetOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Asset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsAsset ;
+    rdfs:label "isAssetOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "자산이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+:ownsLand rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :ownsAsset ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :LandAsset ;
+    owl:inverseOf :isLandOwnedBy ;
+    rdfs:label "ownsLand"@en ;
+    rdfs:label "토지를 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 토지 자산을 나타냅니다."@ko .
+
+:isLandOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :LandAsset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsLand ;
+    rdfs:label "isLandOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "토지가 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+:ownsBuilding rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :ownsAsset ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :BuildingAsset ;
+    owl:inverseOf :isBuildingOwnedBy ;
+    rdfs:label "ownsBuilding"@en ;
+    rdfs:label "건물을 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 건물 자산을 나타냅니다."@ko .
+
+:isBuildingOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :BuildingAsset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsBuilding ;
+    rdfs:label "isBuildingOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "건물이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+:ownsVehicle rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :ownsAsset ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :VehicleAsset ;
+    owl:inverseOf :isVehicleOwnedBy ;
+    rdfs:label "ownsVehicle"@en ;
+    rdfs:label "차량을 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 차량을 나타냅니다."@ko .
+
+:isVehicleOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :VehicleAsset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsVehicle ;
+    rdfs:label "isVehicleOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "차량이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+###############################################################################
+#    8. Income (소득) 관련 속성
+###############################################################################
+
+:hasIncome rdf:type owl:ObjectProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :Income ;
+    rdfs:label "hasIncome"@en ;
+    rdfs:label "소득을 가짐"@ko ;
+    rdfs:comment "세대의 소득 정보를 나타냅니다."@ko .
+
+###############################################################################
+#    9. Institution (기관 추천) 관련 속성
+###############################################################################
+
+:isRecommendedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :Institution ;
+    owl:inverseOf :recommends ;
+    rdfs:label "isRecommendedBy"@en ;
+    rdfs:label "~에 의해 추천됨"@ko ;
+    rdfs:comment "신청자가 어떤 기관에 의해 추천되었는지를 나타냅니다."@ko .
+
+:recommends rdf:type owl:ObjectProperty ;
+    rdfs:domain :Institution ;
+    rdfs:range :Applicant ;
+    owl:inverseOf :isRecommendedBy ;
+    rdfs:label "recommends"@en ;
+    rdfs:label "추천함"@ko ;
+    rdfs:comment "기관이 추천한 신청자를 나타냅니다."@ko .
+
+###############################################################################
+#    10. Point Calculation (가점 계산) 관련 속성
+###############################################################################
+
+:hasPointCalculation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :SubscriptionPoint ;
+    rdfs:label "hasPointCalculation"@en ;
+    rdfs:label "가점 계산을 가짐"@ko ;
+    rdfs:comment "신청자의 청약 가점 계산 정보를 나타냅니다."@ko .
+
+###############################################################################
+#    11. Deposit Requirement (예치금 요건) 관련 속성
+###############################################################################
+
+:appliesInRegion rdf:type owl:ObjectProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range :Region ;
+    rdfs:label "appliesInRegion"@en ;
+    rdfs:label "~지역에 적용됨"@ko ;
+    rdfs:comment "예치금 요건이 적용되는 지역을 나타냅니다."@ko .
+
+###############################################################################
+#    12. Income Threshold (소득 기준선) 관련 속성
+###############################################################################
+
+:basedOnStandard rdf:type owl:ObjectProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range :StandardIncome ;
+    rdfs:label "basedOnStandard"@en ;
+    rdfs:label "~기준에 근거함"@ko ;
+    rdfs:comment "소득 기준선이 기반하는 표준 소득을 나타냅니다."@ko .
+
+:appliesTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range :SubscriptionApplication ;
+    rdfs:label "appliesTo"@en ;
+    rdfs:label "~에 적용됨"@ko ;
+    rdfs:comment "소득 기준선이 적용되는 청약 유형을 나타냅니다."@ko .
+
+###############################################################################
+#    13. Selection Method (선정 방식) 관련 속성
+###############################################################################
+
+:usesSelectionMethod rdf:type owl:ObjectProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range :SelectionMethod ;
+    rdfs:label "usesSelectionMethod"@en ;
+    rdfs:label "~선정 방식을 사용함"@ko ;
+    rdfs:comment "주택의 당첨자 선정 방식을 나타냅니다."@ko .
+
+###############################################################################
+#    14. History (이력) 관련 속성
+###############################################################################
+
+:hasResidenceHistory rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :ResidenceHistory ;
+    rdfs:label "hasResidenceHistory"@en ;
+    rdfs:label "거주 이력을 가짐"@ko ;
+    rdfs:comment "개인의 거주 이력을 나타냅니다."@ko .
+
+:residedIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range :Region ;
+    rdfs:label "residedIn"@en ;
+    rdfs:label "~에 거주했음"@ko ;
+    rdfs:comment "거주 이력의 해당 지역을 나타냅니다."@ko .
+
+:hasTaxPaymentHistory rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :TaxPaymentHistory ;
+    rdfs:label "hasTaxPaymentHistory"@en ;
+    rdfs:label "소득세 납부 이력을 가짐"@ko ;
+    rdfs:comment "신청자의 소득세 납부 이력을 나타냅니다."@ko .
+
+:hasOwnershipHistory rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :HousingOwnershipHistory ;
+    rdfs:label "hasOwnershipHistory"@en ;
+    rdfs:label "주택 소유 이력을 가짐"@ko ;
+    rdfs:comment "개인의 주택 소유 이력을 나타냅니다."@ko .
+
+:ownedHousing rdf:type owl:ObjectProperty ;
+    rdfs:domain :HousingOwnershipHistory ;
+    rdfs:range :Housing ;
+    rdfs:label "ownedHousing"@en ;
+    rdfs:label "소유했던 주택"@ko ;
+    rdfs:comment "소유 이력에 해당하는 주택을 나타냅니다."@ko .
+
+###############################################################################
+#    15. Specialized Child and Dependent Properties (특화된 자녀/부양가족 속성)
+###############################################################################
+
+:hasMinorChild rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasChild ;
+    rdfs:domain :Person ;
+    rdfs:range :Child ;
+    rdfs:label "hasMinorChild"@en ;
+    rdfs:label "미성년 자녀를 가짐"@ko ;
+    rdfs:comment "만 19세 미만의 자녀를 나타냅니다."@ko .
+
+:hasInfantChild rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasChild ;
+    rdfs:domain :Person ;
+    rdfs:range :Child ;
+    rdfs:label "hasInfantChild"@en ;
+    rdfs:label "영유아 자녀를 가짐"@ko ;
+    rdfs:comment "만 6세 이하의 자녀를 나타냅니다."@ko .
+
+:hasQualifiedDependent rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasDependent ;
+    rdfs:domain :Applicant ;
+    rdfs:range :QualifiedDependent ;
+    rdfs:label "hasQualifiedDependent"@en ;
+    rdfs:label "인정 부양가족을 가짐"@ko ;
+    rdfs:comment "가점제에서 인정되는 부양가족을 나타냅니다."@ko .
+
+:hasElderlyDependent rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQualifiedDependent ;
+    rdfs:domain :Applicant ;
+    rdfs:range :QualifiedDependent ;
+    rdfs:label "hasElderlyDependent"@en ;
+    rdfs:label "고령 부양가족을 가짐"@ko ;
+    rdfs:comment "만 65세 이상의 부양가족을 나타냅니다."@ko .
+

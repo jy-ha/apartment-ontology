@@ -1,0 +1,54 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+<http://www.example.org/apartment-subscription-ontology> rdf:type owl:Ontology ;
+    owl:versionIRI <http://www.example.org/apartment-subscription-ontology/1.0> ;
+    rdfs:label "아파트 청약 자격 온톨로지"@ko ;
+    rdfs:label "Apartment Subscription Eligibility Ontology"@en ;
+    rdfs:comment """
+    본 온톨로지는 대한민국의 아파트 청약 자격 판단 시스템을 위한 지식 베이스입니다.
+    청약 신청자의 자격 요건, 일반공급 및 특별공급 조건, 소득 및 자산 기준 등을 
+    OWL 2 DL과 SWRL 규칙을 사용하여 형식화합니다.
+    
+    주요 특징:
+    - Class vs Individual 명확 구분 (Seoul, 기관 등은 Individual)
+    - Primitive vs Defined Class 활용 (추론 가능한 클래스는 Defined로)
+    - 24개의 Competency Questions 완전 대응
+    - 실제 청약 제도 반영 (2024년 기준)
+    """@ko ;
+    owl:versionInfo "1.0" ;
+    rdfs:seeAlso <https://www.applyhome.co.kr> ;
+    <http://purl.org/dc/terms/created> "2024-11"^^xsd:string ;
+    <http://purl.org/dc/terms/creator> "Apartment Subscription Ontology Team"^^xsd:string ;
+    <http://purl.org/dc/terms/description> "An OWL 2 DL ontology for Korean apartment subscription eligibility determination"@en .
+
+###############################################################################
+#
+#    Annotation Properties
+#
+###############################################################################
+
+<http://purl.org/dc/terms/created> rdf:type owl:AnnotationProperty .
+<http://purl.org/dc/terms/creator> rdf:type owl:AnnotationProperty .
+<http://purl.org/dc/terms/description> rdf:type owl:AnnotationProperty .
+
+###############################################################################
+#
+#    Note: This is the core file containing basic declarations.
+#    Actual class, property, and individual definitions are in separate files:
+#    - primitive_classes.ttl
+#    - defined_classes.ttl
+#    - object_properties.ttl
+#    - data_properties.ttl
+#    - individuals.ttl
+#    - swrl_rules.ttl
+#
+###############################################################################
+

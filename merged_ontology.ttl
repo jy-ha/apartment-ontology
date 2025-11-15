@@ -1,0 +1,3808 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
+
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#
+#    Content from: core.ttl
+#
+###############################################################################
+
+<http://www.example.org/apartment-subscription-ontology> rdf:type owl:Ontology ;
+    owl:versionIRI <http://www.example.org/apartment-subscription-ontology/1.0> ;
+    rdfs:label "아파트 청약 자격 온톨로지"@ko ;
+    rdfs:label "Apartment Subscription Eligibility Ontology"@en ;
+    rdfs:comment """
+    본 온톨로지는 대한민국의 아파트 청약 자격 판단 시스템을 위한 지식 베이스입니다.
+    청약 신청자의 자격 요건, 일반공급 및 특별공급 조건, 소득 및 자산 기준 등을 
+    OWL 2 DL과 SWRL 규칙을 사용하여 형식화합니다.
+    
+    주요 특징:
+    - Class vs Individual 명확 구분 (Seoul, 기관 등은 Individual)
+    - Primitive vs Defined Class 활용 (추론 가능한 클래스는 Defined로)
+    - 24개의 Competency Questions 완전 대응
+    - 실제 청약 제도 반영 (2024년 기준)
+    """@ko ;
+    owl:versionInfo "1.0" ;
+    rdfs:seeAlso <https://www.applyhome.co.kr> ;
+    <http://purl.org/dc/terms/created> "2024-11"^^xsd:string ;
+    <http://purl.org/dc/terms/creator> "Apartment Subscription Ontology Team"^^xsd:string ;
+    <http://purl.org/dc/terms/description> "An OWL 2 DL ontology for Korean apartment subscription eligibility determination"@en .
+
+###############################################################################
+#
+#    Annotation Properties
+#
+###############################################################################
+
+<http://purl.org/dc/terms/created> rdf:type owl:AnnotationProperty .
+<http://purl.org/dc/terms/creator> rdf:type owl:AnnotationProperty .
+<http://purl.org/dc/terms/description> rdf:type owl:AnnotationProperty .
+
+###############################################################################
+#
+#    Note: This is the core file containing basic declarations.
+#    Actual class, property, and individual definitions are in separate files:
+#    - primitive_classes.ttl
+#    - defined_classes.ttl
+#    - object_properties.ttl
+#    - data_properties.ttl
+#    - individuals.ttl
+#    - swrl_rules.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    Content from: data_properties.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    Data Properties (데이터 속성)
+#
+#    이 파일은 개체가 갖는 구체적인 데이터 값(리터럴)을 정의합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. Person (사람) 기본 속성
+###############################################################################
+
+:age rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "age"@en ;
+    rdfs:label "나이"@ko ;
+    rdfs:comment "사람의 만 나이를 나타냅니다. (0 이상의 정수)"@ko .
+
+:name rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "name"@en ;
+    rdfs:label "이름"@ko ;
+    rdfs:comment "사람의 이름을 나타냅니다."@ko .
+
+:nationalID rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "nationalID"@en ;
+    rdfs:label "주민등록번호"@ko ;
+    rdfs:comment "개인을 고유하게 식별하는 값입니다."@ko .
+
+:maritalStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "maritalStatus"@en ;
+    rdfs:label "혼인 상태"@ko ;
+    rdfs:comment "혼인 상태를 나타냅니다. (예: '미혼', '기혼', '이혼', '사별')"@ko .
+
+:marriageDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "marriageDate"@en ;
+    rdfs:label "혼인신고일"@ko ;
+    rdfs:comment "혼인신고일. 신혼부부 특공 자격 판단에 사용됩니다."@ko .
+
+:employmentStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "employmentStatus"@en ;
+    rdfs:label "고용 상태"@ko ;
+    rdfs:comment "고용 상태. (예: '재직', '휴직', '실업')"@ko .
+
+:hasDisability rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "hasDisability"@en ;
+    rdfs:label "장애 등록 여부"@ko ;
+    rdfs:comment "장애 등록 여부를 나타냅니다."@ko .
+
+:personalIncome rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "personalIncome"@en ;
+    rdfs:label "개인 월평균 소득"@ko ;
+    rdfs:comment "개인의 월평균 소득 (원 단위)."@ko .
+
+:isOnChildcareLeave rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isOnChildcareLeave"@en ;
+    rdfs:label "육아휴직 중 여부"@ko ;
+    rdfs:comment "육아휴직 중 여부를 나타냅니다."@ko .
+
+:childcareLeaveAllowance rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "childcareLeaveAllowance"@en ;
+    rdfs:label "육아휴직 급여"@ko ;
+    rdfs:comment "육아휴직 급여 (원 단위)."@ko .
+
+:isAdoptedChild rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isAdoptedChild"@en ;
+    rdfs:label "입양 자녀 여부"@ko ;
+    rdfs:comment "입양 자녀 여부를 나타냅니다."@ko .
+
+:adoptionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "adoptionDate"@en ;
+    rdfs:label "입양일"@ko ;
+    rdfs:comment "입양일을 나타냅니다."@ko .
+
+:fetusCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "fetusCount"@en ;
+    rdfs:label "태아 수"@ko ;
+    rdfs:comment "임신 중인 태아의 수. 다자녀가구 특공 자녀 수 산정에 사용됩니다."@ko .
+
+:actualMarriageDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "actualMarriageDate"@en ;
+    rdfs:label "실제 결혼식 날짜"@ko ;
+    rdfs:comment "실제 결혼식 날짜 (혼인신고일과 다를 수 있음)."@ko .
+
+:marriageRegistrationDate rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "marriageRegistrationDate"@en ;
+    rdfs:label "혼인신고일"@ko ;
+    rdfs:comment "혼인신고일. 신혼부부 특공 자격의 기준일입니다."@ko .
+
+###############################################################################
+#    2. Applicant (신청자) 특화 속성
+###############################################################################
+
+:homelessStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "homelessStartDate"@en ;
+    rdfs:label "무주택 기간 시작일"@ko ;
+    rdfs:comment "무주택 기간 산정 시작일을 나타냅니다."@ko .
+
+:residencePeriod rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:float ;
+    rdfs:label "residencePeriod"@en ;
+    rdfs:label "거주 기간"@ko ;
+    rdfs:comment "특정 지역에서의 거주 기간 (년 단위)."@ko .
+
+:taxPaymentDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "taxPaymentDuration"@en ;
+    rdfs:label "소득세 납부 총 기간"@ko ;
+    rdfs:comment "소득세 납부 총 기간 (통산, 년 단위). 생애최초 특공 자격에 사용됩니다."@ko .
+
+:isSingleParent rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSingleParent"@en ;
+    rdfs:label "한부모가족 여부"@ko ;
+    rdfs:comment "한부모가족 여부를 나타냅니다."@ko .
+
+:hasFianceCommitment rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "hasFianceCommitment"@en ;
+    rdfs:label "예비신혼부부 약속 여부"@ko ;
+    rdfs:comment "예비신혼부부로서 입주 전 혼인신고 약속 여부."@ko .
+
+:expectedMarriageDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "expectedMarriageDate"@en ;
+    rdfs:label "예정 혼인신고일"@ko ;
+    rdfs:comment "예정된 혼인신고일을 나타냅니다."@ko .
+
+:singleParentCertificationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "singleParentCertificationDate"@en ;
+    rdfs:label "한부모가족 증명서 발급일"@ko ;
+    rdfs:comment "한부모가족 증명서 발급일을 나타냅니다."@ko .
+
+:recommendationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "recommendationDate"@en ;
+    rdfs:label "기관추천일"@ko ;
+    rdfs:comment "기관추천일을 나타냅니다."@ko .
+
+:recommendationNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:string ;
+    rdfs:label "recommendationNumber"@en ;
+    rdfs:label "기관추천 번호"@ko ;
+    rdfs:comment "기관추천 번호를 나타냅니다."@ko .
+
+:hasDepositShortage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "hasDepositShortage"@en ;
+    rdfs:label "예치금 부족액"@ko ;
+    rdfs:comment "청약통장 예치금 부족액 (원 단위)."@ko .
+
+###############################################################################
+#    3. Subscription Point (청약 가점) 속성
+###############################################################################
+
+:homelessPeriodInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "homelessPeriodInYears"@en ;
+    rdfs:label "무주택 기간"@ko ;
+    rdfs:comment "무주택 기간 (년 단위)."@ko .
+
+:homelessPeriodPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "homelessPeriodPoints"@en ;
+    rdfs:label "무주택 기간 가점"@ko ;
+    rdfs:comment "무주택 기간에 따른 가점 (0~32점)."@ko .
+
+:dependentCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dependentCount"@en ;
+    rdfs:label "인정 부양가족 수"@ko ;
+    rdfs:comment "인정 부양가족 수를 나타냅니다."@ko .
+
+:dependentFamilyPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dependentFamilyPoints"@en ;
+    rdfs:label "부양가족 수 가점"@ko ;
+    rdfs:comment "부양가족 수에 따른 가점 (0~35점)."@ko .
+
+:accountPeriodInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "accountPeriodInYears"@en ;
+    rdfs:label "청약통장 가입 기간"@ko ;
+    rdfs:comment "청약통장 가입 기간 (년 단위)."@ko .
+
+:accountPeriodPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "accountPeriodPoints"@en ;
+    rdfs:label "청약통장 가입 기간 가점"@ko ;
+    rdfs:comment "청약통장 가입 기간에 따른 가점 (0~17점)."@ko .
+
+:totalSubscriptionPoints rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "totalSubscriptionPoints"@en ;
+    rdfs:label "총 청약 가점"@ko ;
+    rdfs:comment "총 청약 가점 (0~84점). 무주택 기간 + 부양가족 + 통장 가입 기간 점수의 합."@ko .
+
+:pointValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionPoint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "pointValue"@en ;
+    rdfs:label "가점 값"@ko ;
+    rdfs:comment "가점 항목의 점수 값 (0~84점)."@ko .
+
+###############################################################################
+#    4. HouseholdMember (세대구성원) 속성
+###############################################################################
+
+:supportStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range xsd:date ;
+    rdfs:label "supportStartDate"@en ;
+    rdfs:label "부양 시작일"@ko ;
+    rdfs:comment "직계존속 등 부양 시작일. 노부모부양 자격 판단에 사용됩니다."@ko .
+
+###############################################################################
+#    5. SubscriptionAccount (청약통장) 속성
+###############################################################################
+
+:accountNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:string ;
+    rdfs:label "accountNumber"@en ;
+    rdfs:label "계좌번호"@ko ;
+    rdfs:comment "청약통장을 고유하게 식별하는 계좌번호."@ko .
+
+:accountOpeningDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:date ;
+    rdfs:label "accountOpeningDate"@en ;
+    rdfs:label "청약통장 가입일"@ko ;
+    rdfs:comment "청약통장 가입일을 나타냅니다."@ko .
+
+:depositAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:integer ;
+    rdfs:label "depositAmount"@en ;
+    rdfs:label "예치금액"@ko ;
+    rdfs:comment "청약통장의 현재 예치금액 (원 단위, 0 이상의 정수)."@ko .
+
+:monthlyPaymentCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:integer ;
+    rdfs:label "monthlyPaymentCount"@en ;
+    rdfs:label "월 납입 횟수"@ko ;
+    rdfs:comment "청약통장 월 납입 횟수 (국민주택, 0 이상의 정수)."@ko .
+
+:accountType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:string ;
+    rdfs:label "accountType"@en ;
+    rdfs:label "청약통장 종류"@ko ;
+    rdfs:comment "청약통장의 종류. (예: '주택청약종합저축', '청약예금')"@ko .
+
+###############################################################################
+#    6. Housing (주택) 속성
+###############################################################################
+
+:area rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range xsd:float ;
+    rdfs:label "area"@en ;
+    rdfs:label "전용 면적"@ko ;
+    rdfs:comment "주택의 전용 면적 (㎡ 단위)."@ko .
+
+:price rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range xsd:integer ;
+    rdfs:label "price"@en ;
+    rdfs:label "가격"@ko ;
+    rdfs:comment "주택의 공시가격 또는 실거래가 (원 단위)."@ko .
+
+:disposalDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range xsd:date ;
+    rdfs:label "disposalDate"@en ;
+    rdfs:label "주택 처분일"@ko ;
+    rdfs:comment "주택 처분일. 소형·저가주택 무주택 기간 산정에 사용됩니다."@ko .
+
+###############################################################################
+#    7. WinningRecord (당첨 이력) 속성
+###############################################################################
+
+:winningDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:date ;
+    rdfs:label "winningDate"@en ;
+    rdfs:label "당첨일"@ko ;
+    rdfs:comment "과거 청약 당첨일. 재당첨 제한 기간 산정에 사용됩니다."@ko .
+
+:restrictionPeriodInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:integer ;
+    rdfs:label "restrictionPeriodInYears"@en ;
+    rdfs:label "재당첨 제한 기간"@ko ;
+    rdfs:comment "청약 당첨에 따른 재당첨 제한 기간 (년 단위)."@ko .
+
+:contractCompleted rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "contractCompleted"@en ;
+    rdfs:label "계약 완료 여부"@ko ;
+    rdfs:comment "당첨 후 계약 완료 여부. false이면 계약 포기로 간주됩니다."@ko .
+
+:isSubjectToRestriction rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSubjectToRestriction"@en ;
+    rdfs:label "재당첨 제한 대상 여부"@ko ;
+    rdfs:comment "재당첨 제한 대상 여부를 나타냅니다."@ko .
+
+###############################################################################
+#    8. Income (소득) 속성
+###############################################################################
+
+:monthlyAverageIncome rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Income ;
+    rdfs:range xsd:integer ;
+    rdfs:label "monthlyAverageIncome"@en ;
+    rdfs:label "월평균 소득"@ko ;
+    rdfs:comment "세대의 월평균 소득 (원 단위)."@ko .
+
+###############################################################################
+#    9. Asset (자산) 속성
+###############################################################################
+
+:realEstateAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RealEstate ;
+    rdfs:range xsd:integer ;
+    rdfs:label "realEstateAssetValue"@en ;
+    rdfs:label "부동산 자산 가액"@ko ;
+    rdfs:comment "세대가 보유한 부동산 자산의 총액 (원 단위)."@ko .
+
+:landAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LandAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "landAssetValue"@en ;
+    rdfs:label "토지 자산 가액"@ko ;
+    rdfs:comment "토지 자산 가액 (원 단위)."@ko .
+
+:buildingAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BuildingAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "buildingAssetValue"@en ;
+    rdfs:label "건물 자산 가액"@ko ;
+    rdfs:comment "건물 자산 가액 (원 단위)."@ko .
+
+:vehicleAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :VehicleAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "vehicleAssetValue"@en ;
+    rdfs:label "자동차 자산 가액"@ko ;
+    rdfs:comment "세대가 보유한 자동차 자산의 총액 (원 단위)."@ko .
+
+###############################################################################
+#    10. Region (지역) 속성
+###############################################################################
+
+:isSpeculativeOverheatedZone rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Region ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSpeculativeOverheatedZone"@en ;
+    rdfs:label "투기과열지구 여부"@ko ;
+    rdfs:comment "해당 지역이 투기과열지구인지 여부를 나타냅니다."@ko .
+
+:isSubscriptionOverheatedArea rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Region ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSubscriptionOverheatedArea"@en ;
+    rdfs:label "청약과열지역 여부"@ko ;
+    rdfs:comment "해당 지역이 청약과열지역인지 여부를 나타냅니다."@ko .
+
+:regionName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Region ;
+    rdfs:range xsd:string ;
+    rdfs:label "regionName"@en ;
+    rdfs:label "지역 명칭"@ko ;
+    rdfs:comment "지역 명칭 (예: '서울', '경기', '인천')."@ko .
+
+:designatedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RegulatedArea ;
+    rdfs:range xsd:date ;
+    rdfs:label "designatedDate"@en ;
+    rdfs:label "규제지역 지정일"@ko ;
+    rdfs:comment "규제지역 지정일을 나타냅니다."@ko .
+
+:releasedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RegulatedArea ;
+    rdfs:range xsd:date ;
+    rdfs:label "releasedDate"@en ;
+    rdfs:label "규제지역 해제일"@ko ;
+    rdfs:comment "규제지역 해제일을 나타냅니다."@ko .
+
+###############################################################################
+#    11. SubscriptionApplication (청약 신청) 속성
+###############################################################################
+
+:recruitmentAnnouncementDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionApplication ;
+    rdfs:range xsd:date ;
+    rdfs:label "recruitmentAnnouncementDate"@en ;
+    rdfs:label "입주자 모집공고일"@ko ;
+    rdfs:comment "입주자 모집공고일. 모든 자격 판단의 기준일이 됩니다."@ko .
+
+###############################################################################
+#    12. StandardIncome (기준 소득) 속성
+###############################################################################
+
+:standardAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StandardIncome ;
+    rdfs:range xsd:integer ;
+    rdfs:label "standardAmount"@en ;
+    rdfs:label "기준 소득 금액"@ko ;
+    rdfs:comment "기준 소득 금액 (원 단위)."@ko .
+
+:yearOfStandard rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StandardIncome ;
+    rdfs:range xsd:integer ;
+    rdfs:label "yearOfStandard"@en ;
+    rdfs:label "기준 연도"@ko ;
+    rdfs:comment "해당 기준 소득이 적용되는 연도."@ko .
+
+:householdSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StandardIncome ;
+    rdfs:range xsd:integer ;
+    rdfs:label "householdSize"@en ;
+    rdfs:label "가구원 수"@ko ;
+    rdfs:comment "해당 기준 소득이 적용되는 가구원 수."@ko .
+
+###############################################################################
+#    13. IncomeThreshold (소득 기준선) 속성
+###############################################################################
+
+:incomePercentage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "incomePercentage"@en ;
+    rdfs:label "소득 기준 비율"@ko ;
+    rdfs:comment "도시근로자 가구당 월평균 소득 대비 비율 (예: 100, 130, 140, 160)."@ko .
+
+:calculatedThresholdAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "calculatedThresholdAmount"@en ;
+    rdfs:label "계산된 소득 기준선 금액"@ko ;
+    rdfs:comment "계산된 소득 기준선 금액 (원 단위)."@ko .
+
+###############################################################################
+#    14. AssetThreshold (자산 기준선) 속성
+###############################################################################
+
+:maxRealEstateValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AssetThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "maxRealEstateValue"@en ;
+    rdfs:label "부동산 자산 보유 한도"@ko ;
+    rdfs:comment "부동산 자산 보유 한도 (원 단위)."@ko .
+
+:maxVehicleValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AssetThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "maxVehicleValue"@en ;
+    rdfs:label "자동차 자산 보유 한도"@ko ;
+    rdfs:comment "자동차 자산 보유 한도 (원 단위)."@ko .
+
+###############################################################################
+#    15. DepositRequirement (예치금 요건) 속성
+###############################################################################
+
+:requiredDepositAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "requiredDepositAmount"@en ;
+    rdfs:label "필요 예치금액"@ko ;
+    rdfs:comment "지역 및 면적에 따라 요구되는 예치금액 (원 단위)."@ko .
+
+:minArea rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range xsd:float ;
+    rdfs:label "minArea"@en ;
+    rdfs:label "최소 면적"@ko ;
+    rdfs:comment "예치금 요건이 적용되는 최소 면적 (㎡ 단위)."@ko .
+
+:maxArea rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range xsd:float ;
+    rdfs:label "maxArea"@en ;
+    rdfs:label "최대 면적"@ko ;
+    rdfs:comment "예치금 요건이 적용되는 최대 면적 (㎡ 단위)."@ko .
+
+###############################################################################
+#    16. SelectionMethod (선정 방식) 속성
+###############################################################################
+
+:selectionRatio rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SelectionMethod ;
+    rdfs:range xsd:float ;
+    rdfs:label "selectionRatio"@en ;
+    rdfs:label "선정 비율"@ko ;
+    rdfs:comment "선정 방식의 적용 비율 (0.0~1.0, 예: 가점제 0.5, 추첨제 0.5)."@ko .
+
+###############################################################################
+#    17. ResidenceHistory (거주 이력) 속성
+###############################################################################
+
+:residenceStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "residenceStartDate"@en ;
+    rdfs:label "거주 시작일"@ko ;
+    rdfs:comment "해당 지역 거주 시작일을 나타냅니다."@ko .
+
+:residenceEndDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "residenceEndDate"@en ;
+    rdfs:label "거주 종료일"@ko ;
+    rdfs:comment "해당 지역 거주 종료일을 나타냅니다."@ko .
+
+:residenceDurationInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range xsd:float ;
+    rdfs:label "residenceDurationInYears"@en ;
+    rdfs:label "거주 기간"@ko ;
+    rdfs:comment "해당 지역 거주 기간 (년 단위)."@ko .
+
+###############################################################################
+#    18. TaxPaymentHistory (소득세 납부 이력) 속성
+###############################################################################
+
+:taxYear rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TaxPaymentHistory ;
+    rdfs:range xsd:gYear ;
+    rdfs:label "taxYear"@en ;
+    rdfs:label "소득세 납부 연도"@ko ;
+    rdfs:comment "소득세 납부 연도를 나타냅니다."@ko .
+
+:taxAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TaxPaymentHistory ;
+    rdfs:range xsd:integer ;
+    rdfs:label "taxAmount"@en ;
+    rdfs:label "소득세 납부액"@ko ;
+    rdfs:comment "해당 연도 소득세 납부액 (원 단위)."@ko .
+
+###############################################################################
+#    19. HousingOwnershipHistory (주택 소유 이력) 속성
+###############################################################################
+
+:ownershipStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :HousingOwnershipHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "ownershipStartDate"@en ;
+    rdfs:label "주택 소유 시작일"@ko ;
+    rdfs:comment "주택 소유 시작일을 나타냅니다."@ko .
+
+:ownershipEndDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :HousingOwnershipHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "ownershipEndDate"@en ;
+    rdfs:label "주택 소유 종료일"@ko ;
+    rdfs:comment "주택 소유 종료일 (처분일)을 나타냅니다."@ko .
+
+###############################################################################
+#
+#    Content from: defined_classes.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    Defined Classes (정의 클래스)
+#
+#    이 파일은 다른 클래스와 속성의 조합으로 논리적 정의가 가능한
+#    Defined Class들을 정의합니다. owl:equivalentClass를 사용하여
+#    필요충분조건을 명시합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. 기본 자격 관련 정의 클래스
+###############################################################################
+
+:Adult rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 19 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "Adult"@en ;
+    rdfs:label "성년"@ko ;
+    rdfs:comment "청약 신청의 기본 요건인 만 19세 이상 성년을 정의합니다."@ko .
+
+:HomelessHouseholdMember rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :HouseholdMember
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :belongsToHousehold ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Household
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasMember ;
+                        owl:allValuesFrom [
+                            rdf:type owl:Class ;
+                            owl:intersectionOf (
+                                :Person
+                                [ rdf:type owl:Class ;
+                                  owl:complementOf [
+                                      rdf:type owl:Restriction ;
+                                      owl:onProperty :owns ;
+                                      owl:someValuesFrom :Housing
+                                  ]
+                                ]
+                            )
+                        ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "HomelessHouseholdMember"@en ;
+    rdfs:label "무주택세대구성원"@ko ;
+    rdfs:comment "세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원입니다."@ko .
+
+:HeadOfHomelessHousehold rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf ( :HeadOfHousehold :HomelessHouseholdMember )
+    ] ;
+    rdfs:label "HeadOfHomelessHousehold"@en ;
+    rdfs:label "무주택세대주"@ko ;
+    rdfs:comment "무주택세대구성원이면서 세대주인 사람을 정의합니다."@ko .
+
+:MetropolitanAreaResident rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :livesIn ;
+              owl:someValuesFrom :MetropolitanArea
+            ]
+        )
+    ] ;
+    rdfs:label "MetropolitanAreaResident"@en ;
+    rdfs:label "수도권 거주자"@ko ;
+    rdfs:comment "서울, 경기, 인천 중 한 곳에 거주하는 사람입니다."@ko .
+
+:LongTermResident rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasResidenceHistory ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :ResidenceHistory
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :residenceDurationInYears ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:float ;
+                                             owl:withRestrictions ( [ xsd:minInclusive "3.0"^^xsd:float ] )
+                                           ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "LongTermResident"@en ;
+    rdfs:label "장기 거주자"@ko ;
+    rdfs:comment "특정 지역에 3년 이상 거주한 사람입니다."@ko .
+
+:NeverOwnedHousing rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Class ;
+              owl:complementOf [
+                  rdf:type owl:Restriction ;
+                  owl:onProperty :hasOwnershipHistory ;
+                  owl:someValuesFrom :HousingOwnershipHistory
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "NeverOwnedHousing"@en ;
+    rdfs:label "주택 소유 이력 없음"@ko ;
+    rdfs:comment "본인이 과거에 단 한 번도 주택을 소유한 적이 없는 사람입니다. 생애최초 특공의 핵심 요건입니다."@ko .
+
+:EverOwnedHousing rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasOwnershipHistory ;
+        owl:someValuesFrom :HousingOwnershipHistory
+    ] ;
+    rdfs:label "EverOwnedHousing"@en ;
+    rdfs:label "주택 소유 이력 있음"@ko ;
+    rdfs:comment "본인이 과거에 주택을 소유한 적이 있는 사람입니다."@ko .
+
+:QualifiedDependent_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :HouseholdMember
+            [ rdf:type owl:Class ;
+              owl:unionOf (
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :age ;
+                    owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                         owl:onDatatype xsd:integer ;
+                                         owl:withRestrictions ( [ xsd:minInclusive 65 ] )
+                                       ]
+                  ]
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :age ;
+                    owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                         owl:onDatatype xsd:integer ;
+                                         owl:withRestrictions ( [ xsd:maxExclusive 19 ] )
+                                       ]
+                  ]
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :hasDisability ;
+                    owl:hasValue true
+                  ]
+              )
+            ]
+        )
+    ] ;
+    rdfs:label "QualifiedDependent_Defined"@en ;
+    rdfs:label "인정 부양가족 (정의)"@ko ;
+    rdfs:comment "가점제에서 부양가족으로 인정되는 세대구성원입니다. 만 65세 이상이거나 만 19세 미만이거나 장애인이어야 합니다."@ko .
+
+:MinorChild rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Child
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxExclusive 19 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "MinorChild"@en ;
+    rdfs:label "미성년 자녀"@ko ;
+    rdfs:comment "만 19세 미만의 자녀입니다. 다자녀가구 특별공급 자격 판단에 사용됩니다."@ko .
+
+:InfantChild rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Child
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive 6 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "InfantChild"@en ;
+    rdfs:label "영유아 자녀"@ko ;
+    rdfs:comment "만 6세 이하의 자녀입니다. 신혼부부 특별공급 우선공급 자격 판단에 사용됩니다."@ko .
+
+:ElderlyDependent rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :QualifiedDependent
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 65 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "ElderlyDependent"@en ;
+    rdfs:label "고령 부양가족"@ko ;
+    rdfs:comment "만 65세 이상의 부양가족입니다. 노부모부양 특별공급 및 가점제에 사용됩니다."@ko .
+
+:MinorDependent rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :QualifiedDependent
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxExclusive 19 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "MinorDependent"@en ;
+    rdfs:label "미성년 부양가족"@ko ;
+    rdfs:comment "만 19세 미만의 부양가족입니다. 가점제에 사용됩니다."@ko .
+
+:AdoptedChild rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Child
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isAdoptedChild ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "AdoptedChild"@en ;
+    rdfs:label "입양 자녀"@ko ;
+    rdfs:comment "입양한 자녀입니다. 자녀 수 산정에 포함됩니다."@ko .
+
+###############################################################################
+#    2. 소득 및 자산 기준 관련 정의 클래스
+###############################################################################
+
+:DualIncomeHousehold_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Household
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasMember ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Person
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasSpouse ;
+                        owl:someValuesFrom :Person
+                      ]
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :personalIncome ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:integer ;
+                                             owl:withRestrictions ( [ xsd:minExclusive 0 ] )
+                                           ]
+                      ]
+                  )
+              ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasMember ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Person
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :personalIncome ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:integer ;
+                                             owl:withRestrictions ( [ xsd:minExclusive 0 ] )
+                                           ]
+                      ]
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasSpouse ;
+                        owl:someValuesFrom [
+                            rdf:type owl:Restriction ;
+                            owl:onProperty :personalIncome ;
+                            owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                 owl:onDatatype xsd:integer ;
+                                                 owl:withRestrictions ( [ xsd:minExclusive 0 ] )
+                                               ]
+                        ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "DualIncomeHousehold_Defined"@en ;
+    rdfs:label "맞벌이 가구 (정의)"@ko ;
+    rdfs:comment "부부가 모두 소득이 있는 가구입니다. 신혼부부 특공에서 소득 기준이 160%로 완화됩니다."@ko .
+
+:SinglePersonHousehold_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Household
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasMember ;
+              owl:cardinality 1
+            ]
+        )
+    ] ;
+    rdfs:label "SinglePersonHousehold_Defined"@en ;
+    rdfs:label "1인 가구 (정의)"@ko ;
+    rdfs:comment "구성원이 1명인 가구입니다. 생애최초 특공에서 특별한 소득 기준이 적용됩니다."@ko .
+
+###############################################################################
+#    3. 가점 관련 정의 클래스
+###############################################################################
+
+:HighPointApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :totalSubscriptionPoints ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 60 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "HighPointApplicant"@en ;
+    rdfs:label "고득점 신청자"@ko ;
+    rdfs:comment "청약 가점이 60점 이상인 신청자입니다."@ko .
+
+:MaxHomelessPeriodPoints rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :homelessPeriodInYears ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 15 ] )
+                                 ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :homelessPeriodPoints ;
+              owl:hasValue 32
+            ]
+        )
+    ] ;
+    rdfs:label "MaxHomelessPeriodPoints"@en ;
+    rdfs:label "무주택 기간 만점"@ko ;
+    rdfs:comment "무주택 기간이 15년 이상으로 만점(32점)을 받은 신청자입니다."@ko .
+
+###############################################################################
+#    4. 주택 특성 관련 정의 클래스
+###############################################################################
+
+:SmallSizeHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive "85.0"^^xsd:float ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "SmallSizeHousing_Defined"@en ;
+    rdfs:label "소형주택 (정의)"@ko ;
+    rdfs:comment "전용면적 85㎡ 이하 주택입니다. 투기과열지구에서 100% 가점제가 적용됩니다."@ko .
+
+:MediumSizeHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( 
+                                       [ xsd:minExclusive "85.0"^^xsd:float ]
+                                       [ xsd:maxInclusive "102.0"^^xsd:float ]
+                                   )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "MediumSizeHousing_Defined"@en ;
+    rdfs:label "중형주택 (정의)"@ko ;
+    rdfs:comment "전용면적 85㎡ 초과 102㎡ 이하 주택입니다."@ko .
+
+:LargeSizeHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( [ xsd:minExclusive "102.0"^^xsd:float ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "LargeSizeHousing_Defined"@en ;
+    rdfs:label "대형주택 (정의)"@ko ;
+    rdfs:comment "전용면적 102㎡ 초과 주택입니다."@ko .
+
+:SmallLowPriceHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive "60.0"^^xsd:float ] )
+                                 ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :price ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive 130000000 ] )
+                                 ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isLocatedIn ;
+              owl:someValuesFrom :MetropolitanArea
+            ]
+        )
+    ] ;
+    rdfs:label "SmallLowPriceHousing_Defined"@en ;
+    rdfs:label "소형·저가주택 (정의)"@ko ;
+    rdfs:comment "면적 60㎡ 이하, 가격 1억3천만원 이하, 수도권 소재 주택입니다. 무주택 기간 산정 시 예외로 처리됩니다."@ko .
+
+###############################################################################
+#    5. 규제지역 관련 정의 클래스
+###############################################################################
+
+:SpeculativeOverheatedZone_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Region
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isSpeculativeOverheatedZone ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "SpeculativeOverheatedZone_Defined"@en ;
+    rdfs:label "투기과열지구 (정의)"@ko ;
+    rdfs:comment "투기 우려가 큰 지역으로 지정되어 가장 엄격한 청약 자격이 적용되는 지역입니다."@ko .
+
+:SubscriptionOverheatedArea_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Region
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isSubscriptionOverheatedArea ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "SubscriptionOverheatedArea_Defined"@en ;
+    rdfs:label "청약과열지역 (정의)"@ko ;
+    rdfs:comment "청약 경쟁이 과열된 지역으로 강화된 청약 자격이 적용되는 지역입니다."@ko .
+
+:RegulatedRegion_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Region
+            [ rdf:type owl:Class ;
+              owl:unionOf (
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :isSpeculativeOverheatedZone ;
+                    owl:hasValue true
+                  ]
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :isSubscriptionOverheatedArea ;
+                    owl:hasValue true
+                  ]
+              )
+            ]
+        )
+    ] ;
+    rdfs:label "RegulatedRegion_Defined"@en ;
+    rdfs:label "규제지역 (정의)"@ko ;
+    rdfs:comment "투기과열지구 또는 청약과열지역으로 지정된 모든 지역입니다."@ko .
+
+###############################################################################
+#    6. 재당첨 제한 관련 정의 클래스
+###############################################################################
+
+:CompletedContractWinning_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :WinningRecord
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :contractCompleted ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "CompletedContractWinning_Defined"@en ;
+    rdfs:label "계약 완료 당첨 (정의)"@ko ;
+    rdfs:comment "당첨 후 계약을 완료한 이력입니다."@ko .
+
+:AbandonedContractWinning_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :WinningRecord
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :contractCompleted ;
+              owl:hasValue false
+            ]
+        )
+    ] ;
+    rdfs:label "AbandonedContractWinning_Defined"@en ;
+    rdfs:label "계약 포기 당첨 (정의)"@ko ;
+    rdfs:comment "당첨 후 계약을 포기한 이력입니다."@ko .
+
+###############################################################################
+#    7. 특별공급 관련 정의 클래스
+###############################################################################
+
+:ProspectiveNewlywedApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :maritalStatus ;
+              owl:hasValue "미혼"
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasFianceCommitment ;
+              owl:hasValue true
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :expectedMarriageDate ;
+              owl:someValuesFrom xsd:date
+            ]
+        )
+    ] ;
+    rdfs:label "ProspectiveNewlywedApplicant"@en ;
+    rdfs:label "예비신혼부부 신청자"@ko ;
+    rdfs:comment "입주 전까지 혼인신고를 약속한 예비신혼부부 신청자입니다."@ko .
+
+:SingleParentFamilyApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isSingleParent ;
+              owl:hasValue true
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasInfantChild ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Person
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :age ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:integer ;
+                                             owl:withRestrictions ( [ xsd:maxInclusive 6 ] )
+                                           ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "SingleParentFamilyApplicant"@en ;
+    rdfs:label "한부모가족 신청자"@ko ;
+    rdfs:comment "만 6세 이하 자녀를 둔 한부모가족으로 신혼부부 특공에 준하여 신청 가능한 자입니다."@ko .
+
+:FirstTimeHomeBuyer_Qualified rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            :NeverOwnedHousing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :belongsToHousehold ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Household
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasMember ;
+                        owl:allValuesFrom :NeverOwnedHousing
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "FirstTimeHomeBuyer_Qualified"@en ;
+    rdfs:label "생애최초 자격자"@ko ;
+    rdfs:comment "생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자입니다."@ko .
+
+###############################################################################
+#
+#    Note: 일반공급 및 특별공급 자격 Defined Classes는
+#    복잡한 조건이 많아 실제 구현 시 SWRL 규칙과 병행하여 사용합니다.
+#    주요 자격 클래스들은 아래에 간략화된 형태로 정의합니다.
+#
+###############################################################################
+
+:InstitutionalRecommendationSpecialSupplyApplicant rdf:type owl:Class ;
+    rdfs:subClassOf :Applicant ;
+    rdfs:subClassOf :HomelessHouseholdMember ;
+    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                      owl:onProperty :isRecommendedBy ;
+                      owl:someValuesFrom :Institution
+                    ] ;
+    rdfs:label "InstitutionalRecommendationSpecialSupplyApplicant"@en ;
+    rdfs:label "기관추천 특별공급 청약자"@ko ;
+    rdfs:comment "국가기관 등의 추천을 받은 자로서 특별공급 자격 요건을 충족하는 신청자입니다."@ko .
+
+:UnrankedSubscriptionApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            :Adult
+            :HomelessHouseholdMember
+        )
+    ] ;
+    rdfs:label "UnrankedSubscriptionApplicant"@en ;
+    rdfs:label "무순위 청약 신청자"@ko ;
+    rdfs:comment "규제지역의 무순위(사후접수) 청약에 신청 가능한 자입니다. 청약통장 보유 여부와 무관합니다."@ko .
+
+###############################################################################
+#
+#    Content from: individuals.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    Individuals (개체)
+#
+#    이 파일은 온톨로지의 구체적인 개체(Individual)들을 정의합니다.
+#    지역, 소득 기준, 예치금 요건, 기관 등 실제 청약 자격 판단에
+#    필요한 기준 데이터를 제공합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. 지역 개체 (Region Individuals)
+#
+#    설계 변경: Seoul, Gyeonggi, Incheon은 Individual로 정의됩니다.
+#    (이전에 Primitive Class였으나 변경됨)
+###############################################################################
+
+:Seoul rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
+    :regionName "서울" ;
+    :isSpeculativeOverheatedZone true ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "서울특별시"@ko ;
+    rdfs:label "Seoul"@en ;
+    rdfs:comment "대한민국의 수도이자 최대 도시. 대부분 지역이 투기과열지구 및 청약과열지역으로 지정됨."@ko .
+
+:Gyeonggi rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
+    :regionName "경기" ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "경기도"@ko ;
+    rdfs:label "Gyeonggi"@en ;
+    rdfs:comment "서울을 둘러싼 수도권 지역. 일부 시(과천, 광명 등)는 투기과열지구로 지정될 수 있음."@ko .
+
+:Incheon rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
+    :regionName "인천" ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "인천광역시"@ko ;
+    rdfs:label "Incheon"@en ;
+    rdfs:comment "서해안에 위치한 수도권 항구 도시."@ko .
+
+###############################################################################
+#    2. 도시근로자 가구당 월평균 소득 개체 (2024년 기준)
+###############################################################################
+
+:UrbanWorker_2024_1person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 1 ;
+    :standardAmount 3000000 ;
+    rdfs:label "2024년 1인 가구 도시근로자 월평균 소득"@ko ;
+    rdfs:comment "생애최초 특공에서 1인 가구는 2인 가구 기준을 적용받음."@ko .
+
+:UrbanWorker_2024_2person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 2 ;
+    :standardAmount 5000000 ;
+    rdfs:label "2024년 2인 가구 도시근로자 월평균 소득"@ko .
+
+:UrbanWorker_2024_3person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 3 ;
+    :standardAmount 5400000 ;
+    rdfs:label "2024년 3인 가구 도시근로자 월평균 소득"@ko .
+
+:UrbanWorker_2024_4person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 4 ;
+    :standardAmount 6200000 ;
+    rdfs:label "2024년 4인 가구 도시근로자 월평균 소득"@ko .
+
+:UrbanWorker_2024_5person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 5 ;
+    :standardAmount 6700000 ;
+    rdfs:label "2024년 5인 가구 도시근로자 월평균 소득"@ko .
+
+:UrbanWorker_2024_6person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 6 ;
+    :standardAmount 7200000 ;
+    rdfs:label "2024년 6인 가구 도시근로자 월평균 소득"@ko ;
+    rdfs:comment "7인 이상 가구는 6인 가구 기준에 1인당 50만원을 추가하여 산정함."@ko .
+
+###############################################################################
+#    3. 예치금 요건 개체 (Deposit Requirement Individuals)
+###############################################################################
+
+# 3.1 서울 지역 예치금 요건
+
+:Seoul_Deposit_Under85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul ;
+    :minArea "0.0"^^xsd:float ;
+    :maxArea "85.0"^^xsd:float ;
+    :requiredDepositAmount 3000000 ;
+    rdfs:label "서울 85㎡ 이하 예치금 요건"@ko ;
+    rdfs:comment "서울 지역 전용면적 85㎡ 이하 주택 청약 시 필요한 최소 예치금: 300만원"@ko .
+
+:Seoul_Deposit_85to102 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul ;
+    :minArea "85.0"^^xsd:float ;
+    :maxArea "102.0"^^xsd:float ;
+    :requiredDepositAmount 6000000 ;
+    rdfs:label "서울 85~102㎡ 예치금 요건"@ko ;
+    rdfs:comment "서울 지역 전용면적 85㎡ 초과 102㎡ 이하 주택 청약 시 필요한 최소 예치금: 600만원"@ko .
+
+:Seoul_Deposit_102to135 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul ;
+    :minArea "102.0"^^xsd:float ;
+    :maxArea "135.0"^^xsd:float ;
+    :requiredDepositAmount 10000000 ;
+    rdfs:label "서울 102~135㎡ 예치금 요건"@ko ;
+    rdfs:comment "서울 지역 전용면적 102㎡ 초과 135㎡ 이하 주택 청약 시 필요한 최소 예치금: 1,000만원"@ko .
+
+:Seoul_Deposit_Over135 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul ;
+    :minArea "135.0"^^xsd:float ;
+    :maxArea "999999.0"^^xsd:float ;
+    :requiredDepositAmount 15000000 ;
+    rdfs:label "서울 135㎡ 초과 예치금 요건"@ko ;
+    rdfs:comment "서울 지역 전용면적 135㎡ 초과 모든 주택 청약 시 필요한 최소 예치금: 1,500만원"@ko .
+
+# 3.2 경기도 지역 예치금 요건
+
+:Gyeonggi_Deposit_Under85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Gyeonggi ;
+    :minArea "0.0"^^xsd:float ;
+    :maxArea "85.0"^^xsd:float ;
+    :requiredDepositAmount 2000000 ;
+    rdfs:label "경기 85㎡ 이하 예치금 요건"@ko ;
+    rdfs:comment "경기도 지역 전용면적 85㎡ 이하 주택 청약 시 필요한 최소 예치금: 200만원"@ko .
+
+:Gyeonggi_Deposit_85to102 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Gyeonggi ;
+    :minArea "85.0"^^xsd:float ;
+    :maxArea "102.0"^^xsd:float ;
+    :requiredDepositAmount 3000000 ;
+    rdfs:label "경기 85~102㎡ 예치금 요건"@ko ;
+    rdfs:comment "경기도 지역 전용면적 85㎡ 초과 102㎡ 이하 주택 청약 시 필요한 최소 예치금: 300만원"@ko .
+
+:Gyeonggi_Deposit_102to135 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Gyeonggi ;
+    :minArea "102.0"^^xsd:float ;
+    :maxArea "135.0"^^xsd:float ;
+    :requiredDepositAmount 5000000 ;
+    rdfs:label "경기 102~135㎡ 예치금 요건"@ko ;
+    rdfs:comment "경기도 지역 전용면적 102㎡ 초과 135㎡ 이하 주택 청약 시 필요한 최소 예치금: 500만원"@ko .
+
+:Gyeonggi_Deposit_Over135 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Gyeonggi ;
+    :minArea "135.0"^^xsd:float ;
+    :maxArea "999999.0"^^xsd:float ;
+    :requiredDepositAmount 10000000 ;
+    rdfs:label "경기 135㎡ 초과 예치금 요건"@ko ;
+    rdfs:comment "경기도 지역 전용면적 135㎡ 초과 모든 주택 청약 시 필요한 최소 예치금: 1,000만원"@ko .
+
+###############################################################################
+#    4. 소득 기준선 개체 (Income Threshold Individuals)
+###############################################################################
+
+# 4.1 신혼부부 특별공급 소득 기준
+
+:Newlywed_Income_100pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :incomePercentage 100 ;
+    rdfs:label "신혼부부 우선공급 소득 기준 (100%)"@ko ;
+    rdfs:comment "신혼부부 특별공급 우선공급(만 6세 이하 자녀 또는 소득 100% 이하)의 소득 기준"@ko .
+
+:Newlywed_Income_140pct_SingleIncome rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :incomePercentage 140 ;
+    rdfs:label "신혼부부 일반공급 소득 기준 (140%, 단독소득)"@ko ;
+    rdfs:comment "신혼부부 특별공급 일반공급에서 단독소득 가구의 소득 기준: 도시근로자 월평균 소득의 140%"@ko .
+
+:Newlywed_Income_160pct_DualIncome rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :incomePercentage 160 ;
+    rdfs:label "신혼부부 일반공급 소득 기준 (160%, 맞벌이)"@ko ;
+    rdfs:comment "신혼부부 특별공급 일반공급에서 맞벌이 가구의 소득 기준: 도시근로자 월평균 소득의 160%"@ko .
+
+# 4.2 생애최초 특별공급 소득 기준
+
+:FirstTimeHomeBuyer_Income_100pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :incomePercentage 100 ;
+    rdfs:label "생애최초 특별공급 소득 기준 (100%)"@ko ;
+    rdfs:comment "생애최초 특별공급의 기본 소득 기준: 도시근로자 월평균 소득의 100%"@ko .
+
+:FirstTimeHomeBuyer_Income_130pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :incomePercentage 130 ;
+    rdfs:label "생애최초 특별공급 소득 기준 (130%)"@ko ;
+    rdfs:comment "생애최초 특별공급의 완화 소득 기준: 도시근로자 월평균 소득의 130% (추첨제 적용)"@ko .
+
+# 4.3 국민주택 일반공급 소득 기준
+
+:NationalHousing_Income_100pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :incomePercentage 100 ;
+    rdfs:label "국민주택 일반공급 소득 기준 (100%)"@ko ;
+    rdfs:comment "국민주택 일반공급 1순위 자격의 소득 기준: 도시근로자 월평균 소득의 100% 이하"@ko .
+
+###############################################################################
+#    5. 자산 기준선 개체 (Asset Threshold Individuals)
+###############################################################################
+
+:NationalHousing_AssetThreshold_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :maxRealEstateValue 215000000 ;
+    :maxVehicleValue 37080000 ;
+    :yearOfStandard 2024 ;
+    rdfs:label "국민주택 자산 기준 (2024년)"@ko ;
+    rdfs:comment "국민주택 1순위 신청 시 세대 전체의 자산 보유 한도. 부동산: 2억 1,500만원 이하, 자동차: 3,708만원 이하"@ko .
+
+###############################################################################
+#    6. 청약 공급 유형 개체 (Subscription Supply Type Individuals)
+###############################################################################
+
+:GeneralSupply_Type rdf:type owl:NamedIndividual , :GeneralSupply ;
+    rdfs:label "일반공급"@ko ;
+    rdfs:comment "청약통장 가입자 대상 일반 청약 공급"@ko .
+
+:NewlywedCoupleSupply_Type rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    rdfs:label "신혼부부 특별공급"@ko ;
+    rdfs:comment "혼인 기간 7년 이내 또는 만 6세 이하 자녀를 둔 한부모가족 대상 특별공급"@ko .
+
+:FirstTimeHomeBuyerSupply_Type rdf:type owl:NamedIndividual , :FirstTimeHomeBuyerSupply ;
+    rdfs:label "생애최초 특별공급"@ko ;
+    rdfs:comment "세대원 전원이 과거 주택 소유 이력이 없는 생애 최초 주택 구매자 대상 특별공급"@ko .
+
+:MultiChildHouseholdSupply_Type rdf:type owl:NamedIndividual , :MultiChildHouseholdSupply ;
+    rdfs:label "다자녀가구 특별공급"@ko ;
+    rdfs:comment "만 19세 미만 자녀 3명 이상(태아 포함) 가구 대상 특별공급"@ko .
+
+:SupportingAgedParentsSupply_Type rdf:type owl:NamedIndividual , :SupportingAgedParentsSupply ;
+    rdfs:label "노부모부양 특별공급"@ko ;
+    rdfs:comment "만 65세 이상 직계존속을 3년 이상 부양하는 무주택 세대주 대상 특별공급"@ko .
+
+:InstitutionalRecommendation_Type rdf:type owl:NamedIndividual , :InstitutionalRecommendation ;
+    rdfs:label "기관추천 특별공급"@ko ;
+    rdfs:comment "국가유공자, 장애인, 중소기업 근로자 등 관련 기관의 추천을 받은 자 대상 특별공급"@ko .
+
+###############################################################################
+#    7. 추천 기관 개체 (Institution Individuals)
+#
+#    설계 변경: 기관들은 Individual로 정의됩니다.
+#    (이전에 Primitive Class였으나 변경됨)
+###############################################################################
+
+:NationalVeteransInstitution_Korea rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "국가보훈처"@ko ;
+    rdfs:label "National Veterans Institution"@en ;
+    rdfs:comment "국가유공자 및 보훈대상자에 대한 기관추천 특별공급 추천 기관"@ko .
+
+:LocalGovernment_Generic rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "지방자치단체"@ko ;
+    rdfs:label "Local Government"@en ;
+    rdfs:comment "장애인, 철거민 등에 대한 기관추천 특별공급 추천 기관"@ko .
+
+:SMEMinistry_Korea rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "중소벤처기업부"@ko ;
+    rdfs:label "SME Ministry"@en ;
+    rdfs:comment "중소기업 근로자에 대한 기관추천 특별공급 추천 기관"@ko .
+
+:NorthKoreanRefugeeFoundation_Korea rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "북한이탈주민지원재단"@ko ;
+    rdfs:label "North Korean Refugee Foundation"@en ;
+    rdfs:comment "북한이탈주민에 대한 기관추천 특별공급 추천 기관"@ko .
+
+###############################################################################
+#
+#    개체 통계 요약
+#
+#    지역: 3개 (Seoul, Gyeonggi, Incheon)
+#    도시근로자 소득 기준: 6개 (1~6인 가구)
+#    예치금 요건: 8개 (서울 4개, 경기 4개)
+#    소득 기준선: 6개 (신혼부부 3개, 생애최초 2개, 국민주택 1개)
+#    자산 기준선: 1개 (국민주택)
+#    공급 유형: 6개 (일반공급, 특별공급 5종)
+#    추천 기관: 4개 (국가보훈처, 지자체, 중소벤처부, 북한이탈주민재단)
+#    총합: 34개
+#
+###############################################################################
+
+###############################################################################
+#
+#    Content from: object_properties.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    Object Properties (객체 속성)
+#
+#    이 파일은 개체(Individual)들 간의 관계를 나타내는 객체 속성을 정의합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. Household (세대) 관련 속성
+###############################################################################
+
+:belongsToHousehold rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Household ;
+    owl:inverseOf :hasMember ;
+    rdfs:label "belongsToHousehold"@en ;
+    rdfs:label "세대에 속함"@ko ;
+    rdfs:comment "특정 세대구성원이 어느 세대에 속해 있는지를 나타냅니다."@ko .
+
+:hasMember rdf:type owl:ObjectProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :belongsToHousehold ;
+    rdfs:label "hasMember"@en ;
+    rdfs:label "구성원을 가짐"@ko ;
+    rdfs:comment "특정 세대가 어떤 세대구성원들을 포함하는지를 나타냅니다."@ko .
+
+:hasHead rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :HeadOfHousehold ;
+    owl:inverseOf :isHeadOf ;
+    rdfs:label "hasHead"@en ;
+    rdfs:label "세대주를 가짐"@ko ;
+    rdfs:comment "세대의 세대주가 누구인지를 나타냅니다. 한 세대는 한 명의 세대주만 가집니다."@ko .
+
+:isHeadOf rdf:type owl:ObjectProperty ;
+    rdfs:domain :HeadOfHousehold ;
+    rdfs:range :Household ;
+    owl:inverseOf :hasHead ;
+    rdfs:label "isHeadOf"@en ;
+    rdfs:label "~의 세대주임"@ko ;
+    rdfs:comment "특정인이 어느 세대의 세대주인지를 나타냅니다."@ko .
+
+###############################################################################
+#    2. Family Relationship (가족 관계) 속성
+###############################################################################
+
+:hasSpouse rdf:type owl:ObjectProperty , owl:SymmetricProperty , owl:IrreflexiveProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :HouseholdMember ;
+    rdfs:label "hasSpouse"@en ;
+    rdfs:label "배우자를 가짐"@ko ;
+    rdfs:comment "배우자 관계를 나타냅니다. A의 배우자가 B이면, B의 배우자도 A입니다."@ko .
+
+:hasChild rdf:type owl:ObjectProperty , owl:AsymmetricProperty , owl:IrreflexiveProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :hasParent ;
+    rdfs:label "hasChild"@en ;
+    rdfs:label "자녀를 가짐"@ko ;
+    rdfs:comment "자녀 관계를 나타냅니다."@ko .
+
+:hasParent rdf:type owl:ObjectProperty , owl:AsymmetricProperty , owl:IrreflexiveProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :hasChild ;
+    rdfs:label "hasParent"@en ;
+    rdfs:label "부모를 가짐"@ko ;
+    rdfs:comment "부모 관계를 나타냅니다."@ko .
+
+:isDependentOf rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Applicant ;
+    owl:inverseOf :hasDependent ;
+    rdfs:label "isDependentOf"@en ;
+    rdfs:label "~의 부양가족임"@ko ;
+    rdfs:comment "특정 세대구성원이 신청자의 부양가족임을 나타냅니다."@ko .
+
+:hasDependent rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :isDependentOf ;
+    rdfs:label "hasDependent"@en ;
+    rdfs:label "부양가족을 가짐"@ko ;
+    rdfs:comment "신청자가 부양하는 가족 구성원을 나타냅니다."@ko .
+
+###############################################################################
+#    3. Housing Ownership (주택 소유) 관련 속성
+###############################################################################
+
+:owns rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Housing ;
+    owl:inverseOf :isOwnedBy ;
+    rdfs:label "owns"@en ;
+    rdfs:label "소유함"@ko ;
+    rdfs:comment "세대구성원이 주택을 소유하고 있음을 나타냅니다."@ko .
+
+:isOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :owns ;
+    rdfs:label "isOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "주택이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+###############################################################################
+#    4. Subscription (청약) 관련 속성
+###############################################################################
+
+:hasSubscriptionAccount rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :SubscriptionAccount ;
+    rdfs:label "hasSubscriptionAccount"@en ;
+    rdfs:label "청약통장을 가짐"@ko ;
+    rdfs:comment "신청자가 보유한 청약통장을 나타냅니다."@ko .
+
+:appliesFor rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :SubscriptionApplication ;
+    rdfs:label "appliesFor"@en ;
+    rdfs:label "신청함"@ko ;
+    rdfs:comment "신청자가 어떤 청약에 신청하는지를 나타냅니다."@ko .
+
+:isForHousing rdf:type owl:ObjectProperty ;
+    rdfs:domain :SubscriptionApplication ;
+    rdfs:range :Housing ;
+    rdfs:label "isForHousing"@en ;
+    rdfs:label "~주택에 대한 신청"@ko ;
+    rdfs:comment "청약 신청이 어떤 주택을 대상으로 하는지 나타냅니다."@ko .
+
+###############################################################################
+#    5. Location (위치) 관련 속성
+###############################################################################
+
+:livesIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Region ;
+    rdfs:label "livesIn"@en ;
+    rdfs:label "~에 거주함"@ko ;
+    rdfs:comment "특정인이 거주하는 지역을 나타냅니다."@ko .
+
+:isLocatedIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range :Region ;
+    rdfs:label "isLocatedIn"@en ;
+    rdfs:label "~에 위치함"@ko ;
+    rdfs:comment "주택이 위치한 지역을 나타냅니다."@ko .
+
+###############################################################################
+#    6. Winning Record (당첨 이력) 관련 속성
+###############################################################################
+
+:hasWinningRecord rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :WinningRecord ;
+    rdfs:label "hasWinningRecord"@en ;
+    rdfs:label "당첨 이력을 가짐"@ko ;
+    rdfs:comment "세대구성원의 과거 청약 당첨 이력을 나타냅니다."@ko .
+
+###############################################################################
+#    7. Asset (자산) 관련 속성
+###############################################################################
+
+:hasTotalAsset rdf:type owl:ObjectProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :Asset ;
+    rdfs:label "hasTotalAsset"@en ;
+    rdfs:label "총 자산을 가짐"@ko ;
+    rdfs:comment "세대가 보유한 총 자산을 나타냅니다."@ko .
+
+:ownsAsset rdf:type owl:ObjectProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :Asset ;
+    owl:inverseOf :isAssetOwnedBy ;
+    rdfs:label "ownsAsset"@en ;
+    rdfs:label "자산을 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 자산을 나타냅니다."@ko .
+
+:isAssetOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Asset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsAsset ;
+    rdfs:label "isAssetOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "자산이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+:ownsLand rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :ownsAsset ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :LandAsset ;
+    owl:inverseOf :isLandOwnedBy ;
+    rdfs:label "ownsLand"@en ;
+    rdfs:label "토지를 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 토지 자산을 나타냅니다."@ko .
+
+:isLandOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :LandAsset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsLand ;
+    rdfs:label "isLandOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "토지가 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+:ownsBuilding rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :ownsAsset ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :BuildingAsset ;
+    owl:inverseOf :isBuildingOwnedBy ;
+    rdfs:label "ownsBuilding"@en ;
+    rdfs:label "건물을 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 건물 자산을 나타냅니다."@ko .
+
+:isBuildingOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :BuildingAsset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsBuilding ;
+    rdfs:label "isBuildingOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "건물이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+:ownsVehicle rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :ownsAsset ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range :VehicleAsset ;
+    owl:inverseOf :isVehicleOwnedBy ;
+    rdfs:label "ownsVehicle"@en ;
+    rdfs:label "차량을 소유함"@ko ;
+    rdfs:comment "세대구성원이 보유한 차량을 나타냅니다."@ko .
+
+:isVehicleOwnedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :VehicleAsset ;
+    rdfs:range :HouseholdMember ;
+    owl:inverseOf :ownsVehicle ;
+    rdfs:label "isVehicleOwnedBy"@en ;
+    rdfs:label "~에 의해 소유됨"@ko ;
+    rdfs:comment "차량이 누구에 의해 소유되었는지를 나타냅니다."@ko .
+
+###############################################################################
+#    8. Income (소득) 관련 속성
+###############################################################################
+
+:hasIncome rdf:type owl:ObjectProperty ;
+    rdfs:domain :Household ;
+    rdfs:range :Income ;
+    rdfs:label "hasIncome"@en ;
+    rdfs:label "소득을 가짐"@ko ;
+    rdfs:comment "세대의 소득 정보를 나타냅니다."@ko .
+
+###############################################################################
+#    9. Institution (기관 추천) 관련 속성
+###############################################################################
+
+:isRecommendedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :Institution ;
+    owl:inverseOf :recommends ;
+    rdfs:label "isRecommendedBy"@en ;
+    rdfs:label "~에 의해 추천됨"@ko ;
+    rdfs:comment "신청자가 어떤 기관에 의해 추천되었는지를 나타냅니다."@ko .
+
+:recommends rdf:type owl:ObjectProperty ;
+    rdfs:domain :Institution ;
+    rdfs:range :Applicant ;
+    owl:inverseOf :isRecommendedBy ;
+    rdfs:label "recommends"@en ;
+    rdfs:label "추천함"@ko ;
+    rdfs:comment "기관이 추천한 신청자를 나타냅니다."@ko .
+
+###############################################################################
+#    10. Point Calculation (가점 계산) 관련 속성
+###############################################################################
+
+:hasPointCalculation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :SubscriptionPoint ;
+    rdfs:label "hasPointCalculation"@en ;
+    rdfs:label "가점 계산을 가짐"@ko ;
+    rdfs:comment "신청자의 청약 가점 계산 정보를 나타냅니다."@ko .
+
+###############################################################################
+#    11. Deposit Requirement (예치금 요건) 관련 속성
+###############################################################################
+
+:appliesInRegion rdf:type owl:ObjectProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range :Region ;
+    rdfs:label "appliesInRegion"@en ;
+    rdfs:label "~지역에 적용됨"@ko ;
+    rdfs:comment "예치금 요건이 적용되는 지역을 나타냅니다."@ko .
+
+###############################################################################
+#    12. Income Threshold (소득 기준선) 관련 속성
+###############################################################################
+
+:basedOnStandard rdf:type owl:ObjectProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range :StandardIncome ;
+    rdfs:label "basedOnStandard"@en ;
+    rdfs:label "~기준에 근거함"@ko ;
+    rdfs:comment "소득 기준선이 기반하는 표준 소득을 나타냅니다."@ko .
+
+:appliesTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range :SubscriptionApplication ;
+    rdfs:label "appliesTo"@en ;
+    rdfs:label "~에 적용됨"@ko ;
+    rdfs:comment "소득 기준선이 적용되는 청약 유형을 나타냅니다."@ko .
+
+###############################################################################
+#    13. Selection Method (선정 방식) 관련 속성
+###############################################################################
+
+:usesSelectionMethod rdf:type owl:ObjectProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range :SelectionMethod ;
+    rdfs:label "usesSelectionMethod"@en ;
+    rdfs:label "~선정 방식을 사용함"@ko ;
+    rdfs:comment "주택의 당첨자 선정 방식을 나타냅니다."@ko .
+
+###############################################################################
+#    14. History (이력) 관련 속성
+###############################################################################
+
+:hasResidenceHistory rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :ResidenceHistory ;
+    rdfs:label "hasResidenceHistory"@en ;
+    rdfs:label "거주 이력을 가짐"@ko ;
+    rdfs:comment "개인의 거주 이력을 나타냅니다."@ko .
+
+:residedIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range :Region ;
+    rdfs:label "residedIn"@en ;
+    rdfs:label "~에 거주했음"@ko ;
+    rdfs:comment "거주 이력의 해당 지역을 나타냅니다."@ko .
+
+:hasTaxPaymentHistory rdf:type owl:ObjectProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range :TaxPaymentHistory ;
+    rdfs:label "hasTaxPaymentHistory"@en ;
+    rdfs:label "소득세 납부 이력을 가짐"@ko ;
+    rdfs:comment "신청자의 소득세 납부 이력을 나타냅니다."@ko .
+
+:hasOwnershipHistory rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :HousingOwnershipHistory ;
+    rdfs:label "hasOwnershipHistory"@en ;
+    rdfs:label "주택 소유 이력을 가짐"@ko ;
+    rdfs:comment "개인의 주택 소유 이력을 나타냅니다."@ko .
+
+:ownedHousing rdf:type owl:ObjectProperty ;
+    rdfs:domain :HousingOwnershipHistory ;
+    rdfs:range :Housing ;
+    rdfs:label "ownedHousing"@en ;
+    rdfs:label "소유했던 주택"@ko ;
+    rdfs:comment "소유 이력에 해당하는 주택을 나타냅니다."@ko .
+
+###############################################################################
+#    15. Specialized Child and Dependent Properties (특화된 자녀/부양가족 속성)
+###############################################################################
+
+:hasMinorChild rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasChild ;
+    rdfs:domain :Person ;
+    rdfs:range :Child ;
+    rdfs:label "hasMinorChild"@en ;
+    rdfs:label "미성년 자녀를 가짐"@ko ;
+    rdfs:comment "만 19세 미만의 자녀를 나타냅니다."@ko .
+
+:hasInfantChild rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasChild ;
+    rdfs:domain :Person ;
+    rdfs:range :Child ;
+    rdfs:label "hasInfantChild"@en ;
+    rdfs:label "영유아 자녀를 가짐"@ko ;
+    rdfs:comment "만 6세 이하의 자녀를 나타냅니다."@ko .
+
+:hasQualifiedDependent rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasDependent ;
+    rdfs:domain :Applicant ;
+    rdfs:range :QualifiedDependent ;
+    rdfs:label "hasQualifiedDependent"@en ;
+    rdfs:label "인정 부양가족을 가짐"@ko ;
+    rdfs:comment "가점제에서 인정되는 부양가족을 나타냅니다."@ko .
+
+:hasElderlyDependent rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :hasQualifiedDependent ;
+    rdfs:domain :Applicant ;
+    rdfs:range :QualifiedDependent ;
+    rdfs:label "hasElderlyDependent"@en ;
+    rdfs:label "고령 부양가족을 가짐"@ko ;
+    rdfs:comment "만 65세 이상의 부양가족을 나타냅니다."@ko .
+
+###############################################################################
+#
+#    Content from: primitive_classes.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    Primitive Classes (원시 클래스)
+#
+#    이 파일은 온톨로지의 기본 클래스들을 정의합니다.
+#    Primitive Class는 논리적 정의 없이 이름으로만 구분되는 기본 개념입니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. Person (사람) 관련 클래스
+###############################################################################
+
+:Person rdf:type owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:label "사람"@ko ;
+    rdfs:comment "온톨로지에서 개인을 나타내는 최상위 클래스입니다."@ko .
+
+:Applicant rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "Applicant"@en ;
+    rdfs:label "신청자"@ko ;
+    rdfs:comment "주택 청약을 신청하는 주체입니다."@ko .
+
+:HouseholdMember rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "HouseholdMember"@en ;
+    rdfs:label "세대구성원"@ko ;
+    rdfs:comment "세대를 구성하는 모든 개인을 나타냅니다."@ko .
+
+:HeadOfHousehold rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "HeadOfHousehold"@en ;
+    rdfs:label "세대주"@ko ;
+    rdfs:comment "세대의 대표자인 세대주입니다."@ko .
+
+:NonHeadOfHouseholdMember rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "NonHeadOfHouseholdMember"@en ;
+    rdfs:label "세대원"@ko ;
+    rdfs:comment "세대주가 아닌 세대구성원입니다."@ko .
+
+:QualifiedDependent rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "QualifiedDependent"@en ;
+    rdfs:label "인정 부양가족"@ko ;
+    rdfs:comment "가점제에서 부양가족으로 인정받을 수 있는 세대구성원입니다."@ko .
+
+:Child rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "Child"@en ;
+    rdfs:label "자녀"@ko ;
+    rdfs:comment "직계비속인 자녀를 나타냅니다."@ko .
+
+###############################################################################
+#    2. Household (세대)
+###############################################################################
+
+:Household rdf:type owl:Class ;
+    rdfs:label "Household"@en ;
+    rdfs:label "세대"@ko ;
+    rdfs:comment "주거 및 생계를 같이하는 단위인 세대를 나타냅니다."@ko .
+
+###############################################################################
+#    3. Housing (주택)
+###############################################################################
+
+:Housing rdf:type owl:Class ;
+    rdfs:label "Housing"@en ;
+    rdfs:label "주택"@ko ;
+    rdfs:comment "주거 목적의 건물, 즉 주택을 나타내는 클래스입니다."@ko .
+
+:NationalHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "NationalHousing"@en ;
+    rdfs:label "국민주택"@ko ;
+    rdfs:comment "국가, 지자체, LH 등이 건설하는 주택으로, 특정 소득/자산 기준을 충족해야 합니다."@ko .
+
+:PrivateHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "PrivateHousing"@en ;
+    rdfs:label "민영주택"@ko ;
+    rdfs:comment "민간 건설사가 건설하는 주택입니다."@ko .
+
+:CancelledContractHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "CancelledContractHousing"@en ;
+    rdfs:label "계약취소주택"@ko ;
+    rdfs:comment "불법 전매나 공급 질서 교란으로 계약이 취소된 주택입니다."@ko .
+
+:PostSubscriptionHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "PostSubscriptionHousing"@en ;
+    rdfs:label "사후접수주택"@ko ;
+    rdfs:comment "1, 2순위 청약 마감 후 미계약 물량으로 무순위로 공급되는 주택입니다."@ko .
+
+###############################################################################
+#    4. SubscriptionAccount (청약통장)
+###############################################################################
+
+:SubscriptionAccount rdf:type owl:Class ;
+    rdfs:label "SubscriptionAccount"@en ;
+    rdfs:label "청약통장"@ko ;
+    rdfs:comment "주택 청약을 위해 가입하는 금융 상품입니다."@ko .
+
+###############################################################################
+#    5. Place (장소) 관련 클래스
+###############################################################################
+
+:Place rdf:type owl:Class ;
+    rdfs:label "Place"@en ;
+    rdfs:label "장소"@ko ;
+    rdfs:comment "지리적 위치나 구역을 나타내는 클래스입니다."@ko .
+
+:Region rdf:type owl:Class ;
+    rdfs:subClassOf :Place ;
+    rdfs:label "Region"@en ;
+    rdfs:label "지역"@ko ;
+    rdfs:comment "서울, 경기도 등 행정 구역을 나타냅니다. 구체적인 지역은 Individual로 정의됩니다."@ko .
+
+:MetropolitanArea rdf:type owl:Class ;
+    rdfs:subClassOf :Region ;
+    rdfs:label "MetropolitanArea"@en ;
+    rdfs:label "수도권"@ko ;
+    rdfs:comment "서울, 경기, 인천을 포함하는 광역 권역입니다. 이는 추상적 범주 클래스이며, 구체적인 수도권 지역들은 Individual로 정의됩니다."@ko .
+
+:RegulatedArea rdf:type owl:Class ;
+    rdfs:subClassOf :Place ;
+    rdfs:label "RegulatedArea"@en ;
+    rdfs:label "규제지역"@ko ;
+    rdfs:comment "부동산 시장 안정을 위해 지정된 특별 구역을 나타내는 추상적 클래스입니다. 실제 규제 여부는 Region Individual의 속성으로 판단합니다."@ko .
+
+###############################################################################
+#    6. Concept (추상적 개념) 관련 클래스
+###############################################################################
+
+:Concept rdf:type owl:Class ;
+    rdfs:label "Concept"@en ;
+    rdfs:label "추상적 개념"@ko ;
+    rdfs:comment "물리적 실체는 없지만 청약 제도에서 중요한 역할을 하는 추상적인 개념들을 나타냅니다."@ko .
+
+###############################################################################
+#    6.1 SubscriptionApplication (청약 신청) 관련
+###############################################################################
+
+:SubscriptionApplication rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SubscriptionApplication"@en ;
+    rdfs:label "청약 신청"@ko ;
+    rdfs:comment "주택을 공급받기 위해 의사를 표시하는 행위를 나타냅니다."@ko .
+
+:GeneralSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionApplication ;
+    rdfs:label "GeneralSupply"@en ;
+    rdfs:label "일반공급"@ko ;
+    rdfs:comment "청약통장 가입자 대상 일반 청약 공급입니다."@ko .
+
+:SpecialSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionApplication ;
+    rdfs:label "SpecialSupply"@en ;
+    rdfs:label "특별공급"@ko ;
+    rdfs:comment "특정 자격 요건을 충족하는 자를 위한 특별공급입니다."@ko .
+
+:InstitutionalRecommendation rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "InstitutionalRecommendation"@en ;
+    rdfs:label "기관추천 특별공급"@ko ;
+    rdfs:comment "국가유공자, 장애인, 중소기업 근로자 등 기관 추천을 받은 자를 위한 특별공급입니다."@ko .
+
+:MultiChildHouseholdSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "MultiChildHouseholdSupply"@en ;
+    rdfs:label "다자녀가구 특별공급"@ko ;
+    rdfs:comment "만 19세 미만 자녀 3명 이상을 둔 가구를 위한 특별공급입니다."@ko .
+
+:NewlywedCoupleSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "NewlywedCoupleSupply"@en ;
+    rdfs:label "신혼부부 특별공급"@ko ;
+    rdfs:comment "혼인 기간 7년 이내의 신혼부부를 위한 특별공급입니다."@ko .
+
+:NewlywedPrioritySupply rdf:type owl:Class ;
+    rdfs:subClassOf :NewlywedCoupleSupply ;
+    rdfs:label "NewlywedPrioritySupply"@en ;
+    rdfs:label "신혼부부 우선공급"@ko ;
+    rdfs:comment "만 6세 이하 자녀가 있거나 소득 기준 100% 이하인 경우의 우선공급입니다."@ko .
+
+:NewlywedGeneralSupply rdf:type owl:Class ;
+    rdfs:subClassOf :NewlywedCoupleSupply ;
+    rdfs:label "NewlywedGeneralSupply"@en ;
+    rdfs:label "신혼부부 일반공급"@ko ;
+    rdfs:comment "우선공급에 해당하지 않는 신혼부부 특별공급입니다."@ko .
+
+:SupportingAgedParentsSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "SupportingAgedParentsSupply"@en ;
+    rdfs:label "노부모부양 특별공급"@ko ;
+    rdfs:comment "만 65세 이상 부모를 3년 이상 부양하는 자를 위한 특별공급입니다."@ko .
+
+:FirstTimeHomeBuyerSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "FirstTimeHomeBuyerSupply"@en ;
+    rdfs:label "생애최초 특별공급"@ko ;
+    rdfs:comment "생애 최초로 주택을 구매하는 자를 위한 특별공급입니다."@ko .
+
+:UnrankedSubscription rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionApplication ;
+    rdfs:label "UnrankedSubscription"@en ;
+    rdfs:label "무순위 청약"@ko ;
+    rdfs:comment "1, 2순위 마감 후 남은 물량에 대한 무순위 청약입니다."@ko .
+
+###############################################################################
+#    6.2 Asset (자산) 관련
+###############################################################################
+
+:Asset rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Asset"@en ;
+    rdfs:label "자산"@ko ;
+    rdfs:comment "세대가 보유한 경제적 가치를 지닌 재산을 나타냅니다."@ko .
+
+:RealEstate rdf:type owl:Class ;
+    rdfs:subClassOf :Asset ;
+    rdfs:label "RealEstate"@en ;
+    rdfs:label "부동산 자산"@ko ;
+    rdfs:comment "토지 및 건물 등 부동산 자산입니다."@ko .
+
+:LandAsset rdf:type owl:Class ;
+    rdfs:subClassOf :RealEstate ;
+    rdfs:label "LandAsset"@en ;
+    rdfs:label "토지 자산"@ko ;
+    rdfs:comment "세대가 보유한 토지입니다."@ko .
+
+:BuildingAsset rdf:type owl:Class ;
+    rdfs:subClassOf :RealEstate ;
+    rdfs:label "BuildingAsset"@en ;
+    rdfs:label "건물 자산"@ko ;
+    rdfs:comment "세대가 보유한 건물입니다."@ko .
+
+:VehicleAsset rdf:type owl:Class ;
+    rdfs:subClassOf :Asset ;
+    rdfs:label "VehicleAsset"@en ;
+    rdfs:label "자동차 자산"@ko ;
+    rdfs:comment "세대가 보유한 자동차입니다."@ko .
+
+###############################################################################
+#    6.3 Income (소득) 및 기준 관련
+###############################################################################
+
+:Income rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Income"@en ;
+    rdfs:label "소득"@ko ;
+    rdfs:comment "세대의 월평균 소득을 나타냅니다."@ko .
+
+:WinningRecord rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "WinningRecord"@en ;
+    rdfs:label "당첨 이력"@ko ;
+    rdfs:comment "과거 청약 당첨 사실을 나타냅니다."@ko .
+
+:StandardIncome rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "StandardIncome"@en ;
+    rdfs:label "기준 소득"@ko ;
+    rdfs:comment "도시근로자 가구당 월평균 소득과 같이, 소득 기준을 판단하기 위한 기준값을 나타냅니다."@ko .
+
+:UrbanWorkerStandardIncome rdf:type owl:Class ;
+    rdfs:subClassOf :StandardIncome ;
+    rdfs:label "UrbanWorkerStandardIncome"@en ;
+    rdfs:label "도시근로자 가구당 월평균 소득"@ko ;
+    rdfs:comment "가구원 수별, 연도별로 정부가 고시하는 기준 소득입니다."@ko .
+
+:IncomeThreshold rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "IncomeThreshold"@en ;
+    rdfs:label "소득 기준선"@ko ;
+    rdfs:comment "특정 청약 유형에 적용되는 소득 기준(예: 130%, 140%, 160% 등)을 나타냅니다."@ko .
+
+:AssetThreshold rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "AssetThreshold"@en ;
+    rdfs:label "자산 기준선"@ko ;
+    rdfs:comment "특정 청약 유형에 적용되는 자산 보유 한도를 나타냅니다."@ko .
+
+:DepositRequirement rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "DepositRequirement"@en ;
+    rdfs:label "예치금 요건"@ko ;
+    rdfs:comment "지역별, 면적별로 요구되는 청약통장 예치금 기준을 나타냅니다."@ko .
+
+###############################################################################
+#    6.4 SubscriptionPoint (청약 가점) 관련
+###############################################################################
+
+:SubscriptionPoint rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SubscriptionPoint"@en ;
+    rdfs:label "청약 가점"@ko ;
+    rdfs:comment "청약 가점제에서 사용되는 점수 체계를 나타냅니다."@ko .
+
+:HomelessPeriodPoint rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionPoint ;
+    rdfs:label "HomelessPeriodPoint"@en ;
+    rdfs:label "무주택 기간 점수"@ko ;
+    rdfs:comment "무주택 기간에 따른 가점 (최대 32점)입니다."@ko .
+
+:DependentFamilyPoint rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionPoint ;
+    rdfs:label "DependentFamilyPoint"@en ;
+    rdfs:label "부양가족 수 점수"@ko ;
+    rdfs:comment "부양가족 수에 따른 가점 (최대 35점)입니다."@ko .
+
+:AccountPeriodPoint rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionPoint ;
+    rdfs:label "AccountPeriodPoint"@en ;
+    rdfs:label "청약통장 가입 기간 점수"@ko ;
+    rdfs:comment "청약통장 가입 기간에 따른 가점 (최대 17점)입니다."@ko .
+
+###############################################################################
+#    6.5 SelectionMethod (당첨자 선정 방식)
+###############################################################################
+
+:SelectionMethod rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SelectionMethod"@en ;
+    rdfs:label "당첨자 선정 방식"@ko ;
+    rdfs:comment "청약 당첨자를 선정하는 방법을 나타냅니다."@ko .
+
+:PointBasedSelection rdf:type owl:Class ;
+    rdfs:subClassOf :SelectionMethod ;
+    rdfs:label "PointBasedSelection"@en ;
+    rdfs:label "가점제"@ko ;
+    rdfs:comment "가점 점수가 높은 순으로 선정하는 방식입니다."@ko .
+
+:LotteryBasedSelection rdf:type owl:Class ;
+    rdfs:subClassOf :SelectionMethod ;
+    rdfs:label "LotteryBasedSelection"@en ;
+    rdfs:label "추첨제"@ko ;
+    rdfs:comment "무작위 추첨으로 선정하는 방식입니다."@ko .
+
+###############################################################################
+#    6.6 History (이력) 관련
+###############################################################################
+
+:HousingOwnershipHistory rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "HousingOwnershipHistory"@en ;
+    rdfs:label "주택 소유 이력"@ko ;
+    rdfs:comment "개인의 과거 주택 소유 이력을 나타냅니다."@ko .
+
+:ResidenceHistory rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "ResidenceHistory"@en ;
+    rdfs:label "거주 이력"@ko ;
+    rdfs:comment "개인의 지역별 거주 이력을 나타냅니다."@ko .
+
+:TaxPaymentHistory rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "TaxPaymentHistory"@en ;
+    rdfs:label "소득세 납부 이력"@ko ;
+    rdfs:comment "신청자의 연도별 소득세 납부 이력을 나타냅니다."@ko .
+
+###############################################################################
+#    7. Institution (추천 기관)
+###############################################################################
+
+:Institution rdf:type owl:Class ;
+    rdfs:label "Institution"@en ;
+    rdfs:label "추천 기관"@ko ;
+    rdfs:comment "기관추천 특별공급 대상자를 추천하는 공공기관을 나타냅니다. 구체적인 기관들은 Individual로 정의됩니다."@ko .
+
+###############################################################################
+#
+#    Class Axioms (클래스 관계 제약)
+#
+###############################################################################
+
+###############################################################################
+#    Disjoint Classes (상호 배타 클래스)
+###############################################################################
+
+# 주택 유형
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :NationalHousing :PrivateHousing )
+] .
+
+# 세대구성원
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :HeadOfHousehold :NonHeadOfHouseholdMember )
+] .
+
+# 자산 유형
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :LandAsset :BuildingAsset :VehicleAsset )
+] .
+
+# 선정 방식
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :PointBasedSelection :LotteryBasedSelection )
+] .
+
+# 특별공급 유형
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :InstitutionalRecommendation
+                :MultiChildHouseholdSupply
+                :NewlywedCoupleSupply
+                :SupportingAgedParentsSupply
+                :FirstTimeHomeBuyerSupply )
+] .
+
+###############################################################################
+#    Disjoint Union (상호 배타 합집합)
+###############################################################################
+
+# HouseholdMember = HeadOfHousehold ⊔ NonHeadOfHouseholdMember
+:HouseholdMember owl:disjointUnionOf ( :HeadOfHousehold :NonHeadOfHouseholdMember ) .
+
+###############################################################################
+#    Covering Axiom (커버링 공리)
+###############################################################################
+
+# 모든 SpecialSupply는 5가지 하위 클래스 중 하나
+:SpecialSupply rdfs:subClassOf 
+    [ rdf:type owl:Class ;
+      owl:unionOf ( :InstitutionalRecommendation
+                    :MultiChildHouseholdSupply
+                    :NewlywedCoupleSupply
+                    :SupportingAgedParentsSupply
+                    :FirstTimeHomeBuyerSupply )
+    ] .
+
+# 모든 SelectionMethod는 PointBasedSelection 또는 LotteryBasedSelection
+:SelectionMethod owl:equivalentClass
+    [ rdf:type owl:Class ;
+      owl:unionOf ( :PointBasedSelection :LotteryBasedSelection )
+    ] .
+
+###############################################################################
+#
+#    Content from: swrl_rules.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    SWRL Rules (SWRL 규칙)
+#
+#    이 파일은 OWL만으로 표현하기 어려운 계산, 집계, 조건부 로직을
+#    SWRL(Semantic Web Rule Language) 규칙으로 구현합니다.
+#
+#    참고: SWRL 규칙은 추론 엔진(Pellet, HermiT 등)에서 실행되며,
+#          일부 built-in 함수는 엔진에 따라 지원 여부가 다를 수 있습니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. 소득 기준 관련 규칙
+###############################################################################
+
+# 규칙 1: 육아휴직 급여 소득 산정
+# CQ 24 대응
+<urn:swrl:rule1> rdf:type swrl:Imp ;
+    rdfs:label "육아휴직 급여 소득 산정"@ko ;
+    rdfs:comment "육아휴직 중인 세대원의 육아휴직 급여를 개인 소득으로 산정합니다."@ko ;
+    swrl:body [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate :Person ;
+            swrl:argument1 [ rdf:type swrl:Variable ; swrl:variableName "p" ]
+        ] ;
+        rdf:rest [
+            rdf:type swrl:AtomList ;
+            rdf:first [
+                rdf:type swrl:DatavaluedPropertyAtom ;
+                swrl:propertyPredicate :isOnChildcareLeave ;
+                swrl:argument1 [ rdf:type swrl:Variable ; swrl:variableName "p" ] ;
+                swrl:argument2 [ rdf:type swrl:Variable ; swrl:variableName "true" ]
+            ] ;
+            rdf:rest [
+                rdf:type swrl:AtomList ;
+                rdf:first [
+                    rdf:type swrl:DatavaluedPropertyAtom ;
+                    swrl:propertyPredicate :childcareLeaveAllowance ;
+                    swrl:argument1 [ rdf:type swrl:Variable ; swrl:variableName "p" ] ;
+                    swrl:argument2 [ rdf:type swrl:Variable ; swrl:variableName "allowance" ]
+                ] ;
+                rdf:rest rdf:nil
+            ]
+        ]
+    ] ;
+    swrl:head [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:DatavaluedPropertyAtom ;
+            swrl:propertyPredicate :personalIncome ;
+            swrl:argument1 [ rdf:type swrl:Variable ; swrl:variableName "p" ] ;
+            swrl:argument2 [ rdf:type swrl:Variable ; swrl:variableName "allowance" ]
+        ] ;
+        rdf:rest rdf:nil
+    ] .
+
+# 규칙 2: 맞벌이 가구 판정
+# 부부가 모두 소득이 있는 경우 맞벌이 가구로 분류
+<urn:swrl:rule2> rdf:type swrl:Imp ;
+    rdfs:label "맞벌이 가구 판정"@ko ;
+    rdfs:comment "부부가 모두 소득이 있는 경우 맞벌이 가구로 분류합니다. 신혼부부 특별공급에서 소득 기준 160% 적용에 사용됩니다."@ko .
+    # Note: Full SWRL syntax is verbose. This is a placeholder structure.
+    # In practice, SWRL rules are often defined using functional syntax or
+    # rule editors in tools like Protégé.
+
+###############################################################################
+#    2. 청약통장 관련 규칙
+###############################################################################
+
+# 규칙 10: 청약통장 가입 기간 계산 (년 단위)
+<urn:swrl:rule10> rdf:type swrl:Imp ;
+    rdfs:label "청약통장 가입 기간 계산"@ko ;
+    rdfs:comment "청약통장 개설일로부터 현재까지의 기간을 년 단위로 계산합니다."@ko .
+
+# 규칙 11: 청약통장 가입 기간 요건 충족 (2년 이상)
+# CQ 2 대응
+<urn:swrl:rule11> rdf:type swrl:Imp ;
+    rdfs:label "청약통장 가입 기간 요건 충족"@ko ;
+    rdfs:comment "1순위 청약에 필요한 2년 가입 기간 충족 여부를 판단합니다."@ko .
+
+# 규칙 12: 예치금 부족분 계산
+# CQ 12 대응
+<urn:swrl:rule12> rdf:type swrl:Imp ;
+    rdfs:label "예치금 부족분 계산"@ko ;
+    rdfs:comment "신청자의 현재 예치금과 필요 예치금의 차액을 산출합니다."@ko .
+
+###############################################################################
+#    3. 무주택 및 주택 소유 관련 규칙
+###############################################################################
+
+# 규칙 13: 소형·저가주택 처분 후 무주택 기간 산정
+# CQ 5 대응
+# 설계 변경: SmallLowPriceHousing은 Defined Class로 변경됨
+<urn:swrl:rule13> rdf:type swrl:Imp ;
+    rdfs:label "소형·저가주택 처분 후 무주택 기간 산정"@ko ;
+    rdfs:comment """소형·저가주택을 처분한 날짜를 무주택 기간 시작일로 설정합니다.
+    소형·저가주택: 면적 60㎡ 이하, 가격 1억3천만원 이하, 수도권 소재"""@ko .
+
+# 규칙 14: 무주택 기간 계산 (년 단위)
+<urn:swrl:rule14> rdf:type swrl:Imp ;
+    rdfs:label "무주택 기간 계산"@ko ;
+    rdfs:comment "무주택 시작일로부터 현재까지의 기간을 년 단위로 계산합니다."@ko .
+
+###############################################################################
+#    4. 재당첨 제한 관련 규칙
+###############################################################################
+
+# 규칙 15: 5년 이내 당첨 이력 확인
+# CQ 6, 11 대응
+<urn:swrl:rule15> rdf:type swrl:Imp ;
+    rdfs:label "5년 이내 당첨 이력 확인"@ko ;
+    rdfs:comment "세대원 중 5년 이내 청약 당첨 이력이 있는지 확인합니다."@ko .
+
+# 규칙 16: 세대 내 제한 기간 중 당첨자 확인
+<urn:swrl:rule16> rdf:type swrl:Imp ;
+    rdfs:label "세대 내 제한 기간 중 당첨자 확인"@ko ;
+    rdfs:comment "세대원 중 한 명이라도 제한 기간 중이면 세대 전체 1순위 자격 상실입니다."@ko .
+
+###############################################################################
+#    5. 자녀 및 부양가족 관련 규칙
+###############################################################################
+
+# 규칙 17: 태아 포함 미성년 자녀 수 계산
+# CQ 15 대응
+<urn:swrl:rule17> rdf:type swrl:Imp ;
+    rdfs:label "태아 포함 미성년 자녀 수 계산"@ko ;
+    rdfs:comment "만 19세 미만 자녀 수 + 태아 수 = 총 자녀 수를 산정합니다. 다자녀가구 특별공급 자격 판단 시 사용됩니다."@ko .
+
+# 규칙 18: 인정 부양가족 수 계산
+<urn:swrl:rule18> rdf:type swrl:Imp ;
+    rdfs:label "인정 부양가족 수 계산"@ko ;
+    rdfs:comment "만 65세 이상 또는 만 19세 미만 세대원 수를 계산합니다. 가점제에서 부양가족 수에 따른 가점 산정에 사용됩니다."@ko .
+
+###############################################################################
+#    6. 생애최초 특공 관련 규칙
+###############################################################################
+
+# 규칙 19: 소득세 납부 통산 기간 계산
+<urn:swrl:rule19> rdf:type swrl:Imp ;
+    rdfs:label "소득세 납부 통산 기간 계산"@ko ;
+    rdfs:comment "신청자의 과거 소득세 납부 연도 수를 합산합니다. 생애최초 특별공급은 5년 이상 소득세 납부 이력이 필요합니다."@ko .
+
+# 규칙 20: 생애최초 자격 판정 (세대원 전원 무소유)
+# CQ 19 대응
+<urn:swrl:rule20> rdf:type swrl:Imp ;
+    rdfs:label "생애최초 자격 판정"@ko ;
+    rdfs:comment "신청자 본인 및 세대원 전원이 단 한 번도 주택을 소유한 적이 없는지 확인합니다."@ko .
+
+###############################################################################
+#    7. 자산 기준 관련 규칙
+###############################################################################
+
+# 규칙 7: 세대 총 부동산 자산 합산
+<urn:swrl:rule7> rdf:type swrl:Imp ;
+    rdfs:label "세대 총 부동산 자산 합산"@ko ;
+    rdfs:comment "세대원 전체의 토지 및 건물 자산 가액을 합산합니다."@ko .
+
+# 규칙 8: 세대 총 자동차 자산 합산
+<urn:swrl:rule8> rdf:type swrl:Imp ;
+    rdfs:label "세대 총 자동차 자산 합산"@ko ;
+    rdfs:comment "세대원 전체의 자동차 자산 가액을 합산합니다."@ko .
+
+# 규칙 9: 국민주택 자산 기준 충족 여부
+# CQ 21 대응
+<urn:swrl:rule9> rdf:type swrl:Imp ;
+    rdfs:label "국민주택 자산 기준 충족 여부"@ko ;
+    rdfs:comment """세대의 부동산 및 자동차 자산이 국민주택 기준 이하인지 판단합니다.
+    기준: 부동산 2억 1,500만원 이하, 자동차 3,708만원 이하"""@ko .
+
+###############################################################################
+#    8. 소득 기준 관련 규칙 (계속)
+###############################################################################
+
+# 규칙 3: 맞벌이 가구 판정 (상세)
+<urn:swrl:rule3> rdf:type swrl:Imp ;
+    rdfs:label "맞벌이 가구 판정 (상세)"@ko ;
+    rdfs:comment "부부가 모두 소득이 있는 경우 맞벌이 가구로 분류합니다."@ko .
+
+# 규칙 4: 가구원 수 계산
+<urn:swrl:rule4> rdf:type swrl:Imp ;
+    rdfs:label "가구원 수 계산"@ko ;
+    rdfs:comment "세대의 구성원 수를 계산하여 적절한 도시근로자 소득 기준을 선택합니다."@ko .
+
+# 규칙 5: 소득 기준 충족 여부 판단
+# CQ 20, 22 대응
+<urn:swrl:rule5> rdf:type swrl:Imp ;
+    rdfs:label "소득 기준 충족 여부 판단"@ko ;
+    rdfs:comment """신청자의 세대 소득이 특정 소득 기준선 이하인지 판단합니다.
+    1. 신청자의 세대 월평균 소득과 가구원 수 확인
+    2. 해당 가구원 수의 2024년 도시근로자 소득 기준 조회
+    3. 적용할 소득 기준선(100%, 130%, 140%, 160%)의 비율 확인
+    4. 기준 금액 × 비율 / 100 = 소득 한도 계산
+    5. 세대 소득이 소득 한도 이하이면 기준 충족"""@ko .
+
+# 규칙 6: 1인 가구 소득 기준 특례
+# CQ 23 대응
+<urn:swrl:rule6> rdf:type swrl:Imp ;
+    rdfs:label "1인 가구 소득 기준 특례"@ko ;
+    rdfs:comment "생애최초 특공에서 1인 가구는 2인 가구 소득 기준을 적용받습니다."@ko .
+
+###############################################################################
+#
+#    참고사항:
+#
+#    1. SWRL 규칙의 완전한 구문은 매우 장황하며, 실제로는 Protégé와 같은
+#       온톨로지 편집기의 SWRL 규칙 편집기를 사용하여 작성하는 것이 일반적입니다.
+#
+#    2. 본 파일에서는 각 규칙의 구조(swrl:Imp)와 메타데이터(label, comment)를
+#       정의하고, 실제 규칙 본문은 간략화된 형태로 표현했습니다.
+#
+#    3. 실제 구현 시에는 swrl:body와 swrl:head에 완전한 Atom 리스트를
+#       정의해야 하며, built-in 함수(swrlb:add, swrlb:lessThanOrEqual 등)를
+#       사용하여 계산 로직을 구현합니다.
+#
+#    4. SWRL 규칙의 실행은 추론 엔진에 의존하며, 날짜 연산, 집계 함수 등
+#       일부 기능은 엔진에 따라 지원 여부가 다를 수 있습니다.
+#
+#    5. 복잡한 계산이나 집계는 SPARQL 쿼리 + 애플리케이션 로직으로
+#       대체하는 것이 더 효율적일 수 있습니다.
+#
+#    규칙 상세 정의:
+#    - swrl_rules.md 문서 참조
+#    - Protégé SWRL 탭에서 규칙 편집 권장
+#
+###############################################################################
+
+###############################################################################
+#
+#    규칙 통계 요약
+#
+#    소득 관련: 6개 (규칙 1-6)
+#    자산 관련: 3개 (규칙 7-9)
+#    청약통장 관련: 3개 (규칙 10-12)
+#    무주택 관련: 2개 (규칙 13-14)
+#    재당첨 제한: 2개 (규칙 15-16)
+#    자녀/부양가족: 2개 (규칙 17-18)
+#    생애최초: 2개 (규칙 19-20)
+#    총합: 20개
+#
+###############################################################################
+
+###############################################################################
+#
+#    Content from: test_data.ttl
+#
+###############################################################################
+
+###############################################################################
+#
+#    테스트 데이터 (Test Data)
+#
+#    이 파일은 Competency Questions(CQ) 검증을 위한 테스트 데이터를 정의합니다.
+#    가상의 신청자, 주택, 세대 등을 포함합니다.
+#
+#    작성일: 2024년 11월
+#    목적: CQ 1-24번에 대한 SPARQL 쿼리 및 추론 테스트
+#
+###############################################################################
+
+###############################################################################
+#    1. 테스트용 주택 (Test Housing)
+###############################################################################
+
+# 1.1 서울 소재 소형 민영주택
+:TestHousing_Seoul_Small_01 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :isLocatedIn :Seoul ;
+    :area "59.8"^^xsd:float ;
+    :price 950000000 ;
+    :usesSelectionMethod :TestSelection_PointBased_100pct ;
+    rdfs:label "서울 강남 래미안 59㎡"@ko ;
+    rdfs:comment "투기과열지구 소재 소형 주택, 100% 가점제 적용"@ko .
+
+:TestHousing_Seoul_Small_02 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :isLocatedIn :Seoul ;
+    :area "84.5"^^xsd:float ;
+    :price 1200000000 ;
+    :usesSelectionMethod :TestSelection_PointBased_100pct ;
+    rdfs:label "서울 송파 헬리오시티 84㎡"@ko ;
+    rdfs:comment "투기과열지구 소재, 가점제 100% 적용"@ko .
+
+# 1.2 서울 소재 중대형 민영주택
+:TestHousing_Seoul_Large_01 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :isLocatedIn :Seoul ;
+    :area "101.5"^^xsd:float ;
+    :price 1800000000 ;
+    :usesSelectionMethod :TestSelection_Mixed_50_50 ;
+    rdfs:label "서울 마포 래미안 101㎡"@ko ;
+    rdfs:comment "투기과열지구 소재, 가점제 50% + 추첨제 50%"@ko .
+
+:TestHousing_Seoul_Large_02 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :isLocatedIn :Seoul ;
+    :area "140.2"^^xsd:float ;
+    :price 2500000000 ;
+    :usesSelectionMethod :TestSelection_Mixed_50_50 ;
+    rdfs:label "서울 서초 자이 140㎡"@ko ;
+    rdfs:comment "대형 평형, 혼합 선정 방식"@ko .
+
+# 1.3 경기도 소재 민영주택
+:TestHousing_Gyeonggi_01 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :isLocatedIn :Gyeonggi ;
+    :area "74.9"^^xsd:float ;
+    :price 650000000 ;
+    :usesSelectionMethod :TestSelection_PointBased_100pct ;
+    rdfs:label "경기 성남 판교 푸르지오 74㎡"@ko ;
+    rdfs:comment "경기도 소재, 청약과열지역 아님"@ko .
+
+:TestHousing_Gyeonggi_02 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :isLocatedIn :Gyeonggi ;
+    :area "84.3"^^xsd:float ;
+    :price 520000000 ;
+    :usesSelectionMethod :TestSelection_PointBased_100pct ;
+    rdfs:label "경기 수원 광교 호반베르디움 84㎡"@ko ;
+    rdfs:comment "경기도 소재 중소형 주택"@ko .
+
+# 1.4 서울 소재 국민주택
+:TestHousing_Seoul_National_01 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :isLocatedIn :Seoul ;
+    :area "46.5"^^xsd:float ;
+    :price 380000000 ;
+    :usesSelectionMethod :TestSelection_PointBased_100pct ;
+    rdfs:label "서울 강동 LH행복주택 46㎡"@ko ;
+    rdfs:comment "국민주택, 소득 및 자산 기준 적용"@ko .
+
+:TestHousing_Seoul_National_02 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :isLocatedIn :Seoul ;
+    :area "59.5"^^xsd:float ;
+    :price 450000000 ;
+    :usesSelectionMethod :TestSelection_PointBased_100pct ;
+    rdfs:label "서울 은평 SH공사 59㎡"@ko ;
+    rdfs:comment "서울시 공공주택"@ko .
+
+# 1.5 소형·저가주택
+:TestHousing_SmallLowPrice_01 rdf:type owl:NamedIndividual , :Housing ;
+    :isLocatedIn :Seoul ;
+    :area "42.0"^^xsd:float ;
+    :price 120000000 ;
+    :disposalDate "2021-05-15"^^xsd:date ;
+    rdfs:label "서울 노원 소형주택 42㎡"@ko ;
+    rdfs:comment "면적 60㎡ 이하, 가격 1.3억 이하 → SmallLowPriceHousing_Defined로 자동 분류"@ko .
+
+:TestHousing_SmallLowPrice_02 rdf:type owl:NamedIndividual , :Housing ;
+    :isLocatedIn :Incheon ;
+    :area "55.0"^^xsd:float ;
+    :price 95000000 ;
+    rdfs:label "인천 부평 소형빌라 55㎡"@ko ;
+    rdfs:comment "현재 소유 중인 소형저가주택 예시"@ko .
+
+# 1.6 사후접수주택
+:TestHousing_PostSubscription_01 rdf:type owl:NamedIndividual , :PostSubscriptionHousing ;
+    :isLocatedIn :Seoul ;
+    :area "84.0"^^xsd:float ;
+    :price 980000000 ;
+    rdfs:label "서울 강서 미분양 무순위 84㎡"@ko ;
+    rdfs:comment "1, 2순위 미계약 물량"@ko .
+
+###############################################################################
+#    2. 선정 방식 (Selection Methods)
+###############################################################################
+
+:TestSelection_PointBased_100pct rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "1.0"^^xsd:float ;
+    rdfs:label "가점제 100%"@ko ;
+    rdfs:comment "85㎡ 이하 투기과열지구 주택에 적용"@ko .
+
+:TestSelection_Mixed_50_50 rdf:type owl:NamedIndividual , :SelectionMethod ;
+    rdfs:label "혼합 선정 방식"@ko ;
+    rdfs:comment "85㎡ 초과 주택에 적용"@ko .
+
+:TestSelection_PointBased_50pct rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.5"^^xsd:float .
+
+:TestSelection_Lottery_50pct rdf:type owl:NamedIndividual , :LotteryBasedSelection ;
+    :selectionRatio "0.5"^^xsd:float .
+
+###############################################################################
+#    3. 청약 신청 (Subscription Applications)
+###############################################################################
+
+:TestApp_General_01 rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :isForHousing :TestHousing_Seoul_Small_01 ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    rdfs:label "서울 강남 래미안 일반공급"@ko .
+
+:TestApp_General_02 rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :isForHousing :TestHousing_Gyeonggi_01 ;
+    :recruitmentAnnouncementDate "2024-11-12"^^xsd:date ;
+    rdfs:label "경기 판교 일반공급"@ko .
+
+:TestApp_General_03 rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :isForHousing :TestHousing_Seoul_National_01 ;
+    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
+    rdfs:label "서울 강동 LH행복주택 일반공급"@ko .
+
+:TestApp_Newlywed_01 rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    :isForHousing :TestHousing_Seoul_Small_02 ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    rdfs:label "서울 송파 신혼부부 특공"@ko .
+
+:TestApp_Newlywed_02 rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    :isForHousing :TestHousing_Gyeonggi_02 ;
+    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
+    rdfs:label "경기 수원 신혼부부 특공"@ko .
+
+:TestApp_FirstTime_01 rdf:type owl:NamedIndividual , :FirstTimeHomeBuyerSupply ;
+    :isForHousing :TestHousing_Seoul_Large_01 ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    rdfs:label "서울 마포 생애최초 특공"@ko .
+
+:TestApp_MultiChild_01 rdf:type owl:NamedIndividual , :MultiChildHouseholdSupply ;
+    :isForHousing :TestHousing_Seoul_Small_01 ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    rdfs:label "서울 강남 다자녀가구 특공"@ko .
+
+:TestApp_AgedParents_01 rdf:type owl:NamedIndividual , :SupportingAgedParentsSupply ;
+    :isForHousing :TestHousing_Seoul_Small_02 ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    rdfs:label "서울 송파 노부모부양 특공"@ko .
+
+:TestApp_Institutional_01 rdf:type owl:NamedIndividual , :InstitutionalRecommendation ;
+    :isForHousing :TestHousing_Gyeonggi_01 ;
+    :recruitmentAnnouncementDate "2024-11-12"^^xsd:date ;
+    rdfs:label "경기 판교 기관추천 특공"@ko .
+
+###############################################################################
+#    4. 당첨 이력 (Winning Records)
+###############################################################################
+
+:TestWinningRecord_Recent_01 rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2021-06-20"^^xsd:date ;
+    :contractCompleted true ;
+    :isSubjectToRestriction true ;
+    :restrictionPeriodInYears 5 ;
+    rdfs:label "2021년 당첨 이력 (제한 중)"@ko ;
+    rdfs:comment "2021년 당첨, 5년 제한 → 2026년까지 1순위 불가"@ko .
+
+:TestWinningRecord_Recent_02 rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2020-03-10"^^xsd:date ;
+    :contractCompleted false ;
+    :isSubjectToRestriction true ;
+    :restrictionPeriodInYears 5 ;
+    rdfs:label "2020년 당첨 후 계약 포기"@ko ;
+    rdfs:comment "계약 포기해도 재당첨 제한 적용"@ko .
+
+:TestWinningRecord_Old_01 rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2014-08-15"^^xsd:date ;
+    :contractCompleted true ;
+    :isSubjectToRestriction true ;
+    :restrictionPeriodInYears 5 ;
+    rdfs:label "2014년 당첨 이력 (제한 만료)"@ko ;
+    rdfs:comment "10년 전 당첨, 현재는 자격 회복"@ko .
+
+###############################################################################
+#    5. 주택 소유 이력 (Housing Ownership History)
+###############################################################################
+
+:TestOwnership_SmallLowPrice_Disposed rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownedHousing :TestHousing_SmallLowPrice_01 ;
+    :ownershipStartDate "2019-03-01"^^xsd:date ;
+    :ownershipEndDate "2021-05-15"^^xsd:date ;
+    rdfs:label "소형저가주택 처분 이력"@ko ;
+    rdfs:comment "2021년 5월 처분 → 무주택 기간 시작일"@ko .
+
+:TestOwnership_Regular_Past rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownedHousing :TestHousing_Gyeonggi_01 ;
+    :ownershipStartDate "2015-06-01"^^xsd:date ;
+    :ownershipEndDate "2018-12-31"^^xsd:date ;
+    rdfs:label "일반 주택 과거 소유"@ko ;
+    rdfs:comment "생애최초 특공 자격 없음"@ko .
+
+:TestOwnership_Current_01 rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownedHousing :TestHousing_Gyeonggi_02 ;
+    :ownershipStartDate "2022-01-15"^^xsd:date ;
+    rdfs:label "현재 1주택 보유"@ko ;
+    rdfs:comment "ownershipEndDate 없음 → 현재 소유 중"@ko .
+
+###############################################################################
+#    6. 거주 이력 (Residence History)
+###############################################################################
+
+:TestResidence_Seoul_LongTerm rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2020-01-01"^^xsd:date ;
+    :residenceDurationInYears "4.9"^^xsd:float ;
+    rdfs:label "서울 장기 거주 이력"@ko ;
+    rdfs:comment "2020년부터 현재까지 약 5년"@ko .
+
+:TestResidence_Gyeonggi_MidTerm rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Gyeonggi ;
+    :residenceStartDate "2022-06-01"^^xsd:date ;
+    :residenceDurationInYears "2.4"^^xsd:float ;
+    rdfs:label "경기도 중기 거주 이력"@ko .
+
+:TestResidence_Incheon_ShortTerm rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Incheon ;
+    :residenceStartDate "2024-05-01"^^xsd:date ;
+    :residenceDurationInYears "0.5"^^xsd:float ;
+    rdfs:label "인천 단기 거주 이력"@ko .
+
+###############################################################################
+#    7. 소득세 납부 이력 (Tax Payment History)
+###############################################################################
+
+:TestTax_2019 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2019"^^xsd:gYear ;
+    :taxAmount 2500000 .
+
+:TestTax_2020 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2020"^^xsd:gYear ;
+    :taxAmount 3000000 .
+
+:TestTax_2021 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2021"^^xsd:gYear ;
+    :taxAmount 3200000 .
+
+:TestTax_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2022"^^xsd:gYear ;
+    :taxAmount 3500000 .
+
+:TestTax_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2023"^^xsd:gYear ;
+    :taxAmount 3800000 .
+
+:TestTax_Short_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2022"^^xsd:gYear ;
+    :taxAmount 1500000 .
+
+:TestTax_Short_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2023"^^xsd:gYear ;
+    :taxAmount 1800000 .
+
+:TestTax_Short_2024 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2024"^^xsd:gYear ;
+    :taxAmount 2000000 .
+
+###############################################################################
+#    8. 추가 지역 (Additional Regions)
+###############################################################################
+
+:TestRegion_Gwacheon rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
+    :regionName "과천" ;
+    :isSpeculativeOverheatedZone true ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "경기 과천시"@ko ;
+    rdfs:comment "경기도 내 투기과열지구"@ko .
+
+###############################################################################
+#    9. CQ 1-3: 신청자 A (기본 자격)
+###############################################################################
+
+:TestApplicant_A rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "800101-1234567" ;
+    :name "김철수" ;
+    :age "31"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :marriageRegistrationDate "2021-03-15"^^xsd:date ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_A ;
+    :hasSubscriptionAccount :TestAccount_A ;
+    :appliesFor :TestApp_General_01 ;
+    :homelessStartDate "2019-01-01"^^xsd:date ;
+    :hasResidenceHistory :TestResidence_Seoul_LongTerm ;
+    :totalSubscriptionPoints 65 ;
+    :personalIncome 3700000 ;
+    rdfs:label "신청자 A (김철수)"@ko ;
+    rdfs:comment "CQ 1-3 대응: 성년, 청약통장 2년 이상, 무주택세대주"@ko .
+
+:TestAccount_A rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "1234-5678-9012" ;
+    :accountType "주택청약종합저축" ;
+    :accountOpeningDate "2022-05-10"^^xsd:date ;
+    :depositAmount 3500000 ;
+    :monthlyPaymentCount 30 ;
+    rdfs:label "신청자 A의 청약통장"@ko ;
+    rdfs:comment "가입 기간 2.5년, 예치금 350만원, 월납입 30회"@ko .
+
+:TestHousehold_A rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_A , :TestSpouse_A , :TestChild_A1 ;
+    :hasHead :TestApplicant_A ;
+    :hasIncome :TestIncome_A ;
+    :hasTotalAsset :TestAsset_A ;
+    rdfs:label "신청자 A의 세대"@ko ;
+    rdfs:comment "세대주 + 배우자 + 미성년 자녀 1명"@ko .
+
+:TestSpouse_A rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "850615-2345678" ;
+    :name "이영희" ;
+    :age "28"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :belongsToHousehold :TestHousehold_A ;
+    :hasSpouse :TestApplicant_A ;
+    :personalIncome 3500000 ;
+    rdfs:label "배우자 D (이영희)"@ko .
+
+:TestChild_A1 rdf:type owl:NamedIndividual , :Child , :MinorChild ;
+    :nationalID "201506-3456789" ;
+    :name "김민지" ;
+    :age "9"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_A ;
+    :hasParent :TestApplicant_A , :TestSpouse_A ;
+    rdfs:label "자녀 E (김민지)"@ko ;
+    rdfs:comment "만 9세 미성년 자녀"@ko .
+
+:TestIncome_A rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 7200000 ;
+    rdfs:comment "신청자 3,700만원 + 배우자 3,500만원 = 7,200만원"@ko .
+
+:TestAsset_A rdf:type owl:NamedIndividual , :Asset ;
+    :realEstateAssetValue 50000000 ;
+    :vehicleAssetValue 15000000 ;
+    rdfs:comment "부동산 5천만원, 차량 1천5백만원 → 국민주택 자산 기준 충족"@ko .
+
+###############################################################################
+#    10. CQ 4: 신청자 F (경기 거주, 서울 신청)
+###############################################################################
+
+:TestApplicant_F rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "900315-1567890" ;
+    :name "박준호" ;
+    :age "34"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Gyeonggi ;
+    :belongsToHousehold :TestHousehold_F ;
+    :hasSubscriptionAccount :TestAccount_F ;
+    :appliesFor :TestApp_General_01 ;
+    :homelessStartDate "2020-01-01"^^xsd:date ;
+    :hasResidenceHistory :TestResidence_Gyeonggi_MidTerm ;
+    :personalIncome 4300000 ;
+    rdfs:label "신청자 F (박준호)"@ko ;
+    rdfs:comment "CQ 4 대응: 경기 거주, 서울 주택 신청 → OtherRegionApplicant"@ko .
+
+:TestAccount_F rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "2345-6789-0123" ;
+    :accountType "주택청약종합저축" ;
+    :accountOpeningDate "2021-01-10"^^xsd:date ;
+    :depositAmount 2800000 ;
+    :monthlyPaymentCount 45 ;
+    rdfs:comment "가입 기간 3.8년, 예치금 280만원"@ko .
+
+:TestHousehold_F rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_F , :TestSpouse_F ;
+    :hasHead :TestApplicant_F ;
+    :hasIncome :TestIncome_F ;
+    rdfs:label "신청자 F의 세대"@ko ;
+    rdfs:comment "부부 2인 가구"@ko .
+
+:TestSpouse_F rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "920808-2678901" ;
+    :name "최수진" ;
+    :age "32"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_F ;
+    :hasSpouse :TestApplicant_F ;
+    :personalIncome 4200000 .
+
+:TestIncome_F rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 8500000 ;
+    rdfs:comment "부부 합산 소득 850만원"@ko .
+
+###############################################################################
+#    11. CQ 5: 신청자 G (소형저가주택 처분)
+###############################################################################
+
+:TestApplicant_G rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "870420-1789012" ;
+    :name "정대현" ;
+    :age "37"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_G ;
+    :hasSubscriptionAccount :TestAccount_G ;
+    :appliesFor :TestApp_General_02 ;
+    :hasResidenceHistory :TestResidence_Seoul_LongTerm ;
+    :personalIncome 3800000 ;
+    rdfs:label "신청자 G (정대현)"@ko ;
+    rdfs:comment "CQ 5 대응: 배우자가 소형저가주택 처분 이력 있음"@ko .
+
+:TestSpouse_G rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "880705-2890123" ;
+    :name "한지민" ;
+    :age "36"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_G ;
+    :hasSpouse :TestApplicant_G ;
+    :hasOwnershipHistory :TestOwnership_SmallLowPrice_Disposed ;
+    :personalIncome 4000000 ;
+    rdfs:label "배우자 G (한지민)"@ko ;
+    rdfs:comment "2021년 5월 소형저가주택 처분 → 무주택 기간 2021-05-15부터"@ko .
+
+:TestHousehold_G rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_G , :TestSpouse_G ;
+    :hasHead :TestApplicant_G ;
+    :hasIncome :TestIncome_G .
+
+:TestAccount_G rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "3456-7890-1234" ;
+    :accountOpeningDate "2020-08-01"^^xsd:date ;
+    :depositAmount 3200000 ;
+    :monthlyPaymentCount 52 .
+
+:TestIncome_G rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 7800000 .
+
+###############################################################################
+#    12. CQ 7: 신청자 L (투기과열지구 1주택자)
+###############################################################################
+
+:TestApplicant_L rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "860910-1901234" ;
+    :name "송민수" ;
+    :age "38"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :TestRegion_Gwacheon ;
+    :belongsToHousehold :TestHousehold_L ;
+    :hasSubscriptionAccount :TestAccount_L ;
+    :appliesFor :TestApp_General_01 ;
+    :owns :TestHousing_Gyeonggi_02 ;
+    :hasOwnershipHistory :TestOwnership_Current_01 ;
+    :personalIncome 7000000 ;
+    rdfs:label "신청자 L (송민수)"@ko ;
+    rdfs:comment "CQ 7 대응: 투기과열지구 거주, 1주택 보유 → 조건부 1순위"@ko .
+
+:TestHousehold_L rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_L , :TestSpouse_L ;
+    :hasHead :TestApplicant_L ;
+    :hasIncome :TestIncome_L .
+
+:TestSpouse_L rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "880225-2012345" ;
+    :name "윤서연" ;
+    :age "36"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_L ;
+    :hasSpouse :TestApplicant_L ;
+    :personalIncome 5000000 .
+
+:TestAccount_L rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "4567-8901-2345" ;
+    :accountOpeningDate "2019-03-01"^^xsd:date ;
+    :depositAmount 8000000 ;
+    :monthlyPaymentCount 68 .
+
+:TestIncome_L rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 12000000 ;
+    rdfs:comment "고소득 가구 (1,200만원)"@ko .
+
+###############################################################################
+#    13. CQ 12: 신청자 K (예치금 부족)
+###############################################################################
+
+:TestApplicant_K rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "910512-1123456" ;
+    :name "이승현" ;
+    :age "33"^^xsd:integer ;
+    :maritalStatus "미혼" ;
+    :livesIn :Gyeonggi ;
+    :belongsToHousehold :TestHousehold_K ;
+    :hasSubscriptionAccount :TestAccount_K ;
+    :appliesFor :TestApp_General_01 ;
+    :homelessStartDate "2018-01-01"^^xsd:date ;
+    :personalIncome 4200000 ;
+    rdfs:label "신청자 K (이승현)"@ko ;
+    rdfs:comment "CQ 12 대응: 예치금 250만원, 50만원 부족"@ko .
+
+:TestAccount_K rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "5678-9012-3456" ;
+    :accountOpeningDate "2021-06-01"^^xsd:date ;
+    :depositAmount 2500000 ;
+    :monthlyPaymentCount 41 ;
+    rdfs:comment "예치금 250만원 → 서울 85㎡ 이하는 300만원 필요 → 50만원 부족"@ko .
+
+:TestHousehold_K rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_K ;
+    :hasHead :TestApplicant_K ;
+    :hasIncome :TestIncome_K ;
+    rdfs:comment "1인 가구"@ko .
+
+:TestIncome_K rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 4200000 .
+
+###############################################################################
+#    14. CQ 13: 신청자 R (신혼부부 특공)
+###############################################################################
+
+:TestApplicant_R rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "890620-1234567" ;
+    :name "최준영" ;
+    :age "35"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :marriageRegistrationDate "2019-09-20"^^xsd:date ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_R ;
+    :hasSubscriptionAccount :TestAccount_R ;
+    :appliesFor :TestApp_Newlywed_01 ;
+    :homelessStartDate "2018-01-01"^^xsd:date ;
+    :hasChild :TestChild_R1 ;
+    :personalIncome 3500000 ;
+    rdfs:label "신청자 R (최준영)"@ko ;
+    rdfs:comment "CQ 13 대응: 신혼부부 특공, 결혼 5년, 자녀 1명"@ko .
+
+:TestHousehold_R rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_R , :TestSpouse_R , :TestChild_R1 ;
+    :hasHead :TestApplicant_R ;
+    :hasIncome :TestIncome_R .
+
+:TestSpouse_R rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "910815-2345678" ;
+    :name "강은지" ;
+    :age "33"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :belongsToHousehold :TestHousehold_R ;
+    :hasSpouse :TestApplicant_R ;
+    :personalIncome 4500000 .
+
+:TestChild_R1 rdf:type owl:NamedIndividual , :Child , :MinorChild , :InfantChild ;
+    :nationalID "220310-3456789" ;
+    :name "최서준" ;
+    :age "2"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_R ;
+    :hasParent :TestApplicant_R , :TestSpouse_R ;
+    rdfs:comment "만 2세 자녀 → 우선공급 대상"@ko .
+
+:TestAccount_R rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "6789-0123-4567" ;
+    :accountOpeningDate "2023-06-01"^^xsd:date ;
+    :depositAmount 2000000 ;
+    :monthlyPaymentCount 17 ;
+    rdfs:comment "특공은 6개월 이상이면 충족"@ko .
+
+:TestIncome_R rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 8000000 ;
+    rdfs:comment "3인 가구 기준 5,400만원의 140% = 7,560만원 이하 충족"@ko .
+
+###############################################################################
+#    15. CQ 14: 신청자 S (생애최초 특공)
+###############################################################################
+
+:TestApplicant_S rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "890225-2123456" ;
+    :name "정수아" ;
+    :age "35"^^xsd:integer ;
+    :maritalStatus "미혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_S ;
+    :hasSubscriptionAccount :TestAccount_S ;
+    :appliesFor :TestApp_FirstTime_01 ;
+    :homelessStartDate "1989-02-25"^^xsd:date ;
+    :taxPaymentDuration 7 ;
+    :hasTaxPaymentHistory :TestTax_2019 , :TestTax_2020 , :TestTax_2021 , :TestTax_2022 , :TestTax_2023 ;
+    :personalIncome 5500000 ;
+    rdfs:label "신청자 S (정수아)"@ko ;
+    rdfs:comment "CQ 14 대응: 미혼 1인 가구, 소득세 5년 이상 납부"@ko .
+
+:TestHousehold_S rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_S ;
+    :hasHead :TestApplicant_S ;
+    :hasIncome :TestIncome_S ;
+    rdfs:comment "1인 가구 → 2인 가구 기준 적용"@ko .
+
+:TestAccount_S rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "7890-1234-5678" ;
+    :accountOpeningDate "2020-01-15"^^xsd:date ;
+    :depositAmount 10000000 ;
+    :monthlyPaymentCount 58 .
+
+:TestIncome_S rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 5500000 ;
+    rdfs:comment "2인 가구 기준 5,000만원의 130% = 6,500만원 이하 충족"@ko .
+
+###############################################################################
+#    16. CQ 15: 신청자 T (다자녀가구 특공)
+###############################################################################
+
+:TestApplicant_T rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "850710-1345678" ;
+    :name "김태호" ;
+    :age "39"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_T ;
+    :hasSubscriptionAccount :TestAccount_T ;
+    :appliesFor :TestApp_MultiChild_01 ;
+    :homelessStartDate "2019-01-01"^^xsd:date ;
+    :hasChild :TestChild_T1 , :TestChild_T2 , :TestChild_T3 ;
+    :personalIncome 4400000 ;
+    rdfs:label "신청자 T (김태호)"@ko ;
+    rdfs:comment "CQ 15 대응: 다자녀가구 특공, 미성년 자녀 3명"@ko .
+
+:TestHousehold_T rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_T , :TestSpouse_T , :TestChild_T1 , :TestChild_T2 , :TestChild_T3 ;
+    :hasHead :TestApplicant_T ;
+    :hasIncome :TestIncome_T ;
+    rdfs:comment "5인 가구 (부부 + 자녀 3명)"@ko .
+
+:TestSpouse_T rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "860920-2456789" ;
+    :name "박미경" ;
+    :age "38"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_T ;
+    :hasSpouse :TestApplicant_T ;
+    :personalIncome 3800000 .
+
+:TestChild_T1 rdf:type owl:NamedIndividual , :Child , :MinorChild ;
+    :nationalID "060415-3567890" ;
+    :name "김지우" ;
+    :age "18"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_T ;
+    :hasParent :TestApplicant_T , :TestSpouse_T ;
+    rdfs:comment "만 18세 자녀"@ko .
+
+:TestChild_T2 rdf:type owl:NamedIndividual , :Child , :MinorChild ;
+    :nationalID "140625-4678901" ;
+    :name "김서윤" ;
+    :age "10"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_T ;
+    :hasParent :TestApplicant_T , :TestSpouse_T ;
+    rdfs:comment "만 10세 자녀"@ko .
+
+:TestChild_T3 rdf:type owl:NamedIndividual , :Child , :MinorChild , :InfantChild ;
+    :nationalID "190820-3789012" ;
+    :name "김예준" ;
+    :age "5"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_T ;
+    :hasParent :TestApplicant_T , :TestSpouse_T ;
+    rdfs:comment "만 5세 자녀"@ko .
+
+:TestAccount_T rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "8901-2345-6789" ;
+    :accountOpeningDate "2022-12-01"^^xsd:date ;
+    :depositAmount 3000000 ;
+    :monthlyPaymentCount 23 .
+
+:TestIncome_T rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 8200000 .
+
+###############################################################################
+#    17. CQ 16: 신청자 U (노부모부양 특공)
+###############################################################################
+
+:TestApplicant_U rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "830512-1456789" ;
+    :name "이동진" ;
+    :age "41"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_U ;
+    :hasSubscriptionAccount :TestAccount_U ;
+    :appliesFor :TestApp_AgedParents_01 ;
+    :homelessStartDate "2018-01-01"^^xsd:date ;
+    :hasDependent :TestParent_U1 ;
+    :hasElderlyDependent :TestParent_U1 ;
+    :personalIncome 5500000 ;
+    rdfs:label "신청자 U (이동진)"@ko ;
+    rdfs:comment "CQ 16 대응: 노부모부양 특공, 만 65세 이상 부모 3년 이상 부양"@ko .
+
+:TestHousehold_U rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_U , :TestSpouse_U , :TestParent_U1 ;
+    :hasHead :TestApplicant_U ;
+    :hasIncome :TestIncome_U .
+
+:TestSpouse_U rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "850718-2567890" ;
+    :name "김하늘" ;
+    :age "39"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_U ;
+    :hasSpouse :TestApplicant_U ;
+    :personalIncome 5500000 .
+
+:TestParent_U1 rdf:type owl:NamedIndividual , :HouseholdMember , :QualifiedDependent , :ElderlyDependent ;
+    :nationalID "570320-1678901" ;
+    :name "이철호" ;
+    :age "67"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_U ;
+    :hasChild :TestApplicant_U ;
+    :supportStartDate "2019-09-01"^^xsd:date ;
+    rdfs:label "신청자 U의 아버지 (이철호)"@ko ;
+    rdfs:comment "만 67세, 2019년 9월부터 부양 (5년 이상)"@ko .
+
+:TestAccount_U rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "9012-3456-7890" ;
+    :accountOpeningDate "2019-06-01"^^xsd:date ;
+    :depositAmount 12000000 ;
+    :monthlyPaymentCount 65 .
+
+:TestIncome_U rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 11000000 .
+
+###############################################################################
+#    18. CQ 17: 신청자 V (기관추천 특공)
+###############################################################################
+
+:TestApplicant_V rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "880410-2678901" ;
+    :name "한미영" ;
+    :age "36"^^xsd:integer ;
+    :maritalStatus "미혼" ;
+    :hasDisability true ;
+    :livesIn :Gyeonggi ;
+    :belongsToHousehold :TestHousehold_V ;
+    :hasSubscriptionAccount :TestAccount_V ;
+    :appliesFor :TestApp_Institutional_01 ;
+    :homelessStartDate "1988-04-10"^^xsd:date ;
+    :isRecommendedBy :LocalGovernment_Generic ;
+    :recommendationDate "2024-10-15"^^xsd:date ;
+    :recommendationNumber "2024-GG-0012345" ;
+    :personalIncome 2800000 ;
+    rdfs:label "신청자 V (한미영)"@ko ;
+    rdfs:comment "CQ 17 대응: 장애인 기관추천 특공"@ko .
+
+:TestHousehold_V rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_V ;
+    :hasHead :TestApplicant_V ;
+    :hasIncome :TestIncome_V .
+
+:TestAccount_V rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "0123-4567-8901" ;
+    :accountOpeningDate "2023-08-01"^^xsd:date ;
+    :depositAmount 1500000 ;
+    :monthlyPaymentCount 15 .
+
+:TestIncome_V rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 2800000 .
+
+###############################################################################
+#    19. CQ 20: 신청자 Y (소득 기준)
+###############################################################################
+
+:TestApplicant_Y rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "900530-1789012" ;
+    :name "조민준" ;
+    :age "34"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :marriageRegistrationDate "2020-05-10"^^xsd:date ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_Y ;
+    :hasSubscriptionAccount :TestAccount_Y ;
+    :appliesFor :TestApp_Newlywed_02 ;
+    :homelessStartDate "2019-01-01"^^xsd:date ;
+    :personalIncome 3800000 ;
+    rdfs:label "신청자 Y (조민준)"@ko ;
+    rdfs:comment "CQ 20 대응: 신혼부부 특공, 소득 800만원"@ko .
+
+:TestHousehold_Y rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_Y , :TestSpouse_Y ;
+    :hasHead :TestApplicant_Y ;
+    :hasIncome :TestIncome_Y ;
+    rdfs:comment "맞벌이 가구 → 160% 기준 적용"@ko .
+
+:TestSpouse_Y rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "920715-2890123" ;
+    :name "임지현" ;
+    :age "32"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_Y ;
+    :hasSpouse :TestApplicant_Y ;
+    :personalIncome 4200000 .
+
+:TestAccount_Y rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "1234-5678-9012" ;
+    :accountOpeningDate "2023-03-01"^^xsd:date ;
+    :depositAmount 2500000 ;
+    :monthlyPaymentCount 20 .
+
+:TestIncome_Y rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 8000000 ;
+    rdfs:comment "2인 가구 5,000만원의 160% = 8,000만원 → 정확히 기준선"@ko .
+
+###############################################################################
+#    20. CQ 21: 신청자 Z (자산 기준)
+###############################################################################
+
+:TestApplicant_Z rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "880820-1901234" ;
+    :name "홍길동" ;
+    :age "36"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_Z ;
+    :hasSubscriptionAccount :TestAccount_Z ;
+    :appliesFor :TestApp_General_03 ;
+    :homelessStartDate "2020-01-01"^^xsd:date ;
+    :ownsLand :TestLand_Z1 ;
+    :ownsBuilding :TestBuilding_Z1 ;
+    :ownsVehicle :TestVehicle_Z1 ;
+    :personalIncome 4700000 ;
+    rdfs:label "신청자 Z (홍길동)"@ko ;
+    rdfs:comment "CQ 21 대응: 자산 보유 기준 초과 여부 확인"@ko .
+
+:TestLand_Z1 rdf:type owl:NamedIndividual , :LandAsset ;
+    :landAssetValue 100000000 ;
+    rdfs:comment "토지 1억원"@ko .
+
+:TestBuilding_Z1 rdf:type owl:NamedIndividual , :BuildingAsset ;
+    :buildingAssetValue 200000000 ;
+    rdfs:comment "건물 2억원"@ko .
+
+:TestVehicle_Z1 rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 30000000 ;
+    rdfs:comment "자동차 3천만원"@ko .
+
+:TestHousehold_Z rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_Z , :TestSpouse_Z ;
+    :hasHead :TestApplicant_Z ;
+    :hasIncome :TestIncome_Z ;
+    :hasTotalAsset :TestAsset_Z .
+
+:TestSpouse_Z rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "890915-2012345" ;
+    :name "김민지" ;
+    :age "35"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_Z ;
+    :hasSpouse :TestApplicant_Z ;
+    :personalIncome 4500000 .
+
+:TestAccount_Z rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "2345-6789-0123" ;
+    :accountOpeningDate "2021-05-01"^^xsd:date ;
+    :depositAmount 5000000 ;
+    :monthlyPaymentCount 42 .
+
+:TestIncome_Z rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 9200000 .
+
+:TestAsset_Z rdf:type owl:NamedIndividual , :Asset ;
+    :realEstateAssetValue 300000000 ;
+    :vehicleAssetValue 30000000 ;
+    rdfs:comment "부동산 3억 → 국민주택 기준 2.15억 초과, 차량 3천만원 → 기준 3,708만원 이하"@ko .
+
+###############################################################################
+#    21. CQ 24: 신청자 W (육아휴직 소득)
+###############################################################################
+
+:TestApplicant_W rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "910705-1123456" ;
+    :name "신동욱" ;
+    :age "33"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :marriageRegistrationDate "2021-06-20"^^xsd:date ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_W ;
+    :hasSubscriptionAccount :TestAccount_W ;
+    :appliesFor :TestApp_Newlywed_01 ;
+    :homelessStartDate "2020-01-01"^^xsd:date ;
+    :personalIncome 5000000 ;
+    :hasChild :TestChild_W1 ;
+    rdfs:label "신청자 W (신동욱)"@ko ;
+    rdfs:comment "CQ 24 대응: 배우자 육아휴직 중 소득 산정"@ko .
+
+:TestSpouse_W rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "920810-2234567" ;
+    :name "오수진" ;
+    :age "32"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_W ;
+    :hasSpouse :TestApplicant_W ;
+    :isOnChildcareLeave true ;
+    :childcareLeaveAllowance 1500000 ;
+    :personalIncome 1500000 ;
+    rdfs:label "배우자 W (오수진)"@ko ;
+    rdfs:comment "육아휴직 급여 150만원 → 소득으로 산정"@ko .
+
+:TestHousehold_W rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_W , :TestSpouse_W , :TestChild_W1 ;
+    :hasHead :TestApplicant_W ;
+    :hasIncome :TestIncome_W .
+
+:TestChild_W1 rdf:type owl:NamedIndividual , :Child , :MinorChild , :InfantChild ;
+    :nationalID "230415-3345678" ;
+    :name "신예린" ;
+    :age "1"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_W ;
+    :hasParent :TestApplicant_W , :TestSpouse_W .
+
+:TestAccount_W rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "3456-7890-1234" ;
+    :accountOpeningDate "2023-01-10"^^xsd:date ;
+    :depositAmount 3000000 ;
+    :monthlyPaymentCount 22 .
+
+:TestIncome_W rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 6500000 ;
+    rdfs:comment "신청자 500만원 + 배우자 육아휴직 급여 150만원 = 650만원"@ko .
+
+###############################################################################
+#    22. CQ 6: 신청자 H (재당첨 제한)
+###############################################################################
+
+:TestApplicant_H rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "820315-1234567" ;
+    :name "박지훈" ;
+    :age "42"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_H ;
+    :hasSubscriptionAccount :TestAccount_H ;
+    :appliesFor :TestApp_General_01 ;
+    :homelessStartDate "2010-01-01"^^xsd:date ;
+    :hasWinningRecord :TestWinningRecord_Old_01 ;
+    :personalIncome 5700000 ;
+    rdfs:label "신청자 H (박지훈)"@ko ;
+    rdfs:comment "CQ 6 대응: 10년 전 당첨 포기, 재당첨 제한 만료"@ko .
+
+:TestHousehold_H rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_H , :TestSpouse_H ;
+    :hasHead :TestApplicant_H ;
+    :hasIncome :TestIncome_H .
+
+:TestSpouse_H rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "840525-2345678" ;
+    :name "정유진" ;
+    :age "40"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_H ;
+    :hasSpouse :TestApplicant_H ;
+    :personalIncome 4800000 .
+
+:TestAccount_H rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "4567-8901-2345" ;
+    :accountOpeningDate "2018-03-01"^^xsd:date ;
+    :depositAmount 8000000 ;
+    :monthlyPaymentCount 80 .
+
+:TestIncome_H rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 10500000 .
+
+###############################################################################
+#    23. CQ 10: 신청자 P (세대원)
+###############################################################################
+
+:TestApplicant_P rdf:type owl:NamedIndividual , :Applicant , :NonHeadOfHouseholdMember ;
+    :nationalID "920820-2456789" ;
+    :name "서지영" ;
+    :age "32"^^xsd:integer ;
+    :maritalStatus "미혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_P ;
+    :hasSubscriptionAccount :TestAccount_P ;
+    :appliesFor :TestApp_General_03 ;
+    :homelessStartDate "1992-08-20"^^xsd:date ;
+    :personalIncome 3500000 ;
+    rdfs:label "신청자 P (서지영)"@ko ;
+    rdfs:comment "CQ 10 대응: 세대원 신분으로 국민주택 1순위 신청 불가"@ko .
+
+:TestHousehold_P rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_P , :TestParent_P1 ;
+    :hasHead :TestParent_P1 ;
+    :hasIncome :TestIncome_P .
+
+:TestParent_P1 rdf:type owl:NamedIndividual , :HouseholdMember , :HeadOfHousehold ;
+    :nationalID "650420-1567890" ;
+    :name "서대용" ;
+    :age "59"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_P ;
+    :hasChild :TestApplicant_P ;
+    :personalIncome 6000000 .
+
+:TestAccount_P rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "5678-9012-3456" ;
+    :accountOpeningDate "2020-02-01"^^xsd:date ;
+    :depositAmount 4000000 ;
+    :monthlyPaymentCount 56 .
+
+:TestIncome_P rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 9500000 .
+
+###############################################################################
+#    24. CQ 11: 신청자 Q (세대 내 5년 이내 당첨 이력)
+###############################################################################
+
+:TestApplicant_Q rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
+    :nationalID "870925-1678901" ;
+    :name "강민수" ;
+    :age "37"^^xsd:integer ;
+    :maritalStatus "기혼" ;
+    :livesIn :Seoul ;
+    :belongsToHousehold :TestHousehold_Q ;
+    :hasSubscriptionAccount :TestAccount_Q ;
+    :appliesFor :TestApp_General_01 ;
+    :homelessStartDate "2018-01-01"^^xsd:date ;
+    :personalIncome 5300000 ;
+    rdfs:label "신청자 Q (강민수)"@ko ;
+    rdfs:comment "CQ 11 대응: 배우자에 당첨 이력 있어 1순위 불가"@ko .
+
+:TestSpouse_Q rdf:type owl:NamedIndividual , :HouseholdMember ;
+    :nationalID "890610-2789012" ;
+    :name "이서윤" ;
+    :age "35"^^xsd:integer ;
+    :belongsToHousehold :TestHousehold_Q ;
+    :hasSpouse :TestApplicant_Q ;
+    :hasWinningRecord :TestWinningRecord_Recent_01 ;
+    :personalIncome 4500000 ;
+    rdfs:comment "2021년 당첨 이력 보유 → 세대 전체 1순위 불가"@ko .
+
+:TestHousehold_Q rdf:type owl:NamedIndividual , :Household ;
+    :hasMember :TestApplicant_Q , :TestSpouse_Q ;
+    :hasHead :TestApplicant_Q ;
+    :hasIncome :TestIncome_Q ;
+    rdfs:comment "최근 당첨 이력 있는 세대"@ko .
+
+:TestAccount_Q rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "6789-0123-4567" ;
+    :accountOpeningDate "2019-07-01"^^xsd:date ;
+    :depositAmount 7000000 ;
+    :monthlyPaymentCount 64 .
+
+:TestIncome_Q rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 9800000 .
+
+###############################################################################
+#    End of Test Data
+###############################################################################
+

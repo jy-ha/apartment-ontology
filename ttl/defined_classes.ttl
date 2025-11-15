@@ -1,0 +1,690 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+###############################################################################
+#
+#    Defined Classes (정의 클래스)
+#
+#    이 파일은 다른 클래스와 속성의 조합으로 논리적 정의가 가능한
+#    Defined Class들을 정의합니다. owl:equivalentClass를 사용하여
+#    필요충분조건을 명시합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. 기본 자격 관련 정의 클래스
+###############################################################################
+
+:Adult rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 19 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "Adult"@en ;
+    rdfs:label "성년"@ko ;
+    rdfs:comment "청약 신청의 기본 요건인 만 19세 이상 성년을 정의합니다."@ko .
+
+:HomelessHouseholdMember rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :HouseholdMember
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :belongsToHousehold ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Household
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasMember ;
+                        owl:allValuesFrom [
+                            rdf:type owl:Class ;
+                            owl:intersectionOf (
+                                :Person
+                                [ rdf:type owl:Class ;
+                                  owl:complementOf [
+                                      rdf:type owl:Restriction ;
+                                      owl:onProperty :owns ;
+                                      owl:someValuesFrom :Housing
+                                  ]
+                                ]
+                            )
+                        ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "HomelessHouseholdMember"@en ;
+    rdfs:label "무주택세대구성원"@ko ;
+    rdfs:comment "세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원입니다."@ko .
+
+:HeadOfHomelessHousehold rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf ( :HeadOfHousehold :HomelessHouseholdMember )
+    ] ;
+    rdfs:label "HeadOfHomelessHousehold"@en ;
+    rdfs:label "무주택세대주"@ko ;
+    rdfs:comment "무주택세대구성원이면서 세대주인 사람을 정의합니다."@ko .
+
+:MetropolitanAreaResident rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :livesIn ;
+              owl:someValuesFrom :MetropolitanArea
+            ]
+        )
+    ] ;
+    rdfs:label "MetropolitanAreaResident"@en ;
+    rdfs:label "수도권 거주자"@ko ;
+    rdfs:comment "서울, 경기, 인천 중 한 곳에 거주하는 사람입니다."@ko .
+
+:LongTermResident rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasResidenceHistory ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :ResidenceHistory
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :residenceDurationInYears ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:float ;
+                                             owl:withRestrictions ( [ xsd:minInclusive "3.0"^^xsd:float ] )
+                                           ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "LongTermResident"@en ;
+    rdfs:label "장기 거주자"@ko ;
+    rdfs:comment "특정 지역에 3년 이상 거주한 사람입니다."@ko .
+
+:NeverOwnedHousing rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Person
+            [ rdf:type owl:Class ;
+              owl:complementOf [
+                  rdf:type owl:Restriction ;
+                  owl:onProperty :hasOwnershipHistory ;
+                  owl:someValuesFrom :HousingOwnershipHistory
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "NeverOwnedHousing"@en ;
+    rdfs:label "주택 소유 이력 없음"@ko ;
+    rdfs:comment "본인이 과거에 단 한 번도 주택을 소유한 적이 없는 사람입니다. 생애최초 특공의 핵심 요건입니다."@ko .
+
+:EverOwnedHousing rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasOwnershipHistory ;
+        owl:someValuesFrom :HousingOwnershipHistory
+    ] ;
+    rdfs:label "EverOwnedHousing"@en ;
+    rdfs:label "주택 소유 이력 있음"@ko ;
+    rdfs:comment "본인이 과거에 주택을 소유한 적이 있는 사람입니다."@ko .
+
+:QualifiedDependent_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :HouseholdMember
+            [ rdf:type owl:Class ;
+              owl:unionOf (
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :age ;
+                    owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                         owl:onDatatype xsd:integer ;
+                                         owl:withRestrictions ( [ xsd:minInclusive 65 ] )
+                                       ]
+                  ]
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :age ;
+                    owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                         owl:onDatatype xsd:integer ;
+                                         owl:withRestrictions ( [ xsd:maxExclusive 19 ] )
+                                       ]
+                  ]
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :hasDisability ;
+                    owl:hasValue true
+                  ]
+              )
+            ]
+        )
+    ] ;
+    rdfs:label "QualifiedDependent_Defined"@en ;
+    rdfs:label "인정 부양가족 (정의)"@ko ;
+    rdfs:comment "가점제에서 부양가족으로 인정되는 세대구성원입니다. 만 65세 이상이거나 만 19세 미만이거나 장애인이어야 합니다."@ko .
+
+:MinorChild rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Child
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxExclusive 19 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "MinorChild"@en ;
+    rdfs:label "미성년 자녀"@ko ;
+    rdfs:comment "만 19세 미만의 자녀입니다. 다자녀가구 특별공급 자격 판단에 사용됩니다."@ko .
+
+:InfantChild rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Child
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive 6 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "InfantChild"@en ;
+    rdfs:label "영유아 자녀"@ko ;
+    rdfs:comment "만 6세 이하의 자녀입니다. 신혼부부 특별공급 우선공급 자격 판단에 사용됩니다."@ko .
+
+:ElderlyDependent rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :QualifiedDependent
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 65 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "ElderlyDependent"@en ;
+    rdfs:label "고령 부양가족"@ko ;
+    rdfs:comment "만 65세 이상의 부양가족입니다. 노부모부양 특별공급 및 가점제에 사용됩니다."@ko .
+
+:MinorDependent rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :QualifiedDependent
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :age ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxExclusive 19 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "MinorDependent"@en ;
+    rdfs:label "미성년 부양가족"@ko ;
+    rdfs:comment "만 19세 미만의 부양가족입니다. 가점제에 사용됩니다."@ko .
+
+:AdoptedChild rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Child
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isAdoptedChild ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "AdoptedChild"@en ;
+    rdfs:label "입양 자녀"@ko ;
+    rdfs:comment "입양한 자녀입니다. 자녀 수 산정에 포함됩니다."@ko .
+
+###############################################################################
+#    2. 소득 및 자산 기준 관련 정의 클래스
+###############################################################################
+
+:DualIncomeHousehold_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Household
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasMember ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Person
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasSpouse ;
+                        owl:someValuesFrom :Person
+                      ]
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :personalIncome ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:integer ;
+                                             owl:withRestrictions ( [ xsd:minExclusive 0 ] )
+                                           ]
+                      ]
+                  )
+              ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasMember ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Person
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :personalIncome ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:integer ;
+                                             owl:withRestrictions ( [ xsd:minExclusive 0 ] )
+                                           ]
+                      ]
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasSpouse ;
+                        owl:someValuesFrom [
+                            rdf:type owl:Restriction ;
+                            owl:onProperty :personalIncome ;
+                            owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                 owl:onDatatype xsd:integer ;
+                                                 owl:withRestrictions ( [ xsd:minExclusive 0 ] )
+                                               ]
+                        ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "DualIncomeHousehold_Defined"@en ;
+    rdfs:label "맞벌이 가구 (정의)"@ko ;
+    rdfs:comment "부부가 모두 소득이 있는 가구입니다. 신혼부부 특공에서 소득 기준이 160%로 완화됩니다."@ko .
+
+:SinglePersonHousehold_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Household
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasMember ;
+              owl:cardinality 1
+            ]
+        )
+    ] ;
+    rdfs:label "SinglePersonHousehold_Defined"@en ;
+    rdfs:label "1인 가구 (정의)"@ko ;
+    rdfs:comment "구성원이 1명인 가구입니다. 생애최초 특공에서 특별한 소득 기준이 적용됩니다."@ko .
+
+###############################################################################
+#    3. 가점 관련 정의 클래스
+###############################################################################
+
+:HighPointApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :totalSubscriptionPoints ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 60 ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "HighPointApplicant"@en ;
+    rdfs:label "고득점 신청자"@ko ;
+    rdfs:comment "청약 가점이 60점 이상인 신청자입니다."@ko .
+
+:MaxHomelessPeriodPoints rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :homelessPeriodInYears ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:minInclusive 15 ] )
+                                 ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :homelessPeriodPoints ;
+              owl:hasValue 32
+            ]
+        )
+    ] ;
+    rdfs:label "MaxHomelessPeriodPoints"@en ;
+    rdfs:label "무주택 기간 만점"@ko ;
+    rdfs:comment "무주택 기간이 15년 이상으로 만점(32점)을 받은 신청자입니다."@ko .
+
+###############################################################################
+#    4. 주택 특성 관련 정의 클래스
+###############################################################################
+
+:SmallSizeHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive "85.0"^^xsd:float ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "SmallSizeHousing_Defined"@en ;
+    rdfs:label "소형주택 (정의)"@ko ;
+    rdfs:comment "전용면적 85㎡ 이하 주택입니다. 투기과열지구에서 100% 가점제가 적용됩니다."@ko .
+
+:MediumSizeHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( 
+                                       [ xsd:minExclusive "85.0"^^xsd:float ]
+                                       [ xsd:maxInclusive "102.0"^^xsd:float ]
+                                   )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "MediumSizeHousing_Defined"@en ;
+    rdfs:label "중형주택 (정의)"@ko ;
+    rdfs:comment "전용면적 85㎡ 초과 102㎡ 이하 주택입니다."@ko .
+
+:LargeSizeHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( [ xsd:minExclusive "102.0"^^xsd:float ] )
+                                 ]
+            ]
+        )
+    ] ;
+    rdfs:label "LargeSizeHousing_Defined"@en ;
+    rdfs:label "대형주택 (정의)"@ko ;
+    rdfs:comment "전용면적 102㎡ 초과 주택입니다."@ko .
+
+:SmallLowPriceHousing_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Housing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :area ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:float ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive "60.0"^^xsd:float ] )
+                                 ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :price ;
+              owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                   owl:onDatatype xsd:integer ;
+                                   owl:withRestrictions ( [ xsd:maxInclusive 130000000 ] )
+                                 ]
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isLocatedIn ;
+              owl:someValuesFrom :MetropolitanArea
+            ]
+        )
+    ] ;
+    rdfs:label "SmallLowPriceHousing_Defined"@en ;
+    rdfs:label "소형·저가주택 (정의)"@ko ;
+    rdfs:comment "면적 60㎡ 이하, 가격 1억3천만원 이하, 수도권 소재 주택입니다. 무주택 기간 산정 시 예외로 처리됩니다."@ko .
+
+###############################################################################
+#    5. 규제지역 관련 정의 클래스
+###############################################################################
+
+:SpeculativeOverheatedZone_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Region
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isSpeculativeOverheatedZone ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "SpeculativeOverheatedZone_Defined"@en ;
+    rdfs:label "투기과열지구 (정의)"@ko ;
+    rdfs:comment "투기 우려가 큰 지역으로 지정되어 가장 엄격한 청약 자격이 적용되는 지역입니다."@ko .
+
+:SubscriptionOverheatedArea_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Region
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isSubscriptionOverheatedArea ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "SubscriptionOverheatedArea_Defined"@en ;
+    rdfs:label "청약과열지역 (정의)"@ko ;
+    rdfs:comment "청약 경쟁이 과열된 지역으로 강화된 청약 자격이 적용되는 지역입니다."@ko .
+
+:RegulatedRegion_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Region
+            [ rdf:type owl:Class ;
+              owl:unionOf (
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :isSpeculativeOverheatedZone ;
+                    owl:hasValue true
+                  ]
+                  [ rdf:type owl:Restriction ;
+                    owl:onProperty :isSubscriptionOverheatedArea ;
+                    owl:hasValue true
+                  ]
+              )
+            ]
+        )
+    ] ;
+    rdfs:label "RegulatedRegion_Defined"@en ;
+    rdfs:label "규제지역 (정의)"@ko ;
+    rdfs:comment "투기과열지구 또는 청약과열지역으로 지정된 모든 지역입니다."@ko .
+
+###############################################################################
+#    6. 재당첨 제한 관련 정의 클래스
+###############################################################################
+
+:CompletedContractWinning_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :WinningRecord
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :contractCompleted ;
+              owl:hasValue true
+            ]
+        )
+    ] ;
+    rdfs:label "CompletedContractWinning_Defined"@en ;
+    rdfs:label "계약 완료 당첨 (정의)"@ko ;
+    rdfs:comment "당첨 후 계약을 완료한 이력입니다."@ko .
+
+:AbandonedContractWinning_Defined rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :WinningRecord
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :contractCompleted ;
+              owl:hasValue false
+            ]
+        )
+    ] ;
+    rdfs:label "AbandonedContractWinning_Defined"@en ;
+    rdfs:label "계약 포기 당첨 (정의)"@ko ;
+    rdfs:comment "당첨 후 계약을 포기한 이력입니다."@ko .
+
+###############################################################################
+#    7. 특별공급 관련 정의 클래스
+###############################################################################
+
+:ProspectiveNewlywedApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :maritalStatus ;
+              owl:hasValue "미혼"
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasFianceCommitment ;
+              owl:hasValue true
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :expectedMarriageDate ;
+              owl:someValuesFrom xsd:date
+            ]
+        )
+    ] ;
+    rdfs:label "ProspectiveNewlywedApplicant"@en ;
+    rdfs:label "예비신혼부부 신청자"@ko ;
+    rdfs:comment "입주 전까지 혼인신고를 약속한 예비신혼부부 신청자입니다."@ko .
+
+:SingleParentFamilyApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isSingleParent ;
+              owl:hasValue true
+            ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasInfantChild ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Person
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :age ;
+                        owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                             owl:onDatatype xsd:integer ;
+                                             owl:withRestrictions ( [ xsd:maxInclusive 6 ] )
+                                           ]
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "SingleParentFamilyApplicant"@en ;
+    rdfs:label "한부모가족 신청자"@ko ;
+    rdfs:comment "만 6세 이하 자녀를 둔 한부모가족으로 신혼부부 특공에 준하여 신청 가능한 자입니다."@ko .
+
+:FirstTimeHomeBuyer_Qualified rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            :NeverOwnedHousing
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :belongsToHousehold ;
+              owl:someValuesFrom [
+                  rdf:type owl:Class ;
+                  owl:intersectionOf (
+                      :Household
+                      [ rdf:type owl:Restriction ;
+                        owl:onProperty :hasMember ;
+                        owl:allValuesFrom :NeverOwnedHousing
+                      ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "FirstTimeHomeBuyer_Qualified"@en ;
+    rdfs:label "생애최초 자격자"@ko ;
+    rdfs:comment "생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자입니다."@ko .
+
+###############################################################################
+#
+#    Note: 일반공급 및 특별공급 자격 Defined Classes는
+#    복잡한 조건이 많아 실제 구현 시 SWRL 규칙과 병행하여 사용합니다.
+#    주요 자격 클래스들은 아래에 간략화된 형태로 정의합니다.
+#
+###############################################################################
+
+:InstitutionalRecommendationSpecialSupplyApplicant rdf:type owl:Class ;
+    rdfs:subClassOf :Applicant ;
+    rdfs:subClassOf :HomelessHouseholdMember ;
+    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                      owl:onProperty :isRecommendedBy ;
+                      owl:someValuesFrom :Institution
+                    ] ;
+    rdfs:label "InstitutionalRecommendationSpecialSupplyApplicant"@en ;
+    rdfs:label "기관추천 특별공급 청약자"@ko ;
+    rdfs:comment "국가기관 등의 추천을 받은 자로서 특별공급 자격 요건을 충족하는 신청자입니다."@ko .
+
+:UnrankedSubscriptionApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            :Adult
+            :HomelessHouseholdMember
+        )
+    ] ;
+    rdfs:label "UnrankedSubscriptionApplicant"@en ;
+    rdfs:label "무순위 청약 신청자"@ko ;
+    rdfs:comment "규제지역의 무순위(사후접수) 청약에 신청 가능한 자입니다. 청약통장 보유 여부와 무관합니다."@ko .
+

@@ -1,0 +1,615 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+###############################################################################
+#
+#    Data Properties (데이터 속성)
+#
+#    이 파일은 개체가 갖는 구체적인 데이터 값(리터럴)을 정의합니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. Person (사람) 기본 속성
+###############################################################################
+
+:age rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "age"@en ;
+    rdfs:label "나이"@ko ;
+    rdfs:comment "사람의 만 나이를 나타냅니다. (0 이상의 정수)"@ko .
+
+:name rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "name"@en ;
+    rdfs:label "이름"@ko ;
+    rdfs:comment "사람의 이름을 나타냅니다."@ko .
+
+:nationalID rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "nationalID"@en ;
+    rdfs:label "주민등록번호"@ko ;
+    rdfs:comment "개인을 고유하게 식별하는 값입니다."@ko .
+
+:maritalStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "maritalStatus"@en ;
+    rdfs:label "혼인 상태"@ko ;
+    rdfs:comment "혼인 상태를 나타냅니다. (예: '미혼', '기혼', '이혼', '사별')"@ko .
+
+:marriageDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "marriageDate"@en ;
+    rdfs:label "혼인신고일"@ko ;
+    rdfs:comment "혼인신고일. 신혼부부 특공 자격 판단에 사용됩니다."@ko .
+
+:employmentStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "employmentStatus"@en ;
+    rdfs:label "고용 상태"@ko ;
+    rdfs:comment "고용 상태. (예: '재직', '휴직', '실업')"@ko .
+
+:hasDisability rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "hasDisability"@en ;
+    rdfs:label "장애 등록 여부"@ko ;
+    rdfs:comment "장애 등록 여부를 나타냅니다."@ko .
+
+:personalIncome rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "personalIncome"@en ;
+    rdfs:label "개인 월평균 소득"@ko ;
+    rdfs:comment "개인의 월평균 소득 (원 단위)."@ko .
+
+:isOnChildcareLeave rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isOnChildcareLeave"@en ;
+    rdfs:label "육아휴직 중 여부"@ko ;
+    rdfs:comment "육아휴직 중 여부를 나타냅니다."@ko .
+
+:childcareLeaveAllowance rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "childcareLeaveAllowance"@en ;
+    rdfs:label "육아휴직 급여"@ko ;
+    rdfs:comment "육아휴직 급여 (원 단위)."@ko .
+
+:isAdoptedChild rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isAdoptedChild"@en ;
+    rdfs:label "입양 자녀 여부"@ko ;
+    rdfs:comment "입양 자녀 여부를 나타냅니다."@ko .
+
+:adoptionDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "adoptionDate"@en ;
+    rdfs:label "입양일"@ko ;
+    rdfs:comment "입양일을 나타냅니다."@ko .
+
+:fetusCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "fetusCount"@en ;
+    rdfs:label "태아 수"@ko ;
+    rdfs:comment "임신 중인 태아의 수. 다자녀가구 특공 자녀 수 산정에 사용됩니다."@ko .
+
+:actualMarriageDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "actualMarriageDate"@en ;
+    rdfs:label "실제 결혼식 날짜"@ko ;
+    rdfs:comment "실제 결혼식 날짜 (혼인신고일과 다를 수 있음)."@ko .
+
+:marriageRegistrationDate rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date ;
+    rdfs:label "marriageRegistrationDate"@en ;
+    rdfs:label "혼인신고일"@ko ;
+    rdfs:comment "혼인신고일. 신혼부부 특공 자격의 기준일입니다."@ko .
+
+###############################################################################
+#    2. Applicant (신청자) 특화 속성
+###############################################################################
+
+:homelessStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "homelessStartDate"@en ;
+    rdfs:label "무주택 기간 시작일"@ko ;
+    rdfs:comment "무주택 기간 산정 시작일을 나타냅니다."@ko .
+
+:residencePeriod rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:float ;
+    rdfs:label "residencePeriod"@en ;
+    rdfs:label "거주 기간"@ko ;
+    rdfs:comment "특정 지역에서의 거주 기간 (년 단위)."@ko .
+
+:taxPaymentDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "taxPaymentDuration"@en ;
+    rdfs:label "소득세 납부 총 기간"@ko ;
+    rdfs:comment "소득세 납부 총 기간 (통산, 년 단위). 생애최초 특공 자격에 사용됩니다."@ko .
+
+:isSingleParent rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSingleParent"@en ;
+    rdfs:label "한부모가족 여부"@ko ;
+    rdfs:comment "한부모가족 여부를 나타냅니다."@ko .
+
+:hasFianceCommitment rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "hasFianceCommitment"@en ;
+    rdfs:label "예비신혼부부 약속 여부"@ko ;
+    rdfs:comment "예비신혼부부로서 입주 전 혼인신고 약속 여부."@ko .
+
+:expectedMarriageDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "expectedMarriageDate"@en ;
+    rdfs:label "예정 혼인신고일"@ko ;
+    rdfs:comment "예정된 혼인신고일을 나타냅니다."@ko .
+
+:singleParentCertificationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "singleParentCertificationDate"@en ;
+    rdfs:label "한부모가족 증명서 발급일"@ko ;
+    rdfs:comment "한부모가족 증명서 발급일을 나타냅니다."@ko .
+
+:recommendationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:date ;
+    rdfs:label "recommendationDate"@en ;
+    rdfs:label "기관추천일"@ko ;
+    rdfs:comment "기관추천일을 나타냅니다."@ko .
+
+:recommendationNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:string ;
+    rdfs:label "recommendationNumber"@en ;
+    rdfs:label "기관추천 번호"@ko ;
+    rdfs:comment "기관추천 번호를 나타냅니다."@ko .
+
+:hasDepositShortage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "hasDepositShortage"@en ;
+    rdfs:label "예치금 부족액"@ko ;
+    rdfs:comment "청약통장 예치금 부족액 (원 단위)."@ko .
+
+###############################################################################
+#    3. Subscription Point (청약 가점) 속성
+###############################################################################
+
+:homelessPeriodInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "homelessPeriodInYears"@en ;
+    rdfs:label "무주택 기간"@ko ;
+    rdfs:comment "무주택 기간 (년 단위)."@ko .
+
+:homelessPeriodPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "homelessPeriodPoints"@en ;
+    rdfs:label "무주택 기간 가점"@ko ;
+    rdfs:comment "무주택 기간에 따른 가점 (0~32점)."@ko .
+
+:dependentCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dependentCount"@en ;
+    rdfs:label "인정 부양가족 수"@ko ;
+    rdfs:comment "인정 부양가족 수를 나타냅니다."@ko .
+
+:dependentFamilyPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "dependentFamilyPoints"@en ;
+    rdfs:label "부양가족 수 가점"@ko ;
+    rdfs:comment "부양가족 수에 따른 가점 (0~35점)."@ko .
+
+:accountPeriodInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "accountPeriodInYears"@en ;
+    rdfs:label "청약통장 가입 기간"@ko ;
+    rdfs:comment "청약통장 가입 기간 (년 단위)."@ko .
+
+:accountPeriodPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "accountPeriodPoints"@en ;
+    rdfs:label "청약통장 가입 기간 가점"@ko ;
+    rdfs:comment "청약통장 가입 기간에 따른 가점 (0~17점)."@ko .
+
+:totalSubscriptionPoints rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Applicant ;
+    rdfs:range xsd:integer ;
+    rdfs:label "totalSubscriptionPoints"@en ;
+    rdfs:label "총 청약 가점"@ko ;
+    rdfs:comment "총 청약 가점 (0~84점). 무주택 기간 + 부양가족 + 통장 가입 기간 점수의 합."@ko .
+
+:pointValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionPoint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "pointValue"@en ;
+    rdfs:label "가점 값"@ko ;
+    rdfs:comment "가점 항목의 점수 값 (0~84점)."@ko .
+
+###############################################################################
+#    4. HouseholdMember (세대구성원) 속성
+###############################################################################
+
+:supportStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :HouseholdMember ;
+    rdfs:range xsd:date ;
+    rdfs:label "supportStartDate"@en ;
+    rdfs:label "부양 시작일"@ko ;
+    rdfs:comment "직계존속 등 부양 시작일. 노부모부양 자격 판단에 사용됩니다."@ko .
+
+###############################################################################
+#    5. SubscriptionAccount (청약통장) 속성
+###############################################################################
+
+:accountNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:string ;
+    rdfs:label "accountNumber"@en ;
+    rdfs:label "계좌번호"@ko ;
+    rdfs:comment "청약통장을 고유하게 식별하는 계좌번호."@ko .
+
+:accountOpeningDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:date ;
+    rdfs:label "accountOpeningDate"@en ;
+    rdfs:label "청약통장 가입일"@ko ;
+    rdfs:comment "청약통장 가입일을 나타냅니다."@ko .
+
+:depositAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:integer ;
+    rdfs:label "depositAmount"@en ;
+    rdfs:label "예치금액"@ko ;
+    rdfs:comment "청약통장의 현재 예치금액 (원 단위, 0 이상의 정수)."@ko .
+
+:monthlyPaymentCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:integer ;
+    rdfs:label "monthlyPaymentCount"@en ;
+    rdfs:label "월 납입 횟수"@ko ;
+    rdfs:comment "청약통장 월 납입 횟수 (국민주택, 0 이상의 정수)."@ko .
+
+:accountType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionAccount ;
+    rdfs:range xsd:string ;
+    rdfs:label "accountType"@en ;
+    rdfs:label "청약통장 종류"@ko ;
+    rdfs:comment "청약통장의 종류. (예: '주택청약종합저축', '청약예금')"@ko .
+
+###############################################################################
+#    6. Housing (주택) 속성
+###############################################################################
+
+:area rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range xsd:float ;
+    rdfs:label "area"@en ;
+    rdfs:label "전용 면적"@ko ;
+    rdfs:comment "주택의 전용 면적 (㎡ 단위)."@ko .
+
+:price rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range xsd:integer ;
+    rdfs:label "price"@en ;
+    rdfs:label "가격"@ko ;
+    rdfs:comment "주택의 공시가격 또는 실거래가 (원 단위)."@ko .
+
+:disposalDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Housing ;
+    rdfs:range xsd:date ;
+    rdfs:label "disposalDate"@en ;
+    rdfs:label "주택 처분일"@ko ;
+    rdfs:comment "주택 처분일. 소형·저가주택 무주택 기간 산정에 사용됩니다."@ko .
+
+###############################################################################
+#    7. WinningRecord (당첨 이력) 속성
+###############################################################################
+
+:winningDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:date ;
+    rdfs:label "winningDate"@en ;
+    rdfs:label "당첨일"@ko ;
+    rdfs:comment "과거 청약 당첨일. 재당첨 제한 기간 산정에 사용됩니다."@ko .
+
+:restrictionPeriodInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:integer ;
+    rdfs:label "restrictionPeriodInYears"@en ;
+    rdfs:label "재당첨 제한 기간"@ko ;
+    rdfs:comment "청약 당첨에 따른 재당첨 제한 기간 (년 단위)."@ko .
+
+:contractCompleted rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "contractCompleted"@en ;
+    rdfs:label "계약 완료 여부"@ko ;
+    rdfs:comment "당첨 후 계약 완료 여부. false이면 계약 포기로 간주됩니다."@ko .
+
+:isSubjectToRestriction rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :WinningRecord ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSubjectToRestriction"@en ;
+    rdfs:label "재당첨 제한 대상 여부"@ko ;
+    rdfs:comment "재당첨 제한 대상 여부를 나타냅니다."@ko .
+
+###############################################################################
+#    8. Income (소득) 속성
+###############################################################################
+
+:monthlyAverageIncome rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Income ;
+    rdfs:range xsd:integer ;
+    rdfs:label "monthlyAverageIncome"@en ;
+    rdfs:label "월평균 소득"@ko ;
+    rdfs:comment "세대의 월평균 소득 (원 단위)."@ko .
+
+###############################################################################
+#    9. Asset (자산) 속성
+###############################################################################
+
+:realEstateAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RealEstate ;
+    rdfs:range xsd:integer ;
+    rdfs:label "realEstateAssetValue"@en ;
+    rdfs:label "부동산 자산 가액"@ko ;
+    rdfs:comment "세대가 보유한 부동산 자산의 총액 (원 단위)."@ko .
+
+:landAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LandAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "landAssetValue"@en ;
+    rdfs:label "토지 자산 가액"@ko ;
+    rdfs:comment "토지 자산 가액 (원 단위)."@ko .
+
+:buildingAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BuildingAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "buildingAssetValue"@en ;
+    rdfs:label "건물 자산 가액"@ko ;
+    rdfs:comment "건물 자산 가액 (원 단위)."@ko .
+
+:vehicleAssetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :VehicleAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "vehicleAssetValue"@en ;
+    rdfs:label "자동차 자산 가액"@ko ;
+    rdfs:comment "세대가 보유한 자동차 자산의 총액 (원 단위)."@ko .
+
+###############################################################################
+#    10. Region (지역) 속성
+###############################################################################
+
+:isSpeculativeOverheatedZone rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Region ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSpeculativeOverheatedZone"@en ;
+    rdfs:label "투기과열지구 여부"@ko ;
+    rdfs:comment "해당 지역이 투기과열지구인지 여부를 나타냅니다."@ko .
+
+:isSubscriptionOverheatedArea rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Region ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isSubscriptionOverheatedArea"@en ;
+    rdfs:label "청약과열지역 여부"@ko ;
+    rdfs:comment "해당 지역이 청약과열지역인지 여부를 나타냅니다."@ko .
+
+:regionName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Region ;
+    rdfs:range xsd:string ;
+    rdfs:label "regionName"@en ;
+    rdfs:label "지역 명칭"@ko ;
+    rdfs:comment "지역 명칭 (예: '서울', '경기', '인천')."@ko .
+
+:designatedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RegulatedArea ;
+    rdfs:range xsd:date ;
+    rdfs:label "designatedDate"@en ;
+    rdfs:label "규제지역 지정일"@ko ;
+    rdfs:comment "규제지역 지정일을 나타냅니다."@ko .
+
+:releasedDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RegulatedArea ;
+    rdfs:range xsd:date ;
+    rdfs:label "releasedDate"@en ;
+    rdfs:label "규제지역 해제일"@ko ;
+    rdfs:comment "규제지역 해제일을 나타냅니다."@ko .
+
+###############################################################################
+#    11. SubscriptionApplication (청약 신청) 속성
+###############################################################################
+
+:recruitmentAnnouncementDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SubscriptionApplication ;
+    rdfs:range xsd:date ;
+    rdfs:label "recruitmentAnnouncementDate"@en ;
+    rdfs:label "입주자 모집공고일"@ko ;
+    rdfs:comment "입주자 모집공고일. 모든 자격 판단의 기준일이 됩니다."@ko .
+
+###############################################################################
+#    12. StandardIncome (기준 소득) 속성
+###############################################################################
+
+:standardAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StandardIncome ;
+    rdfs:range xsd:integer ;
+    rdfs:label "standardAmount"@en ;
+    rdfs:label "기준 소득 금액"@ko ;
+    rdfs:comment "기준 소득 금액 (원 단위)."@ko .
+
+:yearOfStandard rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StandardIncome ;
+    rdfs:range xsd:integer ;
+    rdfs:label "yearOfStandard"@en ;
+    rdfs:label "기준 연도"@ko ;
+    rdfs:comment "해당 기준 소득이 적용되는 연도."@ko .
+
+:householdSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StandardIncome ;
+    rdfs:range xsd:integer ;
+    rdfs:label "householdSize"@en ;
+    rdfs:label "가구원 수"@ko ;
+    rdfs:comment "해당 기준 소득이 적용되는 가구원 수."@ko .
+
+###############################################################################
+#    13. IncomeThreshold (소득 기준선) 속성
+###############################################################################
+
+:incomePercentage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "incomePercentage"@en ;
+    rdfs:label "소득 기준 비율"@ko ;
+    rdfs:comment "도시근로자 가구당 월평균 소득 대비 비율 (예: 100, 130, 140, 160)."@ko .
+
+:calculatedThresholdAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IncomeThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "calculatedThresholdAmount"@en ;
+    rdfs:label "계산된 소득 기준선 금액"@ko ;
+    rdfs:comment "계산된 소득 기준선 금액 (원 단위)."@ko .
+
+###############################################################################
+#    14. AssetThreshold (자산 기준선) 속성
+###############################################################################
+
+:maxRealEstateValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AssetThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "maxRealEstateValue"@en ;
+    rdfs:label "부동산 자산 보유 한도"@ko ;
+    rdfs:comment "부동산 자산 보유 한도 (원 단위)."@ko .
+
+:maxVehicleValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AssetThreshold ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "maxVehicleValue"@en ;
+    rdfs:label "자동차 자산 보유 한도"@ko ;
+    rdfs:comment "자동차 자산 보유 한도 (원 단위)."@ko .
+
+###############################################################################
+#    15. DepositRequirement (예치금 요건) 속성
+###############################################################################
+
+:requiredDepositAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "requiredDepositAmount"@en ;
+    rdfs:label "필요 예치금액"@ko ;
+    rdfs:comment "지역 및 면적에 따라 요구되는 예치금액 (원 단위)."@ko .
+
+:minArea rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range xsd:float ;
+    rdfs:label "minArea"@en ;
+    rdfs:label "최소 면적"@ko ;
+    rdfs:comment "예치금 요건이 적용되는 최소 면적 (㎡ 단위)."@ko .
+
+:maxArea rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DepositRequirement ;
+    rdfs:range xsd:float ;
+    rdfs:label "maxArea"@en ;
+    rdfs:label "최대 면적"@ko ;
+    rdfs:comment "예치금 요건이 적용되는 최대 면적 (㎡ 단위)."@ko .
+
+###############################################################################
+#    16. SelectionMethod (선정 방식) 속성
+###############################################################################
+
+:selectionRatio rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SelectionMethod ;
+    rdfs:range xsd:float ;
+    rdfs:label "selectionRatio"@en ;
+    rdfs:label "선정 비율"@ko ;
+    rdfs:comment "선정 방식의 적용 비율 (0.0~1.0, 예: 가점제 0.5, 추첨제 0.5)."@ko .
+
+###############################################################################
+#    17. ResidenceHistory (거주 이력) 속성
+###############################################################################
+
+:residenceStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "residenceStartDate"@en ;
+    rdfs:label "거주 시작일"@ko ;
+    rdfs:comment "해당 지역 거주 시작일을 나타냅니다."@ko .
+
+:residenceEndDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "residenceEndDate"@en ;
+    rdfs:label "거주 종료일"@ko ;
+    rdfs:comment "해당 지역 거주 종료일을 나타냅니다."@ko .
+
+:residenceDurationInYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ResidenceHistory ;
+    rdfs:range xsd:float ;
+    rdfs:label "residenceDurationInYears"@en ;
+    rdfs:label "거주 기간"@ko ;
+    rdfs:comment "해당 지역 거주 기간 (년 단위)."@ko .
+
+###############################################################################
+#    18. TaxPaymentHistory (소득세 납부 이력) 속성
+###############################################################################
+
+:taxYear rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TaxPaymentHistory ;
+    rdfs:range xsd:gYear ;
+    rdfs:label "taxYear"@en ;
+    rdfs:label "소득세 납부 연도"@ko ;
+    rdfs:comment "소득세 납부 연도를 나타냅니다."@ko .
+
+:taxAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TaxPaymentHistory ;
+    rdfs:range xsd:integer ;
+    rdfs:label "taxAmount"@en ;
+    rdfs:label "소득세 납부액"@ko ;
+    rdfs:comment "해당 연도 소득세 납부액 (원 단위)."@ko .
+
+###############################################################################
+#    19. HousingOwnershipHistory (주택 소유 이력) 속성
+###############################################################################
+
+:ownershipStartDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :HousingOwnershipHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "ownershipStartDate"@en ;
+    rdfs:label "주택 소유 시작일"@ko ;
+    rdfs:comment "주택 소유 시작일을 나타냅니다."@ko .
+
+:ownershipEndDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :HousingOwnershipHistory ;
+    rdfs:range xsd:date ;
+    rdfs:label "ownershipEndDate"@en ;
+    rdfs:label "주택 소유 종료일"@ko ;
+    rdfs:comment "주택 소유 종료일 (처분일)을 나타냅니다."@ko .
+

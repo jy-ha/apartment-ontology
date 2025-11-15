@@ -1,0 +1,444 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+###############################################################################
+#
+#    Primitive Classes (원시 클래스)
+#
+#    이 파일은 온톨로지의 기본 클래스들을 정의합니다.
+#    Primitive Class는 논리적 정의 없이 이름으로만 구분되는 기본 개념입니다.
+#
+###############################################################################
+
+###############################################################################
+#    1. Person (사람) 관련 클래스
+###############################################################################
+
+:Person rdf:type owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:label "사람"@ko ;
+    rdfs:comment "온톨로지에서 개인을 나타내는 최상위 클래스입니다."@ko .
+
+:Applicant rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "Applicant"@en ;
+    rdfs:label "신청자"@ko ;
+    rdfs:comment "주택 청약을 신청하는 주체입니다."@ko .
+
+:HouseholdMember rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "HouseholdMember"@en ;
+    rdfs:label "세대구성원"@ko ;
+    rdfs:comment "세대를 구성하는 모든 개인을 나타냅니다."@ko .
+
+:HeadOfHousehold rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "HeadOfHousehold"@en ;
+    rdfs:label "세대주"@ko ;
+    rdfs:comment "세대의 대표자인 세대주입니다."@ko .
+
+:NonHeadOfHouseholdMember rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "NonHeadOfHouseholdMember"@en ;
+    rdfs:label "세대원"@ko ;
+    rdfs:comment "세대주가 아닌 세대구성원입니다."@ko .
+
+:QualifiedDependent rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "QualifiedDependent"@en ;
+    rdfs:label "인정 부양가족"@ko ;
+    rdfs:comment "가점제에서 부양가족으로 인정받을 수 있는 세대구성원입니다."@ko .
+
+:Child rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "Child"@en ;
+    rdfs:label "자녀"@ko ;
+    rdfs:comment "직계비속인 자녀를 나타냅니다."@ko .
+
+###############################################################################
+#    2. Household (세대)
+###############################################################################
+
+:Household rdf:type owl:Class ;
+    rdfs:label "Household"@en ;
+    rdfs:label "세대"@ko ;
+    rdfs:comment "주거 및 생계를 같이하는 단위인 세대를 나타냅니다."@ko .
+
+###############################################################################
+#    3. Housing (주택)
+###############################################################################
+
+:Housing rdf:type owl:Class ;
+    rdfs:label "Housing"@en ;
+    rdfs:label "주택"@ko ;
+    rdfs:comment "주거 목적의 건물, 즉 주택을 나타내는 클래스입니다."@ko .
+
+:NationalHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "NationalHousing"@en ;
+    rdfs:label "국민주택"@ko ;
+    rdfs:comment "국가, 지자체, LH 등이 건설하는 주택으로, 특정 소득/자산 기준을 충족해야 합니다."@ko .
+
+:PrivateHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "PrivateHousing"@en ;
+    rdfs:label "민영주택"@ko ;
+    rdfs:comment "민간 건설사가 건설하는 주택입니다."@ko .
+
+:CancelledContractHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "CancelledContractHousing"@en ;
+    rdfs:label "계약취소주택"@ko ;
+    rdfs:comment "불법 전매나 공급 질서 교란으로 계약이 취소된 주택입니다."@ko .
+
+:PostSubscriptionHousing rdf:type owl:Class ;
+    rdfs:subClassOf :Housing ;
+    rdfs:label "PostSubscriptionHousing"@en ;
+    rdfs:label "사후접수주택"@ko ;
+    rdfs:comment "1, 2순위 청약 마감 후 미계약 물량으로 무순위로 공급되는 주택입니다."@ko .
+
+###############################################################################
+#    4. SubscriptionAccount (청약통장)
+###############################################################################
+
+:SubscriptionAccount rdf:type owl:Class ;
+    rdfs:label "SubscriptionAccount"@en ;
+    rdfs:label "청약통장"@ko ;
+    rdfs:comment "주택 청약을 위해 가입하는 금융 상품입니다."@ko .
+
+###############################################################################
+#    5. Place (장소) 관련 클래스
+###############################################################################
+
+:Place rdf:type owl:Class ;
+    rdfs:label "Place"@en ;
+    rdfs:label "장소"@ko ;
+    rdfs:comment "지리적 위치나 구역을 나타내는 클래스입니다."@ko .
+
+:Region rdf:type owl:Class ;
+    rdfs:subClassOf :Place ;
+    rdfs:label "Region"@en ;
+    rdfs:label "지역"@ko ;
+    rdfs:comment "서울, 경기도 등 행정 구역을 나타냅니다. 구체적인 지역은 Individual로 정의됩니다."@ko .
+
+:MetropolitanArea rdf:type owl:Class ;
+    rdfs:subClassOf :Region ;
+    rdfs:label "MetropolitanArea"@en ;
+    rdfs:label "수도권"@ko ;
+    rdfs:comment "서울, 경기, 인천을 포함하는 광역 권역입니다. 이는 추상적 범주 클래스이며, 구체적인 수도권 지역들은 Individual로 정의됩니다."@ko .
+
+:RegulatedArea rdf:type owl:Class ;
+    rdfs:subClassOf :Place ;
+    rdfs:label "RegulatedArea"@en ;
+    rdfs:label "규제지역"@ko ;
+    rdfs:comment "부동산 시장 안정을 위해 지정된 특별 구역을 나타내는 추상적 클래스입니다. 실제 규제 여부는 Region Individual의 속성으로 판단합니다."@ko .
+
+###############################################################################
+#    6. Concept (추상적 개념) 관련 클래스
+###############################################################################
+
+:Concept rdf:type owl:Class ;
+    rdfs:label "Concept"@en ;
+    rdfs:label "추상적 개념"@ko ;
+    rdfs:comment "물리적 실체는 없지만 청약 제도에서 중요한 역할을 하는 추상적인 개념들을 나타냅니다."@ko .
+
+###############################################################################
+#    6.1 SubscriptionApplication (청약 신청) 관련
+###############################################################################
+
+:SubscriptionApplication rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SubscriptionApplication"@en ;
+    rdfs:label "청약 신청"@ko ;
+    rdfs:comment "주택을 공급받기 위해 의사를 표시하는 행위를 나타냅니다."@ko .
+
+:GeneralSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionApplication ;
+    rdfs:label "GeneralSupply"@en ;
+    rdfs:label "일반공급"@ko ;
+    rdfs:comment "청약통장 가입자 대상 일반 청약 공급입니다."@ko .
+
+:SpecialSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionApplication ;
+    rdfs:label "SpecialSupply"@en ;
+    rdfs:label "특별공급"@ko ;
+    rdfs:comment "특정 자격 요건을 충족하는 자를 위한 특별공급입니다."@ko .
+
+:InstitutionalRecommendation rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "InstitutionalRecommendation"@en ;
+    rdfs:label "기관추천 특별공급"@ko ;
+    rdfs:comment "국가유공자, 장애인, 중소기업 근로자 등 기관 추천을 받은 자를 위한 특별공급입니다."@ko .
+
+:MultiChildHouseholdSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "MultiChildHouseholdSupply"@en ;
+    rdfs:label "다자녀가구 특별공급"@ko ;
+    rdfs:comment "만 19세 미만 자녀 3명 이상을 둔 가구를 위한 특별공급입니다."@ko .
+
+:NewlywedCoupleSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "NewlywedCoupleSupply"@en ;
+    rdfs:label "신혼부부 특별공급"@ko ;
+    rdfs:comment "혼인 기간 7년 이내의 신혼부부를 위한 특별공급입니다."@ko .
+
+:NewlywedPrioritySupply rdf:type owl:Class ;
+    rdfs:subClassOf :NewlywedCoupleSupply ;
+    rdfs:label "NewlywedPrioritySupply"@en ;
+    rdfs:label "신혼부부 우선공급"@ko ;
+    rdfs:comment "만 6세 이하 자녀가 있거나 소득 기준 100% 이하인 경우의 우선공급입니다."@ko .
+
+:NewlywedGeneralSupply rdf:type owl:Class ;
+    rdfs:subClassOf :NewlywedCoupleSupply ;
+    rdfs:label "NewlywedGeneralSupply"@en ;
+    rdfs:label "신혼부부 일반공급"@ko ;
+    rdfs:comment "우선공급에 해당하지 않는 신혼부부 특별공급입니다."@ko .
+
+:SupportingAgedParentsSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "SupportingAgedParentsSupply"@en ;
+    rdfs:label "노부모부양 특별공급"@ko ;
+    rdfs:comment "만 65세 이상 부모를 3년 이상 부양하는 자를 위한 특별공급입니다."@ko .
+
+:FirstTimeHomeBuyerSupply rdf:type owl:Class ;
+    rdfs:subClassOf :SpecialSupply ;
+    rdfs:label "FirstTimeHomeBuyerSupply"@en ;
+    rdfs:label "생애최초 특별공급"@ko ;
+    rdfs:comment "생애 최초로 주택을 구매하는 자를 위한 특별공급입니다."@ko .
+
+:UnrankedSubscription rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionApplication ;
+    rdfs:label "UnrankedSubscription"@en ;
+    rdfs:label "무순위 청약"@ko ;
+    rdfs:comment "1, 2순위 마감 후 남은 물량에 대한 무순위 청약입니다."@ko .
+
+###############################################################################
+#    6.2 Asset (자산) 관련
+###############################################################################
+
+:Asset rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Asset"@en ;
+    rdfs:label "자산"@ko ;
+    rdfs:comment "세대가 보유한 경제적 가치를 지닌 재산을 나타냅니다."@ko .
+
+:RealEstate rdf:type owl:Class ;
+    rdfs:subClassOf :Asset ;
+    rdfs:label "RealEstate"@en ;
+    rdfs:label "부동산 자산"@ko ;
+    rdfs:comment "토지 및 건물 등 부동산 자산입니다."@ko .
+
+:LandAsset rdf:type owl:Class ;
+    rdfs:subClassOf :RealEstate ;
+    rdfs:label "LandAsset"@en ;
+    rdfs:label "토지 자산"@ko ;
+    rdfs:comment "세대가 보유한 토지입니다."@ko .
+
+:BuildingAsset rdf:type owl:Class ;
+    rdfs:subClassOf :RealEstate ;
+    rdfs:label "BuildingAsset"@en ;
+    rdfs:label "건물 자산"@ko ;
+    rdfs:comment "세대가 보유한 건물입니다."@ko .
+
+:VehicleAsset rdf:type owl:Class ;
+    rdfs:subClassOf :Asset ;
+    rdfs:label "VehicleAsset"@en ;
+    rdfs:label "자동차 자산"@ko ;
+    rdfs:comment "세대가 보유한 자동차입니다."@ko .
+
+###############################################################################
+#    6.3 Income (소득) 및 기준 관련
+###############################################################################
+
+:Income rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Income"@en ;
+    rdfs:label "소득"@ko ;
+    rdfs:comment "세대의 월평균 소득을 나타냅니다."@ko .
+
+:WinningRecord rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "WinningRecord"@en ;
+    rdfs:label "당첨 이력"@ko ;
+    rdfs:comment "과거 청약 당첨 사실을 나타냅니다."@ko .
+
+:StandardIncome rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "StandardIncome"@en ;
+    rdfs:label "기준 소득"@ko ;
+    rdfs:comment "도시근로자 가구당 월평균 소득과 같이, 소득 기준을 판단하기 위한 기준값을 나타냅니다."@ko .
+
+:UrbanWorkerStandardIncome rdf:type owl:Class ;
+    rdfs:subClassOf :StandardIncome ;
+    rdfs:label "UrbanWorkerStandardIncome"@en ;
+    rdfs:label "도시근로자 가구당 월평균 소득"@ko ;
+    rdfs:comment "가구원 수별, 연도별로 정부가 고시하는 기준 소득입니다."@ko .
+
+:IncomeThreshold rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "IncomeThreshold"@en ;
+    rdfs:label "소득 기준선"@ko ;
+    rdfs:comment "특정 청약 유형에 적용되는 소득 기준(예: 130%, 140%, 160% 등)을 나타냅니다."@ko .
+
+:AssetThreshold rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "AssetThreshold"@en ;
+    rdfs:label "자산 기준선"@ko ;
+    rdfs:comment "특정 청약 유형에 적용되는 자산 보유 한도를 나타냅니다."@ko .
+
+:DepositRequirement rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "DepositRequirement"@en ;
+    rdfs:label "예치금 요건"@ko ;
+    rdfs:comment "지역별, 면적별로 요구되는 청약통장 예치금 기준을 나타냅니다."@ko .
+
+###############################################################################
+#    6.4 SubscriptionPoint (청약 가점) 관련
+###############################################################################
+
+:SubscriptionPoint rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SubscriptionPoint"@en ;
+    rdfs:label "청약 가점"@ko ;
+    rdfs:comment "청약 가점제에서 사용되는 점수 체계를 나타냅니다."@ko .
+
+:HomelessPeriodPoint rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionPoint ;
+    rdfs:label "HomelessPeriodPoint"@en ;
+    rdfs:label "무주택 기간 점수"@ko ;
+    rdfs:comment "무주택 기간에 따른 가점 (최대 32점)입니다."@ko .
+
+:DependentFamilyPoint rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionPoint ;
+    rdfs:label "DependentFamilyPoint"@en ;
+    rdfs:label "부양가족 수 점수"@ko ;
+    rdfs:comment "부양가족 수에 따른 가점 (최대 35점)입니다."@ko .
+
+:AccountPeriodPoint rdf:type owl:Class ;
+    rdfs:subClassOf :SubscriptionPoint ;
+    rdfs:label "AccountPeriodPoint"@en ;
+    rdfs:label "청약통장 가입 기간 점수"@ko ;
+    rdfs:comment "청약통장 가입 기간에 따른 가점 (최대 17점)입니다."@ko .
+
+###############################################################################
+#    6.5 SelectionMethod (당첨자 선정 방식)
+###############################################################################
+
+:SelectionMethod rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SelectionMethod"@en ;
+    rdfs:label "당첨자 선정 방식"@ko ;
+    rdfs:comment "청약 당첨자를 선정하는 방법을 나타냅니다."@ko .
+
+:PointBasedSelection rdf:type owl:Class ;
+    rdfs:subClassOf :SelectionMethod ;
+    rdfs:label "PointBasedSelection"@en ;
+    rdfs:label "가점제"@ko ;
+    rdfs:comment "가점 점수가 높은 순으로 선정하는 방식입니다."@ko .
+
+:LotteryBasedSelection rdf:type owl:Class ;
+    rdfs:subClassOf :SelectionMethod ;
+    rdfs:label "LotteryBasedSelection"@en ;
+    rdfs:label "추첨제"@ko ;
+    rdfs:comment "무작위 추첨으로 선정하는 방식입니다."@ko .
+
+###############################################################################
+#    6.6 History (이력) 관련
+###############################################################################
+
+:HousingOwnershipHistory rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "HousingOwnershipHistory"@en ;
+    rdfs:label "주택 소유 이력"@ko ;
+    rdfs:comment "개인의 과거 주택 소유 이력을 나타냅니다."@ko .
+
+:ResidenceHistory rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "ResidenceHistory"@en ;
+    rdfs:label "거주 이력"@ko ;
+    rdfs:comment "개인의 지역별 거주 이력을 나타냅니다."@ko .
+
+:TaxPaymentHistory rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "TaxPaymentHistory"@en ;
+    rdfs:label "소득세 납부 이력"@ko ;
+    rdfs:comment "신청자의 연도별 소득세 납부 이력을 나타냅니다."@ko .
+
+###############################################################################
+#    7. Institution (추천 기관)
+###############################################################################
+
+:Institution rdf:type owl:Class ;
+    rdfs:label "Institution"@en ;
+    rdfs:label "추천 기관"@ko ;
+    rdfs:comment "기관추천 특별공급 대상자를 추천하는 공공기관을 나타냅니다. 구체적인 기관들은 Individual로 정의됩니다."@ko .
+
+###############################################################################
+#
+#    Class Axioms (클래스 관계 제약)
+#
+###############################################################################
+
+###############################################################################
+#    Disjoint Classes (상호 배타 클래스)
+###############################################################################
+
+# 주택 유형
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :NationalHousing :PrivateHousing )
+] .
+
+# 세대구성원
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :HeadOfHousehold :NonHeadOfHouseholdMember )
+] .
+
+# 자산 유형
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :LandAsset :BuildingAsset :VehicleAsset )
+] .
+
+# 선정 방식
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :PointBasedSelection :LotteryBasedSelection )
+] .
+
+# 특별공급 유형
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :InstitutionalRecommendation
+                :MultiChildHouseholdSupply
+                :NewlywedCoupleSupply
+                :SupportingAgedParentsSupply
+                :FirstTimeHomeBuyerSupply )
+] .
+
+###############################################################################
+#    Disjoint Union (상호 배타 합집합)
+###############################################################################
+
+# HouseholdMember = HeadOfHousehold ⊔ NonHeadOfHouseholdMember
+:HouseholdMember owl:disjointUnionOf ( :HeadOfHousehold :NonHeadOfHouseholdMember ) .
+
+###############################################################################
+#    Covering Axiom (커버링 공리)
+###############################################################################
+
+# 모든 SpecialSupply는 5가지 하위 클래스 중 하나
+:SpecialSupply rdfs:subClassOf 
+    [ rdf:type owl:Class ;
+      owl:unionOf ( :InstitutionalRecommendation
+                    :MultiChildHouseholdSupply
+                    :NewlywedCoupleSupply
+                    :SupportingAgedParentsSupply
+                    :FirstTimeHomeBuyerSupply )
+    ] .
+
+# 모든 SelectionMethod는 PointBasedSelection 또는 LotteryBasedSelection
+:SelectionMethod owl:equivalentClass
+    [ rdf:type owl:Class ;
+      owl:unionOf ( :PointBasedSelection :LotteryBasedSelection )
+    ] .
+
