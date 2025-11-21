@@ -160,7 +160,8 @@
     :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
     rdfs:label "경기 수원 신혼부부 특공"@ko .
 
-:TestApp_FirstTime_01 rdf:type owl:NamedIndividual , :FirstTimeHomeBuyerSupply ;
+:TestApp_FirstTime_01 rdf:type owl:NamedIndividual , :SubscriptionApplication ;
+    :supplyType :FirstTimeHomeBuyerSupply ;
     :isForHousing :TestHousing_Seoul_Large_01 ;
     :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
     rdfs:label "서울 마포 생애최초 특공"@ko .

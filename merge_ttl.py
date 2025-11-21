@@ -3,24 +3,39 @@
 TTL 파일들을 하나로 합쳐서 통합된 TTL 파일을 생성하는 스크립트
 
 사용법:
-    python merge_ttl.py
+    python merge_ttl.py                    # 모든 TTL 파일 합치기
+    python merge_ttl.py --only-schema      # individuals.ttl과 test_data.ttl 제외하고 합치기
 
 결과:
     - merged_ontology.ttl 파일이 생성됩니다.
+    - --only-schema 옵션을 사용하면 merged_ontology_schema.ttl 파일이 생성됩니다.
 """
 
 import os
 import glob
+import argparse
 from collections import OrderedDict
 
-def merge_ttl_files():
-    """TTL 파일들을 하나로 합치는 함수"""
+def merge_ttl_files(only_schema=False):
+    """TTL 파일들을 하나로 합치는 함수
+
+    Args:
+        only_schema (bool): True이면 individuals.ttl과 test_data.ttl을 제외
+    """
 
     # TTL 폴더 경로
     ttl_dir = "/home/blonix/hw/ontology/ttl"
 
     # 모든 .ttl 파일 찾기
     ttl_files = glob.glob(os.path.join(ttl_dir, "*.ttl"))
+
+    # --only-schema 옵션이면 individuals.ttl과 test_data.ttl 제외
+    if only_schema:
+        exclude_files = ["individuals.ttl", "test_data.ttl"]
+        ttl_files = [f for f in ttl_files if os.path.basename(f) not in exclude_files]
+        output_file = "/home/blonix/hw/ontology/merged_ontology_schema.ttl"
+    else:
+        output_file = "/home/blonix/hw/ontology/merged_ontology.ttl"
 
     # core.ttl을 가장 먼저 처리하기 위해 정렬
     ttl_files.sort()
@@ -86,8 +101,7 @@ def merge_ttl_files():
                 'content': content_lines
             })
 
-    # 통합된 파일 생성
-    output_file = "/home/blonix/hw/ontology/merged_ontology.ttl"
+    # 통합된 파일 생성 (함수 파라미터로 이동)
 
     with open(output_file, 'w', encoding='utf-8') as f:
         # 1. @prefix 선언들 작성
@@ -122,5 +136,13 @@ def merge_ttl_files():
     print(f"처리된 파일 수: {len(file_contents)}")
     print(f"수집된 @prefix 선언 수: {len(prefixes)}")
 
+def main():
+    parser = argparse.ArgumentParser(description='TTL 파일들을 하나로 합쳐서 통합된 TTL 파일을 생성합니다.')
+    parser.add_argument('--only-schema', action='store_true',
+                       help='individuals.ttl과 test_data.ttl을 제외하고 스키마만 합칩니다.')
+
+    args = parser.parse_args()
+    merge_ttl_files(only_schema=args.only_schema)
+
 if __name__ == "__main__":
-    merge_ttl_files()
+    main()

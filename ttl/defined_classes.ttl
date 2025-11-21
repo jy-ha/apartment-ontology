@@ -688,3 +688,34 @@
     rdfs:label "무순위 청약 신청자"@ko ;
     rdfs:comment "규제지역의 무순위(사후접수) 청약에 신청 가능한 자입니다. 청약통장 보유 여부와 무관합니다."@ko .
 
+###############################################################################
+#    8. 노부모부양 특별공급 관련 정의 클래스
+###############################################################################
+
+:ElderlyParentSupporter rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Applicant
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :hasElderlyDependent ;
+              owl:someValuesFrom :ElderlyDependent
+            ]
+        )
+    ] ;
+    rdfs:label "ElderlyParentSupporter"@en ;
+    rdfs:label "노부모 부양자"@ko ;
+    rdfs:comment "만 65세 이상 부모를 부양하는 청약 신청자입니다. 부양 기간과 무관하게 추론됩니다."@ko .
+
+:SupportingAgedParentsApplicant rdf:type owl:Class ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :ElderlyParentSupporter
+            :HeadOfHomelessHousehold
+        )
+    ] ;
+    rdfs:label "SupportingAgedParentsApplicant"@en ;
+    rdfs:label "노부모부양 특별공급 신청자"@ko ;
+    rdfs:comment "노부모부양 특별공급 자격 요건을 충족하는 신청자입니다. 만 65세 이상 부모를 부양하는 무주택 세대주입니다. 부양 기간(3년 이상)은 별도로 확인해야 합니다."@ko .
+

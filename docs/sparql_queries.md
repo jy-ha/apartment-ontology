@@ -55,23 +55,6 @@ WHERE {
 
 **예상 결과**: TestApplicant_A (김철수, 31세, 서울 4.9년 거주)
 
-**Defined Class 기반 쿼리** (추론 후):
-
-```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name ?age
-WHERE {
-    ?applicant a :Adult ;
-               :name ?name ;
-               :age ?age .
-    
-    # Adult는 Defined Class: Person and (age >= 19)
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_A"))
-}
-```
-
 ---
 
 ### CQ 2: "신청자 A는 청약통장 가입 기간이 2.5년입니다. 1순위 청약에 필요한 가입 기간을 충족했나요?"
@@ -81,8 +64,7 @@ WHERE {
 ```sparql
 PREFIX : <http://www.example.org/apartment-subscription-ontology#>
 
-SELECT ?applicant ?name ?accountNumber ?openingDate 
-       (STRDT(STR(ROUND(days(?currentDate - ?openingDate) / 365.25)), xsd:integer) AS ?yearsOwned)
+SELECT ?applicant ?name ?accountNumber ?openingDate
 WHERE {
     ?applicant a :Applicant ;
                :name ?name ;
@@ -91,20 +73,15 @@ WHERE {
     ?account :accountNumber ?accountNumber ;
              :accountOpeningDate ?openingDate .
     
-    # 현재 날짜 (2024-11-15 기준)
-    BIND("2024-11-15"^^xsd:date AS ?currentDate)
-    
-    # 2년 전 날짜 계산 (SPARQL 1.1 표준)
-    BIND(?currentDate - "P2Y"^^xsd:yearMonthDuration AS ?dateTwoYearsAgo)
-    
-    # 2년 이상 조건
-    FILTER (?openingDate <= ?dateTwoYearsAgo)
+    # 2년 이상 가입 조건: 2022-11-15 이전 가입
+    # (현재 날짜 2024-11-15 기준, 2년 전 = 2022-11-15)
+    FILTER (?openingDate <= "2022-11-15"^^xsd:date)
     
     FILTER (regex(STR(?applicant), "TestApplicant_A"))
 }
 ```
 
-**예상 결과**: TestApplicant_A, 2022-05-10 개설, 약 2.5년
+**예상 결과**: TestApplicant_A, 2022-05-10 개설 (2022-11-15 이전이므로 2년 이상 충족)
 
 ---
 
@@ -133,22 +110,6 @@ HAVING (?housingCount = 0)
 ```
 
 **예상 결과**: TestApplicant_A의 세대는 주택 소유 0건 → 무주택세대구성원
-
-**Defined Class 기반 쿼리** (추론 후):
-
-```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name
-WHERE {
-    ?applicant a :HomelessHouseholdMember ;
-               :name ?name .
-    
-    # HomelessHouseholdMember는 Defined Class
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_A"))
-}
-```
 
 ---
 
@@ -192,13 +153,14 @@ WHERE {
 ```sparql
 PREFIX : <http://www.example.org/apartment-subscription-ontology#>
 
-SELECT ?applicant ?spouse ?housing ?area ?price ?endDate
+SELECT ?applicant ?spouse ?spouseName ?housing ?area ?price ?endDate
 WHERE {
     ?applicant a :Applicant ;
                :belongsToHousehold ?household .
     
     ?household :hasMember ?spouse .
-    ?spouse :hasOwnershipHistory ?ownershipHistory ;
+    ?spouse :name ?spouseName ;
+            :hasOwnershipHistory ?ownershipHistory ;
             :hasSpouse ?applicant .
     
     ?ownershipHistory :ownedHousing ?housing ;
@@ -213,25 +175,14 @@ WHERE {
     # 소형·저가주택 조건: 60㎡ 이하, 1.3억 이하, 수도권
     FILTER (?area <= 60.0 && ?price <= 130000000)
     
+    # 3년 전 처분: 2021년 중 처분 (2024-11-15 기준 약 3년 전)
+    FILTER (?endDate >= "2021-01-01"^^xsd:date && ?endDate <= "2021-12-31"^^xsd:date)
+    
     FILTER (regex(STR(?applicant), "TestApplicant_G"))
 }
 ```
 
 **예상 결과**: 배우자 한지민, 2021-05-15 처분 → 무주택 기간 시작일
-
-**Defined Class 활용** (추론 후):
-
-```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?housing ?endDate
-WHERE {
-    ?housing a :SmallLowPriceHousing_Defined ;
-             :disposalDate ?endDate .
-    
-    # SmallLowPriceHousing_Defined는 추론기가 자동 분류
-}
-```
 
 ---
 
@@ -243,8 +194,7 @@ WHERE {
 PREFIX : <http://www.example.org/apartment-subscription-ontology#>
 
 SELECT ?applicant ?name ?winningDate ?restrictionYears
-       (STRDT(STR(ROUND(days(?currentDate - ?winningDate) / 365.25)), xsd:integer) AS ?yearsSince)
-       (IF(?yearsSince > ?restrictionYears, "제한 만료", "제한 중") AS ?status)
+       (IF(?winningDate <= "2019-11-15"^^xsd:date, "제한 만료", "제한 중") AS ?status)
 WHERE {
     ?applicant a :Applicant ;
                :name ?name ;
@@ -254,17 +204,14 @@ WHERE {
                    :restrictionPeriodInYears ?restrictionYears ;
                    :isSubjectToRestriction true .
     
-    BIND("2024-11-15"^^xsd:date AS ?currentDate)
-    # N년 전 날짜 계산 (기간이 변수이므로 문자열 결합 후 캐스팅)
-    BIND(xsd:dateTime(concat(xsd:string(year(?currentDate) - ?restrictionYears), "-", str-after(xsd:string(?currentDate), "-"))) AS ?restrictionDate)
+    # 재당첨 제한 5년: 2019-11-15 이전 당첨이면 제한 만료
+    # (현재 날짜 2024-11-15 기준, 5년 전 = 2019-11-15)
     
-    # 재당첨 제한 만료 여부 확인
-    FILTER (?winningDate <= ?restrictionDate)
-
+    FILTER (regex(STR(?applicant), "TestApplicant_H"))
 }
 ```
 
-**예상 결과**: TestApplicant_H, 2014년 당첨, 10년 경과 → "제한 만료"
+**예상 결과**: TestApplicant_H, 2014-08-15 당첨, 10년 경과 (2019-11-15 이전이므로 제한 만료)
 
 ---
 
@@ -283,40 +230,22 @@ WHERE {
                :name ?name ;
                :livesIn ?regionInd ;
                :belongsToHousehold ?household .
-    
+
     ?regionInd :regionName ?region ;
                :isSpeculativeOverheatedZone ?isOverheated .
-    
+
     ?household :hasMember ?member .
-    
+
     OPTIONAL {
-        ?member :owns ?housing .
+        ?applicant :owns ?housing .
     }
-    
+
     FILTER (regex(STR(?applicant), "TestApplicant_L"))
 }
 GROUP BY ?applicant ?name ?region ?isOverheated
 ```
 
 **예상 결과**: TestApplicant_L, 과천(투기과열지구), 1주택 → 조건부 1순위 (기존 주택 처분 조건)
-
-**규제지역 Defined Class 활용**:
-
-```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?region
-WHERE {
-    ?applicant a :Applicant ;
-               :livesIn ?region .
-    
-    ?region a :SpeculativeOverheatedZone_Defined .
-    
-    # 추론기가 isSpeculativeOverheatedZone=true인 Region을 자동 분류
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_L"))
-}
-```
 
 ---
 
@@ -346,31 +275,23 @@ WHERE {
 **목표**: 세대원 중 5년 이내 당첨 이력 확인
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name (COUNT(?recentWinning) AS ?recentWinningCount)
+SELECT ?applicant ?name (COUNT(DISTINCT ?winningRecord) AS ?recentWinningCount)
 WHERE {
+    BIND(:TestApplicant_Q AS ?applicant)
+
     ?applicant a :Applicant ;
                :name ?name ;
                :belongsToHousehold ?household .
-    
+
     ?household :hasMember ?member .
-    
+
     OPTIONAL {
         ?member :hasWinningRecord ?winningRecord .
         ?winningRecord :winningDate ?winningDate ;
                        :isSubjectToRestriction true .
-        
-        BIND("2024-11-15"^^xsd:date AS ?currentDate)
 
-        # 5년 전 날짜 계산
-        BIND(?currentDate - "P5Y"^^xsd:yearMonthDuration AS ?dateFiveYearsAgo)
-        
-        FILTER (?winningDate > ?dateFiveYearsAgo)
-        BIND(?winningRecord AS ?recentWinning)
+        FILTER (?winningDate >= "2019-11-15"^^xsd:date)    # currentDate 2024-11-15 기준 5년 전
     }
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_Q"))
 }
 GROUP BY ?applicant ?name
 ```
@@ -384,8 +305,6 @@ GROUP BY ?applicant ?name
 **목표**: 예치금 부족액 계산
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
 SELECT ?applicant ?name ?currentDeposit ?requiredDeposit 
        (?requiredDeposit - ?currentDeposit AS ?shortage)
 WHERE {
@@ -406,7 +325,7 @@ WHERE {
                 :maxArea ?maxArea ;
                 :requiredDepositAmount ?requiredDeposit .
     
-    FILTER (?area >= ?minArea && ?area < ?maxArea)
+    FILTER (?area >= ?minArea && ?area <= ?maxArea)
     FILTER (?currentDeposit < ?requiredDeposit)
     FILTER (regex(STR(?applicant), "TestApplicant_K"))
 }
@@ -425,28 +344,31 @@ WHERE {
 ```sparql
 PREFIX : <http://www.example.org/apartment-subscription-ontology#>
 
-SELECT ?applicant ?name ?marriageDate ?childAge ?income
-       (STRDT(STR(ROUND(days(?currentDate - ?marriageDate) / 365.25)), xsd:integer) AS ?marriageYears)
+SELECT ?name ?marriageDate ?childAge ?income
 WHERE {
+    BIND(:TestApplicant_R AS ?applicant)
+
     ?applicant a :Applicant ;
                :name ?name ;
                :marriageRegistrationDate ?marriageDate ;
                :hasChild ?child ;
                :belongsToHousehold ?household .
-    
+
     ?child :age ?childAge .
     ?household :hasIncome ?incomeObj .
     ?incomeObj :monthlyAverageIncome ?income .
-    
-    BIND("2024-11-15"^^xsd:date AS ?currentDate)
 
-    # 7년 전 날짜 계산
-    BIND(?currentDate - "P7Y"^^xsd:yearMonthDuration AS ?dateSevenYearsAgo)
-    
-    # 신혼부부 조건: 혼인신고일이 7년 전 날짜 이후여야 함
-    FILTER (?marriageDate > ?dateSevenYearsAgo)
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_R"))
+    # 무주택 세대 조건 확인
+    FILTER NOT EXISTS {
+      ?household :hasMember ?m .
+      ?m :owns ?anyHouse .
+    }
+
+    # 혼인 7년 이내: 2017-11-15 이후
+    FILTER (
+      ?marriageDate >= "2017-11-15"^^xsd:date &&
+      ?marriageDate <= "2024-11-15"^^xsd:date
+    )
 }
 ```
 
@@ -514,28 +436,37 @@ HAVING (?childCount >= 3)
 **목표**: 만 65세 이상 부양 3년 이상 확인
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name ?parentAge ?supportStartDate
-       (STRDT(STR(ROUND(days(?currentDate - ?supportStartDate) / 365.25)), xsd:integer) AS ?supportYears)
+SELECT 
+    ?applicantName
+    ?parentName
+    ?parentAge
+    ?supportStartDate
+    ?announcementDate
+    ?isHomeless
+    ?meetsAgeRequirement
 WHERE {
-    ?applicant a :Applicant ;
-               :name ?name ;
-               :hasElderlyDependent ?parent .
+    # 신청자 U 정보
+    :TestApplicant_U rdf:type :Applicant ;
+                     :name ?applicantName ;
+                     :hasElderlyDependent ?parent .
     
-    ?parent :age ?parentAge ;
+    # 부모 정보
+    ?parent :name ?parentName ;
+            :age ?parentAge ;
             :supportStartDate ?supportStartDate .
     
-    BIND("2024-11-15"^^xsd:date AS ?currentDate)
-
-    # 3년 전 날짜 계산
-    BIND(?currentDate - "P3Y"^^xsd:yearMonthDuration AS ?dateThreeYearsAgo)
-
-    # 만 65세 이상, 3년 이상 부양 조건
-    FILTER (?parentAge >= 65)
-    FILTER (?supportStartDate <= ?dateThreeYearsAgo)
+    # 신청 정보
+    :TestApplicant_U :appliesFor ?application .
+    ?application rdf:type :SupportingAgedParentsSupply ;
+                 :recruitmentAnnouncementDate ?announcementDate .
     
-    FILTER (regex(STR(?applicant), "TestApplicant_U"))
+    # 무주택 세대주 여부
+    BIND(EXISTS {
+        :TestApplicant_U rdf:type :HeadOfHomelessHousehold .
+    } AS ?isHomeless)
+    
+    # 부모 나이 조건 체크
+    BIND((?parentAge >= 65) AS ?meetsAgeRequirement)
 }
 ```
 
@@ -548,23 +479,104 @@ WHERE {
 **목표**: 기관 추천 여부 확인
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name ?hasDisability ?institution ?recommendationDate
+SELECT ?applicantName 
+       ?age
+       ?hasDisability
+       ?isHomelessMember
+       ?hasRecommendation
+       ?recommendingInstitution
+       ?recommendationDate
 WHERE {
+    # 신청자 기본 정보
     ?applicant a :Applicant ;
-               :name ?name ;
-               :hasDisability ?hasDisability ;
-               :isRecommendedBy ?institution ;
-               :recommendationDate ?recommendationDate .
+               :name ?applicantName ;
+               :age ?age .
     
-    ?institution rdfs:label ?institutionLabel .
+    # 장애인 등록 여부
+    OPTIONAL {
+        ?applicant :hasDisability ?hasDisability .
+    }
     
-    FILTER (regex(STR(?applicant), "TestApplicant_V"))
+    # 무주택 세대원 여부
+    OPTIONAL {
+        ?applicant a :HomelessHouseholdMember .
+        BIND(true AS ?homelessMember)
+    }
+    BIND(COALESCE(?homelessMember, false) AS ?isHomelessMember)
+    
+    # 기관 추천 정보
+    OPTIONAL {
+        ?applicant :isRecommendedBy ?recommendingInstitution .
+        ?applicant :recommendationDate ?recommendationDate .
+        BIND(true AS ?hasRec)
+    }
+    BIND(COALESCE(?hasRec, false) AS ?hasRecommendation)
+    
+    FILTER regex(str(?applicant), "TestApplicant_V")
 }
 ```
 
 **예상 결과**: TestApplicant_V, 장애인, 지방자치단체 추천, 2024-10-15 → 절차 완료
+
+---
+
+### CQ 18: "신청자 W는 3년 전 결혼했으나 혼인신고는 1년 전에 했습니다. '신혼부부 특별공급'의 혼인 기간은 어떻게 산정되나요?”
+
+```sparql
+SELECT 
+    ?applicantName
+    ?actualMarriageDate
+    ?marriageRegistrationDate
+    ?propertyUsedForCalculation
+    ?propertyLabel
+    ?propertyComment
+WHERE {
+    # 신청자 W의 데이터
+    :TestApplicant_W :name ?applicantName ;
+                     :marriageRegistrationDate ?marriageRegistrationDate .
+    
+    # 실제 혼인일 (있다면)
+    OPTIONAL {
+        :TestApplicant_W :actualMarriageDate ?actualMarriageDate .
+    }
+    
+    # 혼인신고일 속성의 규칙 설명
+    BIND(:marriageRegistrationDate AS ?propertyUsedForCalculation)
+    
+    ?propertyUsedForCalculation rdfs:label ?propertyLabel ;
+                                rdfs:comment ?propertyComment .
+    
+    # 한국어 라벨과 설명만 선택
+    FILTER(LANG(?propertyLabel) = "ko")
+    FILTER(LANG(?propertyComment) = "ko")
+}
+```
+
+---
+
+### CQ 19: "신청자 X는 과거 주택을 소유했다가 처분하고 10년이 지났습니다. '생애최초 특별공급' 자격이 되나요?”
+
+```sparql
+SELECT 
+    ?supplyLabel
+    ?supplyComment
+    ?requirementLabel
+    ?requirementComment
+WHERE {
+    # 생애최초 특별공급 클래스
+    :FirstTimeHomeBuyerSupply rdfs:label ?supplyLabel ;
+                              rdfs:comment ?supplyComment .
+    
+    # 주택 소유 이력 없음 요건
+    :NeverOwnedHousing rdfs:label ?requirementLabel ;
+                       rdfs:comment ?requirementComment .
+    
+    FILTER(LANG(?supplyLabel) = "ko")
+    FILTER(LANG(?supplyComment) = "ko")
+    FILTER(LANG(?requirementLabel) = "ko")
+    FILTER(LANG(?requirementComment) = "ko")
+}
+```
 
 ---
 
@@ -575,43 +587,61 @@ WHERE {
 **목표**: 맞벌이 가구 160% 기준 확인
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name ?householdSize ?income ?standardIncome 
-       (ROUND(?standardIncome * 1.6) AS ?threshold160)
-       (IF(?income <= ?standardIncome * 1.6, "충족", "초과") AS ?status)
+SELECT ?name ?income ?standardIncome
+       ?householdType
+       ?threshold160 ?threshold140
+       ?applicableThreshold
 WHERE {
-    ?applicant a :Applicant ;
-               :name ?name ;
-               :belongsToHousehold ?household .
-    
-    ?household :hasIncome ?incomeObj ;
-               :hasMember ?member .
-    ?incomeObj :monthlyAverageIncome ?income .
-    
-    # 가구원 수 계산
+    # 1. 내부 쿼리: 기본 정보 수집
     {
-        SELECT ?household (COUNT(?m) AS ?householdSize)
+        SELECT ?applicant ?name ?household ?income ?householdSize ?standardIncome
         WHERE {
-            ?household :hasMember ?m .
+            ?applicant a :Applicant ;
+                       :name ?name ;
+                       :belongsToHousehold ?household .
+            
+            ?household :hasIncome ?incomeObj .
+            ?incomeObj :monthlyAverageIncome ?income .
+            
+            {
+                SELECT ?household (COUNT(?member) AS ?householdSize)
+                WHERE {
+                    ?household :hasMember ?member .
+                }
+                GROUP BY ?household
+            }
+            
+            ?standard a :UrbanWorkerStandardIncome ;
+                      :yearOfStandard 2024 ;
+                      :householdSize ?householdSize ;
+                      :standardAmount ?standardIncome .
+            
+            FILTER regex(str(?applicant), "TestApplicant_Y")
         }
-        GROUP BY ?household
     }
     
-    # 도시근로자 소득 기준 조회
-    ?standard a :UrbanWorkerStandardIncome ;
-              :yearOfStandard 2024 ;
-              :householdSize ?householdSize ;
-              :standardAmount ?standardIncome .
+    # 2. 맞벌이 여부 확인
+    OPTIONAL {
+        ?household :hasMember ?m1 , ?m2 .
+        ?m1 :hasSpouse ?m2 .
+        ?m1 :personalIncome ?income1 .
+        ?m2 :personalIncome ?income2 .
+        FILTER (?income1 > 0 && ?income2 > 0)
+        BIND("맞벌이" AS ?isDualIncome)
+    }
     
-    # 맞벌이 확인 (두 세대원 모두 소득 있음)
-    ?household :hasMember ?m1 , ?m2 .
-    ?m1 :personalIncome ?income1 .
-    ?m2 :personalIncome ?income2 .
-    ?m1 :hasSpouse ?m2 .
-    FILTER (?income1 > 0 && ?income2 > 0)
+    BIND(COALESCE(?isDualIncome, "단독소득") AS ?householdType)
     
-    FILTER (regex(STR(?applicant), "TestApplicant_Y"))
+    # 3. 온톨로지에서 비율 가져오기
+    :Newlywed_Income_160pct_DualIncome :incomePercentage ?percentage160 .
+    :Newlywed_Income_140pct_SingleIncome :incomePercentage ?percentage140 .
+    
+    # 4. 두 기준선 모두 계산
+    BIND(?standardIncome * (?percentage160 / 100.0) AS ?threshold160)
+    BIND(?standardIncome * (?percentage140 / 100.0) AS ?threshold140)
+    
+    # 5. 적용 기준선 결정
+    BIND(IF(?householdType = "맞벌이", ?threshold160, ?threshold140) AS ?applicableThreshold)
 }
 ```
 
@@ -624,39 +654,48 @@ WHERE {
 **목표**: 자산 기준 확인 (부동산 2.15억 이하, 차량 3,708만원 이하)
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
-
-SELECT ?applicant ?name 
-       (SUM(?landValue) AS ?totalLand)
-       (SUM(?buildingValue) AS ?totalBuilding)
-       ((?totalLand + ?totalBuilding) AS ?totalRealEstate)
-       (SUM(?vehicleValue) AS ?totalVehicle)
+SELECT ?name 
+       ?totalRealEstate ?maxRealEstate
+       ?totalVehicle ?maxVehicle
 WHERE {
-    ?applicant a :Applicant ;
-               :name ?name ;
-               :belongsToHousehold ?household .
-    
-    ?household :hasMember ?member .
-    
-    OPTIONAL {
-        ?member :ownsLand ?land .
-        ?land :landAssetValue ?landValue .
+    # 1. 신청자의 자산 계산
+    {
+        SELECT ?applicant ?name
+               ((SUM(COALESCE(?landValue, 0)) + SUM(COALESCE(?buildingValue, 0))) AS ?totalRealEstate)
+               (SUM(COALESCE(?vehicleValue, 0)) AS ?totalVehicle)
+        WHERE {
+            ?applicant a :Applicant ;
+                       :name ?name ;
+                       :belongsToHousehold ?household .
+
+            OPTIONAL {
+                ?household :hasMember ?member .
+                ?member :ownsLand ?land .
+                ?land :landAssetValue ?landValue .
+            }
+
+            OPTIONAL {
+                ?household :hasMember ?member2 .
+                ?member2 :ownsBuilding ?building .
+                ?building :buildingAssetValue ?buildingValue .
+            }
+
+            OPTIONAL {
+                ?household :hasMember ?member3 .
+                ?member3 :ownsVehicle ?vehicle .
+                ?vehicle :vehicleAssetValue ?vehicleValue .
+            }
+
+            FILTER regex(str(?applicant), "TestApplicant_Z")
+        }
+        GROUP BY ?applicant ?name
     }
     
-    OPTIONAL {
-        ?member :ownsBuilding ?building .
-        ?building :buildingAssetValue ?buildingValue .
-    }
-    
-    OPTIONAL {
-        ?member :ownsVehicle ?vehicle .
-        ?vehicle :vehicleAssetValue ?vehicleValue .
-    }
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_Z"))
+    # 2. 온톨로지에서 자산 기준 가져오기
+    :NationalHousing_AssetThreshold_2024 
+        :maxRealEstateValue ?maxRealEstate ;
+        :maxVehicleValue ?maxVehicle .
 }
-GROUP BY ?applicant ?name
-HAVING (?totalRealEstate > 215000000 || ?totalVehicle > 37080000)
 ```
 
 **예상 결과**: TestApplicant_Z, 부동산 3억원(초과), 차량 3천만원(기준 내) → 자산 기준 초과
@@ -668,10 +707,14 @@ HAVING (?totalRealEstate > 215000000 || ?totalVehicle > 37080000)
 **목표**: 소득 기준 계산
 
 ```sparql
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX : <http://www.example.org/apartment-subscription-ontology#>
 
-SELECT ?householdSize ?standardAmount 
-       (ROUND(?standardAmount * 1.3) AS ?threshold130pct)
+SELECT ?householdSize ?standardAmount
+       (?standardAmount * 1.3 AS ?threshold130pct)
 WHERE {
     ?standard a :UrbanWorkerStandardIncome ;
               :yearOfStandard 2024 ;
@@ -696,32 +739,44 @@ ORDER BY ?householdSize
 **목표**: 1인 가구 특례 확인
 
 ```sparql
-PREFIX : <http://www.example.org/apartment-subscription-ontology#>
+PREFIX :   <http://www.example.org/apartment-subscription-ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?applicant ?name 
-       (COUNT(?member) AS ?actualSize)
-       ?applicableSize ?standardAmount
+
+SELECT ?applicant ?name ?actualSize ?applicableSize ?standardAmount
 WHERE {
-    ?applicant a :Applicant ;
-               :name ?name ;
-               :belongsToHousehold ?household ;
-               :appliesFor ?application .
-    
-    ?application a :FirstTimeHomeBuyerSupply .
-    
-    ?household :hasMember ?member .
-    
-    # 1인 가구 → 2인 가구 기준 적용
-    BIND(IF((COUNT(?member) = 1), 2, COUNT(?member)) AS ?applicableSize)
-    
-    ?standard a :UrbanWorkerStandardIncome ;
-              :yearOfStandard 2024 ;
-              :householdSize ?applicableSize ;
-              :standardAmount ?standardAmount .
-    
-    FILTER (regex(STR(?applicant), "TestApplicant_S"))
+
+  # (1) 세대 구성원 수 집계
+  {
+    SELECT ?applicant (COUNT(?member) AS ?actualSize)
+    WHERE {
+      ?applicant a :Applicant ;
+                 :belongsToHousehold ?household .
+      ?household :hasMember ?member .
+    }
+    GROUP BY ?applicant
+  }
+
+  # (2) 신청 정보 & 생애최초 특공 공급 유형
+  ?applicant :name ?name ;
+             :appliesFor ?application .
+  ?application :supplyType :FirstTimeHomeBuyerSupply .
+
+  # (3) 1인 가구면 2인 가구 기준 적용
+  BIND( IF(?actualSize = 1, 2, ?actualSize) AS ?applicableSize )
+
+  # (4) 2024년 도시근로자 가구당 월평균 소득 기준과 매칭
+  ?standard a :UrbanWorkerStandardIncome ;
+            :yearOfStandard 2024 ;
+            :householdSize ?applicableSize ;
+            :standardAmount ?standardAmount .
+
+  # (5) CQ23 대상: 신청자 S만 보기
+  FILTER regex(str(?applicant), "TestApplicant_S")
 }
-GROUP BY ?applicant ?name ?applicableSize ?standardAmount
 ```
 
 **예상 결과**: TestApplicant_S, 실제 1인 가구 → 2인 가구 기준(500만원) 적용

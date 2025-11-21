@@ -133,3 +133,5 @@
 | `regionName`                    | `Region`                | `string`          |                        | 지역 명칭 (예: "서울", "경기", "인천").                              |
 | `pointValue`                    | `SubscriptionPoint`     | `xsd:integer` [0-84]                |                        | 가점 항목의 점수 값.                                                 |
 | `hasDepositShortage`            | `Applicant`             | `xsd:integer` (원)                  |                        | 청약통장 예치금 부족액.                                              |
+| `minElderlyAge`                 | `SupportingAgedParentsRequirement` | `xsd:positiveInteger`   |                        | 노부모부양 인정을 위한 최소 부모 나이 (만 나이).                      |
+| `minSupportYears`               | `SupportingAgedParentsRequirement` | `xsd:positiveInteger`   |                        | 노부모부양 인정을 위한 최소 부양 기간 (년 단위).                      |

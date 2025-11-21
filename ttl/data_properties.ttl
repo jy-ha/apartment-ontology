@@ -613,3 +613,21 @@
     rdfs:label "주택 소유 종료일"@ko ;
     rdfs:comment "주택 소유 종료일 (처분일)을 나타냅니다."@ko .
 
+###############################################################################
+#    20. SupportingAgedParentsRequirement (노부모부양 요건) 속성
+###############################################################################
+
+:minElderlyAge rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SupportingAgedParentsRequirement ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "minElderlyAge"@en ;
+    rdfs:label "최소 부모 나이"@ko ;
+    rdfs:comment "노부모부양 인정을 위한 최소 부모 나이 (만 나이)."@ko .
+
+:minSupportYears rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SupportingAgedParentsRequirement ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "minSupportYears"@en ;
+    rdfs:label "최소 부양 기간"@ko ;
+    rdfs:comment "노부모부양 인정을 위한 최소 부양 기간 (년 단위). 입주자 모집공고일 기준으로 계산합니다."@ko .
+

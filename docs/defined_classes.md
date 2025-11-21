@@ -200,6 +200,19 @@
     - `Applicant` and `NeverOwnedHousing` and
     - `belongsToHousehold` some (`Household` that (`hasMember` only `NeverOwnedHousing`))
 
+### `ElderlyParentSupporter` (노부모 부양자)
+- **설명**: 만 65세 이상 부모를 부양하는 청약 신청자를 정의합니다. 부양 기간과 무관하게 추론됩니다.
+- **논리 정의 (Equivalent To)**:
+    - `Applicant` and
+    - `hasElderlyDependent` some `ElderlyDependent`
+
+### `SupportingAgedParentsApplicant` (노부모부양 특별공급 신청자)
+- **설명**: 노부모부양 특별공급 자격 요건을 충족하는 신청자를 정의합니다. 만 65세 이상 부모를 부양하는 무주택 세대주입니다.
+- **논리 정의 (Equivalent To)**:
+    - `ElderlyParentSupporter` and `HeadOfHomelessHousehold`
+- **주의사항**: 부양 기간(3년 이상)은 시간 계산이 필요하므로 OWL Defined Class로 표현할 수 없습니다. SPARQL 쿼리 또는 애플리케이션 로직에서 별도로 확인해야 합니다.
+- **관련 Individual**: `AgedParentsSupport_Requirement_2024` (최소 부양 기간 3년, 최소 부모 나이 65세 정의)
+
 ## 5. 소득 및 자산 기준 관련 정의 클래스
 
 ### `WithinNationalHousingIncomeLimit` (국민주택 소득 기준 충족)

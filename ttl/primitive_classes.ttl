@@ -289,6 +289,12 @@
     rdfs:label "자산 기준선"@ko ;
     rdfs:comment "특정 청약 유형에 적용되는 자산 보유 한도를 나타냅니다."@ko .
 
+:SupportingAgedParentsRequirement rdf:type owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "SupportingAgedParentsRequirement"@en ;
+    rdfs:label "노부모부양 요건"@ko ;
+    rdfs:comment "노부모부양 특별공급의 자격 요건(최소 부모 나이, 최소 부양 기간 등)을 나타냅니다."@ko .
+
 :DepositRequirement rdf:type owl:Class ;
     rdfs:subClassOf :Concept ;
     rdfs:label "DepositRequirement"@en ;
