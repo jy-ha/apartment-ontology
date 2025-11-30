@@ -1,0 +1,83 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    청약 신청 (SubscriptionApplication) 인스턴스
+###############################################################################
+
+# 1. 다자녀 가구 특별공급
+:Application_Kim_MultiChild rdf:type owl:NamedIndividual , :MultiChildHouseholdSupply ;
+    :recruitmentAnnouncementDate "2024-11-01"^^xsd:date ;
+    :isForHousing :Housing_Project_B ;
+    rdfs:label "김철수 다자녀 특별공급 신청"@ko .
+
+# 2. 신혼부부 특별공급 (우선공급)
+:Application_Park_Newlywed rdf:type owl:NamedIndividual , :NewlywedPrioritySupply ;
+    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
+    :isForHousing :Housing_Project_C ;
+    rdfs:label "박영호 신혼부부 특별공급 신청"@ko .
+
+# 3. 노부모 부양 특별공급
+:Application_Lee_AgedParents rdf:type owl:NamedIndividual , :SupportingAgedParentsSupply ;
+    :recruitmentAnnouncementDate "2024-11-01"^^xsd:date ;
+    :isForHousing :Housing_Project_B ;
+    rdfs:label "이민수 노부모부양 특별공급 신청"@ko .
+
+# 4. 생애최초 특별공급
+:Application_Jung_FirstTime rdf:type owl:NamedIndividual , :FirstTimeHomeBuyerSupply ;
+    :recruitmentAnnouncementDate "2024-11-20"^^xsd:date ;
+    :isForHousing :Housing_Project_A ;
+    rdfs:label "정수영 생애최초 특별공급 신청"@ko .
+
+# 5. 신혼부부 특별공급 (한부모가족)
+:Application_Han_SingleParent rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
+    :isForHousing :Housing_Project_C ;
+    rdfs:label "한지영 (한부모가족) 신혼부부 특별공급 신청"@ko .
+
+# 6. 신혼부부 특별공급 (예비신혼부부)
+:Application_Yoon_Prospective rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    :recruitmentAnnouncementDate "2024-12-01"^^xsd:date ;
+    :isForHousing :Housing_Project_E ;
+    rdfs:label "윤재호 (예비신혼) 특별공급 신청"@ko .
+
+# 7. 기관추천 특별공급
+:Application_Kang_Institutional rdf:type owl:NamedIndividual , :InstitutionalRecommendation ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    :isForHousing :Housing_Project_D ;
+    rdfs:label "강민정 기관추천 특별공급 신청"@ko .
+
+# 8. 일반공급
+:Application_Kim_General rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :recruitmentAnnouncementDate "2024-11-01"^^xsd:date ;
+    :isForHousing :Housing_Project_A ;
+    rdfs:label "김철수 일반공급 신청"@ko .
+
+# 9. 계약취소주택 재공급 신청 (신규)
+:Application_Zang_Cancelled rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :recruitmentAnnouncementDate "2024-12-10"^^xsd:date ;
+    :isForHousing :Housing_Cancelled_F ;
+    rdfs:label "장광 계약취소분 신청"@ko .
+
+# 10. 무순위 청약 신청 (신규)
+:Application_Lim_Unranked rdf:type owl:NamedIndividual , :UnrankedSubscription ;
+    :recruitmentAnnouncementDate "2024-12-20"^^xsd:date ;
+    :isForHousing :Housing_Post_G ;
+    rdfs:label "임무 무순위 청약 신청"@ko .
+
+# 신청자와 청약 신청 연결
+:Kim_ChulSoo :appliesFor :Application_Kim_MultiChild , :Application_Kim_General .
+:Park_YoungHo :appliesFor :Application_Park_Newlywed .
+:Lee_MinSoo :appliesFor :Application_Lee_AgedParents .
+:Jung_SooYoung :appliesFor :Application_Jung_FirstTime .
+:Han_JiYoung :appliesFor :Application_Han_SingleParent .
+:Yoon_JaeHo :appliesFor :Application_Yoon_Prospective .
+:Kang_MinJung :appliesFor :Application_Kang_Institutional .
+:Zang_Kwang :appliesFor :Application_Zang_Cancelled .
+:Lim_Mu :appliesFor :Application_Lim_Unranked .
+

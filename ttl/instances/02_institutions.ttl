@@ -1,0 +1,33 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    추천 기관 (Institution) 인스턴스
+###############################################################################
+
+:MOHW rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "보건복지부"@ko ;
+    rdfs:comment "장애인 등을 추천하는 기관"@ko .
+
+:SME_Agency rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "중소벤처기업부"@ko ;
+    rdfs:comment "중소기업 근로자를 추천하는 기관"@ko .
+
+:MPVA rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "국가보훈부"@ko ;
+    rdfs:comment "국가유공자를 추천하는 기관"@ko .
+
+# 신규 추가 기관
+:MND rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "국방부"@ko ;
+    rdfs:comment "장기복무 제대군인을 추천하는 기관"@ko .
+
+:Gyeonggi_Welfare rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "경기도 장애인복지과"@ko ;
+    rdfs:comment "지방자치단체 위임 추천 기관 예시"@ko .
+

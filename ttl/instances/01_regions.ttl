@@ -1,0 +1,57 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    지역 (Region) 인스턴스
+###############################################################################
+
+# 수도권 (MetropolitanArea)
+:Seoul rdf:type owl:NamedIndividual , :MetropolitanArea ;
+    :regionName "서울특별시"^^xsd:string ;
+    :isSpeculativeOverheatedZone true ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "서울"@ko .
+
+:Gyeonggi rdf:type owl:NamedIndividual , :MetropolitanArea ;
+    :regionName "경기도"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "경기도"@ko .
+
+:Incheon rdf:type owl:NamedIndividual , :MetropolitanArea ;
+    :regionName "인천광역시"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "인천"@ko .
+
+# 지방 광역시
+:Busan rdf:type owl:NamedIndividual , :Region ;
+    :regionName "부산광역시"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "부산"@ko .
+
+:Daejeon rdf:type owl:NamedIndividual , :Region ;
+    :regionName "대전광역시"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "대전"@ko .
+
+# 기타 지역 (신규 추가)
+:Sejong rdf:type owl:NamedIndividual , :Region ;
+    :regionName "세종특별자치시"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "세종"@ko .
+
+:Gangwon rdf:type owl:NamedIndividual , :Region ;
+    :regionName "강원도"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "강원"@ko .
+

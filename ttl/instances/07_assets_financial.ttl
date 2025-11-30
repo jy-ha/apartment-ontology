@@ -1,0 +1,186 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    소득 (Income) 인스턴스
+###############################################################################
+
+:Income_Kim rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 9000000 ;
+    rdfs:label "김철수 세대 소득"@ko .
+
+:Income_Park rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 8000000 ;
+    rdfs:label "박영호 세대 소득"@ko .
+
+:Income_Lee rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 6000000 ;
+    rdfs:label "이민수 세대 소득"@ko .
+
+:Income_Jung rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 3800000 ;
+    rdfs:label "정수영 세대 소득"@ko .
+
+:Income_Choi rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 13000000 ;
+    rdfs:label "최동현 세대 소득"@ko .
+
+:Income_Han rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 3200000 ;
+    rdfs:label "한지영 세대 소득"@ko .
+
+:Income_Yoon rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 4200000 ;
+    rdfs:label "윤재호 세대 소득"@ko .
+
+:Income_Kang rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 2800000 ;
+    rdfs:label "강민정 세대 소득"@ko .
+
+:Income_Zang rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 4000000 ;
+    rdfs:label "장광 세대 소득"@ko .
+
+:Income_Lim rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 2000000 ;
+    rdfs:label "임무 세대 소득"@ko .
+
+# 세대와 소득 연결
+:Household_Kim :hasIncome :Income_Kim .
+:Household_Park :hasIncome :Income_Park .
+:Household_Lee :hasIncome :Income_Lee .
+:Household_Jung :hasIncome :Income_Jung .
+:Household_Choi :hasIncome :Income_Choi .
+:Household_Han :hasIncome :Income_Han .
+:Household_Yoon :hasIncome :Income_Yoon .
+:Household_Kang :hasIncome :Income_Kang .
+:Household_Zang :hasIncome :Income_Zang .
+:Household_Lim :hasIncome :Income_Lim .
+
+###############################################################################
+#    청약통장 (SubscriptionAccount) 인스턴스
+###############################################################################
+
+:Account_Kim rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2016-123456"^^xsd:string ;
+    :accountOpeningDate "2016-03-10"^^xsd:date ;
+    :depositAmount 15000000 ;
+    :monthlyPaymentCount 96 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "김철수 청약통장"@ko .
+
+:Account_Park rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2021-234567"^^xsd:string ;
+    :accountOpeningDate "2021-07-15"^^xsd:date ;
+    :depositAmount 8000000 ;
+    :monthlyPaymentCount 40 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "박영호 청약통장"@ko .
+
+:Account_Lee rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2009-345678"^^xsd:string ;
+    :accountOpeningDate "2009-01-20"^^xsd:date ;
+    :depositAmount 25000000 ;
+    :monthlyPaymentCount 180 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "이민수 청약통장"@ko .
+
+:Account_Jung rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2019-456789"^^xsd:string ;
+    :accountOpeningDate "2019-09-05"^^xsd:date ;
+    :depositAmount 10000000 ;
+    :monthlyPaymentCount 60 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "정수영 청약통장"@ko .
+
+:Account_Choi rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2005-567890"^^xsd:string ;
+    :accountOpeningDate "2005-05-01"^^xsd:date ;
+    :depositAmount 30000000 ;
+    :monthlyPaymentCount 230 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "최동현 청약통장"@ko .
+
+:Account_Han rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2020-678901"^^xsd:string ;
+    :accountOpeningDate "2020-04-20"^^xsd:date ;
+    :depositAmount 6500000 ;
+    :monthlyPaymentCount 48 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "한지영 청약통장"@ko .
+
+:Account_Yoon rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2022-789012"^^xsd:string ;
+    :accountOpeningDate "2022-11-01"^^xsd:date ;
+    :depositAmount 5000000 ;
+    :monthlyPaymentCount 24 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "윤재호 청약통장"@ko .
+
+:Account_Kang rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2014-890123"^^xsd:string ;
+    :accountOpeningDate "2014-08-15"^^xsd:date ;
+    :depositAmount 18000000 ;
+    :monthlyPaymentCount 120 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "강민정 청약통장"@ko .
+
+:Account_Zang rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2023-000001"^^xsd:string ;
+    :accountOpeningDate "2023-01-01"^^xsd:date ;
+    :depositAmount 3000000 ;
+    :monthlyPaymentCount 12 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "장광 청약통장"@ko .
+
+:Account_Lim rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2024-000002"^^xsd:string ;
+    :accountOpeningDate "2024-01-01"^^xsd:date ;
+    :depositAmount 100000 ;
+    :monthlyPaymentCount 6 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "임무 청약통장"@ko .
+
+###############################################################################
+#    자산 (Asset) 인스턴스
+###############################################################################
+
+:RealEstate_Choi rdf:type owl:NamedIndividual , :RealEstate ;
+    :realEstateAssetValue 850000000 ;
+    :isAssetOwnedBy :Choi_DongHyun ;
+    rdfs:label "최동현 부동산 자산"@ko .
+
+:Vehicle_Kim rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 35000000 ;
+    :isVehicleOwnedBy :Kim_ChulSoo ;
+    rdfs:label "김철수 차량"@ko .
+
+:Vehicle_Lee rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 28000000 ;
+    :isVehicleOwnedBy :Lee_MinSoo ;
+    rdfs:label "이민수 차량"@ko .
+
+# 신규 추가 자산
+:Land_Kim rdf:type owl:NamedIndividual , :LandAsset ;
+    :realEstateAssetValue 100000000 ;
+    :isAssetOwnedBy :Kim_ChulSoo ;
+    rdfs:comment "김철수 보유 농지 (토지 자산)"@ko ;
+    rdfs:label "김철수 농지"@ko .
+
+:Building_Lee rdf:type owl:NamedIndividual , :BuildingAsset ;
+    :realEstateAssetValue 200000000 ;
+    :isAssetOwnedBy :Lee_MinSoo ;
+    rdfs:comment "이민수 보유 상가 (건물 자산)"@ko ;
+    rdfs:label "이민수 상가"@ko .
+
+:Vehicle_Jung_Luxury rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 150000000 ;
+    :isVehicleOwnedBy :Jung_SooYoung ;
+    rdfs:comment "정수영 보유 고가 차량 (자산 기준 초과 테스트용)"@ko ;
+    rdfs:label "정수영 스포츠카"@ko .
+

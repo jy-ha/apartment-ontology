@@ -26,8 +26,8 @@ def merge_ttl_files(only_schema=False):
     # TTL 폴더 경로
     ttl_dir = "/home/blonix/hw/ontology/ttl"
 
-    # 모든 .ttl 파일 찾기
-    ttl_files = glob.glob(os.path.join(ttl_dir, "*.ttl"))
+    # 모든 .ttl 파일 찾기 (하위 폴더 포함)
+    ttl_files = glob.glob(os.path.join(ttl_dir, "**/*.ttl"), recursive=True)
 
     # --only-schema 옵션이면 individuals.ttl과 test_data.ttl 제외
     if only_schema:

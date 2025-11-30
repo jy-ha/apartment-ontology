@@ -18,6 +18,10 @@
         -   **`NonHeadOfHouseholdMember` (세대원)**: 세대주가 아닌 세대구성원입니다.
         -   **`QualifiedDependent` (인정 부양가족)**: 가점제에서 부양가족으로 인정받을 수 있는 세대구성원의 기본 클래스입니다.
         -   **`Child` (자녀)**: 직계비속인 자녀를 나타냅니다.
+        -   **`HousingOwner` (주택 소유자)**: 현재 주택을 소유하고 있는 세대구성원입니다. (Closed World 구현용)
+        -   **`NonHousingOwner` (무주택자)**: 현재 주택을 소유하지 않은 세대구성원입니다. (Closed World 구현용)
+    -   **`HousingOwnershipHistoryHolder` (주택 소유 이력 보유자)**: 과거에 주택을 소유한 적이 있는 사람입니다.
+    -   **`NeverOwnedHousingPerson` (주택 소유 이력 없는 자)**: 과거에 주택을 소유한 적이 없는 사람입니다.
 
 ### 2. `Household` (세대)
 
@@ -79,10 +83,6 @@
     -   **`IncomeThreshold` (소득 기준선)**: 특정 청약 유형에 적용되는 소득 기준(예: 130%, 140%, 160% 등)을 나타냅니다.
     -   **`AssetThreshold` (자산 기준선)**: 특정 청약 유형에 적용되는 자산 보유 한도(부동산, 자동차 등)를 나타냅니다.
     -   **`DepositRequirement` (예치금 요건)**: 지역별, 면적별로 요구되는 청약통장 예치금 기준을 나타냅니다.
-    -   **`SubscriptionPoint` (청약 가점)**: 청약 가점제에서 사용되는 점수 체계를 나타냅니다.
-        -   **`HomelessPeriodPoint` (무주택 기간 점수)**: 무주택 기간에 따른 가점 (최대 32점)
-        -   **`DependentFamilyPoint` (부양가족 수 점수)**: 부양가족 수에 따른 가점 (최대 35점)
-        -   **`AccountPeriodPoint` (청약통장 가입 기간 점수)**: 청약통장 가입 기간에 따른 가점 (최대 17점)
     -   **`SelectionMethod` (당첨자 선정 방식)**: 청약 당첨자를 선정하는 방법을 나타냅니다.
         -   **`PointBasedSelection` (가점제)**: 가점 점수가 높은 순으로 선정
         -   **`LotteryBasedSelection` (추첨제)**: 무작위 추첨으로 선정
@@ -104,6 +104,8 @@ OWL 2의 고급 기능을 활용하여 클래스 간의 관계를 명확히 정�
 -   **상호 배타 클래스 (Disjoint Classes)**: 특정 개체가 두 개 이상의 클래스에 동시에 속할 수 없도록 정의하여 모호성을 제거합니다.
     -   주택 유형: `NationalHousing`, `PrivateHousing`는 서로 상호 배타적입니다.
     -   세대구성원: `HeadOfHousehold`, `NonHeadOfHouseholdMember`은 서로 상호 배타적입니다.
+    -   **주택 소유 상태**: `HousingOwner`, `NonHousingOwner`는 서로 상호 배타적입니다. (Closed World 구현)
+    -   **주택 소유 이력**: `HousingOwnershipHistoryHolder`, `NeverOwnedHousingPerson`은 서로 상호 배타적입니다. (Closed World 구현)
     -   자산 유형: `LandAsset`, `BuildingAsset`, `VehicleAsset`는 서로 상호 배타적입니다.
     -   선정 방식: `PointBasedSelection`, `LotteryBasedSelection`은 서로 상호 배타적입니다.
     -   특별공급 유형: `InstitutionalRecommendation`, `MultiChildHouseholdSupply`, `NewlywedCoupleSupply`, `SupportingAgedParentsSupply`, `FirstTimeHomeBuyerSupply`는 서로 상호 배타적입니다.
@@ -114,6 +116,11 @@ OWL 2의 고급 기능을 활용하여 클래스 간의 관계를 명확히 정�
 
 -   **상호 배타 합집합 (Disjoint Union)**: 어떤 클래스가 하위 클래스들의 완전한 집합이면서, 동시에 각 하위 클래스들이 서로 배타적임을 정의합니다.
     -   `HouseholdMember`는 `HeadOfHousehold`와 `NonHeadOfHouseholdMember`의 상호 배타 합집합입니다. 즉, 모든 세대구성원은 반드시 세대주이거나 세대원 둘 중 하나여야 하며, 둘 다일 수는 없습니다.
+
+-   **Covering Axiom을 통한 Closed World 구현**: OWL의 Open World Assumption(OWA) 문제를 해결하기 위해, 특정 속성에 대해 Disjoint + Covering을 사용합니다.
+    -   `HouseholdMember`는 `HousingOwner` 또는 `NonHousingOwner` 중 하나에 속해야 합니다.
+    -   `HouseholdMember`는 `HousingOwnershipHistoryHolder` 또는 `NeverOwnedHousingPerson` 중 하나에 속해야 합니다.
+    -   **인스턴스 데이터 요구사항**: 모든 `HouseholdMember` 인스턴스에는 위 클래스들의 타입이 명시적으로 선언되어야 합니다. 이를 통해 `hasMember only NonHousingOwner`와 같은 조건이 정상적으로 추론됩니다.
 
 **참고**:
 - `MetropolitanArea`의 DisjointUnion 선언이 제거되었습니다. Seoul, Gyeonggi, Incheon이 Individual로 변경되었기 때문입니다. 대신 각 Individual은 `MetropolitanArea` 타입을 가집니다.

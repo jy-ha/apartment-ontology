@@ -1,0 +1,161 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    거주 이력 (ResidenceHistory) 인스턴스
+###############################################################################
+
+:ResidenceHistory_Kim rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2010-03-01"^^xsd:date ;
+    :residenceDurationInYears "14.5"^^xsd:float ;
+    rdfs:label "김철수 서울 거주 이력"@ko .
+
+:ResidenceHistory_Park rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Gyeonggi ;
+    :residenceStartDate "2019-06-15"^^xsd:date ;
+    :residenceDurationInYears "5.5"^^xsd:float ;
+    rdfs:label "박영호 경기 거주 이력"@ko .
+
+:ResidenceHistory_Lee rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2000-01-01"^^xsd:date ;
+    :residenceDurationInYears "24.0"^^xsd:float ;
+    rdfs:label "이민수 서울 거주 이력"@ko .
+
+:ResidenceHistory_Jung rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Incheon ;
+    :residenceStartDate "2017-03-01"^^xsd:date ;
+    :residenceDurationInYears "7.8"^^xsd:float ;
+    rdfs:label "정수영 인천 거주 이력"@ko .
+
+:ResidenceHistory_Choi rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "1998-01-01"^^xsd:date ;
+    :residenceDurationInYears "26.0"^^xsd:float ;
+    rdfs:label "최동현 서울 거주 이력"@ko .
+
+:ResidenceHistory_Han rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Gyeonggi ;
+    :residenceStartDate "2018-09-01"^^xsd:date ;
+    :residenceDurationInYears "6.2"^^xsd:float ;
+    rdfs:label "한지영 경기 거주 이력"@ko .
+
+:ResidenceHistory_Yoon rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Busan ;
+    :residenceStartDate "2020-01-01"^^xsd:date ;
+    :residenceDurationInYears "4.9"^^xsd:float ;
+    rdfs:label "윤재호 부산 거주 이력"@ko .
+
+:ResidenceHistory_Kang rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Daejeon ;
+    :residenceStartDate "2012-06-01"^^xsd:date ;
+    :residenceDurationInYears "12.5"^^xsd:float ;
+    rdfs:label "강민정 대전 거주 이력"@ko .
+
+:ResidenceHistory_Zang rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2015-01-01"^^xsd:date ;
+    :residenceDurationInYears "9.0"^^xsd:float ;
+    rdfs:label "장광 서울 거주 이력"@ko .
+
+:ResidenceHistory_Lim rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Incheon ;
+    :residenceStartDate "2023-01-01"^^xsd:date ;
+    :residenceDurationInYears "1.0"^^xsd:float ;
+    rdfs:label "임무 인천 거주 이력"@ko .
+
+
+###############################################################################
+#    소득세 납부 이력 (TaxPaymentHistory) 인스턴스
+###############################################################################
+
+:TaxHistory_Jung_2018 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2018"^^xsd:gYear ;
+    :taxAmount 1200000 ;
+    rdfs:label "정수영 2018년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2019 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2019"^^xsd:gYear ;
+    :taxAmount 1500000 ;
+    rdfs:label "정수영 2019년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2020 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2020"^^xsd:gYear ;
+    :taxAmount 1800000 ;
+    rdfs:label "정수영 2020년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2021 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2021"^^xsd:gYear ;
+    :taxAmount 2000000 ;
+    rdfs:label "정수영 2021년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2022"^^xsd:gYear ;
+    :taxAmount 2200000 ;
+    rdfs:label "정수영 2022년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2023"^^xsd:gYear ;
+    :taxAmount 2500000 ;
+    rdfs:label "정수영 2023년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2024 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2024"^^xsd:gYear ;
+    :taxAmount 2700000 ;
+    rdfs:label "정수영 2024년 소득세 납부"@ko .
+
+# 박영호 (3년 납부 예시)
+:TaxHistory_Park_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2022"^^xsd:gYear ;
+    :taxAmount 1500000 ;
+    rdfs:label "박영호 2022년 소득세 납부"@ko .
+
+:TaxHistory_Park_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2023"^^xsd:gYear ;
+    :taxAmount 1800000 ;
+    rdfs:label "박영호 2023년 소득세 납부"@ko .
+
+:TaxHistory_Park_2024 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2024"^^xsd:gYear ;
+    :taxAmount 2000000 ;
+    rdfs:label "박영호 2024년 소득세 납부"@ko .
+
+###############################################################################
+#    주택 소유 이력 (HousingOwnershipHistory) 인스턴스
+###############################################################################
+
+:OwnershipHistory_Choi rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownedHousing :Housing_Choi ;
+    :ownershipStartDate "2010-05-15"^^xsd:date ;
+    rdfs:label "최동현 주택 소유 이력"@ko .
+
+# 김철수 과거 소유 이력 (현재 무주택자 판단 로직 검증용)
+:OwnershipHistory_Kim_Past rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownershipStartDate "2000-01-01"^^xsd:date ;
+    :ownershipEndDate "2014-01-01"^^xsd:date ;
+    rdfs:label "김철수 과거 주택 소유 이력"@ko .
+
+###############################################################################
+#    당첨 이력 (WinningRecord) 인스턴스
+###############################################################################
+
+:WinningRecord_Sample rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2020-06-15"^^xsd:date ;
+    :restrictionPeriodInYears 7 ;
+    :contractCompleted true ;
+    :isSubjectToRestriction true ;
+    rdfs:label "샘플 당첨 이력 (제한기간 중)"@ko .
+
+:WinningRecord_Expired rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2010-01-01"^^xsd:date ;
+    :restrictionPeriodInYears 5 ;
+    :contractCompleted true ;
+    :isSubjectToRestriction false ;
+    rdfs:label "만료된 당첨 이력"@ko .
+

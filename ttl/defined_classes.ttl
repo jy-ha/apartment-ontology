@@ -49,19 +49,7 @@
                       :Household
                       [ rdf:type owl:Restriction ;
                         owl:onProperty :hasMember ;
-                        owl:allValuesFrom [
-                            rdf:type owl:Class ;
-                            owl:intersectionOf (
-                                :Person
-                                [ rdf:type owl:Class ;
-                                  owl:complementOf [
-                                      rdf:type owl:Restriction ;
-                                      owl:onProperty :owns ;
-                                      owl:someValuesFrom :Housing
-                                  ]
-                                ]
-                            )
-                        ]
+                        owl:allValuesFrom :NonHousingOwner
                       ]
                   )
               ]
@@ -70,7 +58,7 @@
     ] ;
     rdfs:label "HomelessHouseholdMember"@en ;
     rdfs:label "무주택세대구성원"@ko ;
-    rdfs:comment "세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원입니다."@ko .
+    rdfs:comment "세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원입니다. HousingOwner/NonHousingOwner Covering Axiom으로 Closed World를 구현합니다."@ko .
 
 :HeadOfHomelessHousehold rdf:type owl:Class ;
     owl:equivalentClass [
@@ -122,34 +110,6 @@
     rdfs:label "LongTermResident"@en ;
     rdfs:label "장기 거주자"@ko ;
     rdfs:comment "특정 지역에 3년 이상 거주한 사람입니다."@ko .
-
-:NeverOwnedHousing rdf:type owl:Class ;
-    owl:equivalentClass [
-        rdf:type owl:Class ;
-        owl:intersectionOf (
-            :Person
-            [ rdf:type owl:Class ;
-              owl:complementOf [
-                  rdf:type owl:Restriction ;
-                  owl:onProperty :hasOwnershipHistory ;
-                  owl:someValuesFrom :HousingOwnershipHistory
-              ]
-            ]
-        )
-    ] ;
-    rdfs:label "NeverOwnedHousing"@en ;
-    rdfs:label "주택 소유 이력 없음"@ko ;
-    rdfs:comment "본인이 과거에 단 한 번도 주택을 소유한 적이 없는 사람입니다. 생애최초 특공의 핵심 요건입니다."@ko .
-
-:EverOwnedHousing rdf:type owl:Class ;
-    owl:equivalentClass [
-        rdf:type owl:Restriction ;
-        owl:onProperty :hasOwnershipHistory ;
-        owl:someValuesFrom :HousingOwnershipHistory
-    ] ;
-    rdfs:label "EverOwnedHousing"@en ;
-    rdfs:label "주택 소유 이력 있음"@ko ;
-    rdfs:comment "본인이 과거에 주택을 소유한 적이 있는 사람입니다."@ko .
 
 :QualifiedDependent_Defined rdf:type owl:Class ;
     owl:equivalentClass [
@@ -636,7 +596,7 @@
         rdf:type owl:Class ;
         owl:intersectionOf (
             :Applicant
-            :NeverOwnedHousing
+            :NeverOwnedHousingPerson
             [ rdf:type owl:Restriction ;
               owl:onProperty :belongsToHousehold ;
               owl:someValuesFrom [
@@ -645,7 +605,7 @@
                       :Household
                       [ rdf:type owl:Restriction ;
                         owl:onProperty :hasMember ;
-                        owl:allValuesFrom :NeverOwnedHousing
+                        owl:allValuesFrom :NeverOwnedHousingPerson
                       ]
                   )
               ]
@@ -654,7 +614,7 @@
     ] ;
     rdfs:label "FirstTimeHomeBuyer_Qualified"@en ;
     rdfs:label "생애최초 자격자"@ko ;
-    rdfs:comment "생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자입니다."@ko .
+    rdfs:comment "생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자입니다. HousingOwnershipHistoryHolder/NeverOwnedHousingPerson Covering Axiom으로 Closed World를 구현합니다."@ko .
 
 ###############################################################################
 #

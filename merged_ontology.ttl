@@ -309,13 +309,6 @@
     rdfs:label "총 청약 가점"@ko ;
     rdfs:comment "총 청약 가점 (0~84점). 무주택 기간 + 부양가족 + 통장 가입 기간 점수의 합."@ko .
 
-:pointValue rdf:type owl:DatatypeProperty ;
-    rdfs:domain :SubscriptionPoint ;
-    rdfs:range xsd:integer ;
-    rdfs:label "pointValue"@en ;
-    rdfs:label "가점 값"@ko ;
-    rdfs:comment "가점 항목의 점수 값 (0~84점)."@ko .
-
 ###############################################################################
 #    4. HouseholdMember (세대구성원) 속성
 ###############################################################################
@@ -673,25 +666,6 @@
     rdfs:label "ownershipEndDate"@en ;
     rdfs:label "주택 소유 종료일"@ko ;
     rdfs:comment "주택 소유 종료일 (처분일)을 나타냅니다."@ko .
-
-###############################################################################
-#    20. SupportingAgedParentsRequirement (노부모부양 요건) 속성
-###############################################################################
-
-:minElderlyAge rdf:type owl:DatatypeProperty ;
-    rdfs:domain :SupportingAgedParentsRequirement ;
-    rdfs:range xsd:positiveInteger ;
-    rdfs:label "minElderlyAge"@en ;
-    rdfs:label "최소 부모 나이"@ko ;
-    rdfs:comment "노부모부양 인정을 위한 최소 부모 나이 (만 나이)."@ko .
-
-:minSupportYears rdf:type owl:DatatypeProperty ;
-    rdfs:domain :SupportingAgedParentsRequirement ;
-    rdfs:range xsd:positiveInteger ;
-    rdfs:label "minSupportYears"@en ;
-    rdfs:label "최소 부양 기간"@ko ;
-    rdfs:comment "노부모부양 인정을 위한 최소 부양 기간 (년 단위). 입주자 모집공고일 기준으로 계산합니다."@ko .
-
 ###############################################################################
 #
 #    Content from: defined_classes.ttl
@@ -743,19 +717,7 @@
                       :Household
                       [ rdf:type owl:Restriction ;
                         owl:onProperty :hasMember ;
-                        owl:allValuesFrom [
-                            rdf:type owl:Class ;
-                            owl:intersectionOf (
-                                :Person
-                                [ rdf:type owl:Class ;
-                                  owl:complementOf [
-                                      rdf:type owl:Restriction ;
-                                      owl:onProperty :owns ;
-                                      owl:someValuesFrom :Housing
-                                  ]
-                                ]
-                            )
-                        ]
+                        owl:allValuesFrom :NonHousingOwner
                       ]
                   )
               ]
@@ -764,7 +726,7 @@
     ] ;
     rdfs:label "HomelessHouseholdMember"@en ;
     rdfs:label "무주택세대구성원"@ko ;
-    rdfs:comment "세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원입니다."@ko .
+    rdfs:comment "세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원입니다. HousingOwner/NonHousingOwner Covering Axiom으로 Closed World를 구현합니다."@ko .
 
 :HeadOfHomelessHousehold rdf:type owl:Class ;
     owl:equivalentClass [
@@ -816,34 +778,6 @@
     rdfs:label "LongTermResident"@en ;
     rdfs:label "장기 거주자"@ko ;
     rdfs:comment "특정 지역에 3년 이상 거주한 사람입니다."@ko .
-
-:NeverOwnedHousing rdf:type owl:Class ;
-    owl:equivalentClass [
-        rdf:type owl:Class ;
-        owl:intersectionOf (
-            :Person
-            [ rdf:type owl:Class ;
-              owl:complementOf [
-                  rdf:type owl:Restriction ;
-                  owl:onProperty :hasOwnershipHistory ;
-                  owl:someValuesFrom :HousingOwnershipHistory
-              ]
-            ]
-        )
-    ] ;
-    rdfs:label "NeverOwnedHousing"@en ;
-    rdfs:label "주택 소유 이력 없음"@ko ;
-    rdfs:comment "본인이 과거에 단 한 번도 주택을 소유한 적이 없는 사람입니다. 생애최초 특공의 핵심 요건입니다."@ko .
-
-:EverOwnedHousing rdf:type owl:Class ;
-    owl:equivalentClass [
-        rdf:type owl:Restriction ;
-        owl:onProperty :hasOwnershipHistory ;
-        owl:someValuesFrom :HousingOwnershipHistory
-    ] ;
-    rdfs:label "EverOwnedHousing"@en ;
-    rdfs:label "주택 소유 이력 있음"@ko ;
-    rdfs:comment "본인이 과거에 주택을 소유한 적이 있는 사람입니다."@ko .
 
 :QualifiedDependent_Defined rdf:type owl:Class ;
     owl:equivalentClass [
@@ -1330,7 +1264,7 @@
         rdf:type owl:Class ;
         owl:intersectionOf (
             :Applicant
-            :NeverOwnedHousing
+            :NeverOwnedHousingPerson
             [ rdf:type owl:Restriction ;
               owl:onProperty :belongsToHousehold ;
               owl:someValuesFrom [
@@ -1339,7 +1273,7 @@
                       :Household
                       [ rdf:type owl:Restriction ;
                         owl:onProperty :hasMember ;
-                        owl:allValuesFrom :NeverOwnedHousing
+                        owl:allValuesFrom :NeverOwnedHousingPerson
                       ]
                   )
               ]
@@ -1348,7 +1282,7 @@
     ] ;
     rdfs:label "FirstTimeHomeBuyer_Qualified"@en ;
     rdfs:label "생애최초 자격자"@ko ;
-    rdfs:comment "생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자입니다."@ko .
+    rdfs:comment "생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자입니다. HousingOwnershipHistoryHolder/NeverOwnedHousingPerson Covering Axiom으로 Closed World를 구현합니다."@ko .
 
 ###############################################################################
 #
@@ -1415,296 +1349,1433 @@
 
 ###############################################################################
 #
-#    Content from: individuals.ttl
+#    Content from: 01_regions.ttl
 #
 ###############################################################################
 
 ###############################################################################
-#
-#    Individuals (개체)
-#
-#    이 파일은 온톨로지의 구체적인 개체(Individual)들을 정의합니다.
-#    지역, 소득 기준, 예치금 요건, 기관 등 실제 청약 자격 판단에
-#    필요한 기준 데이터를 제공합니다.
-#
+#    지역 (Region) 인스턴스
 ###############################################################################
 
-###############################################################################
-#    1. 지역 개체 (Region Individuals)
-#
-#    설계 변경: Seoul, Gyeonggi, Incheon은 Individual로 정의됩니다.
-#    (이전에 Primitive Class였으나 변경됨)
-###############################################################################
-
-:Seoul rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
-    :regionName "서울" ;
+# 수도권 (MetropolitanArea)
+:Seoul rdf:type owl:NamedIndividual , :MetropolitanArea ;
+    :regionName "서울특별시"^^xsd:string ;
     :isSpeculativeOverheatedZone true ;
     :isSubscriptionOverheatedArea true ;
-    rdfs:label "서울특별시"@ko ;
-    rdfs:label "Seoul"@en ;
-    rdfs:comment "대한민국의 수도이자 최대 도시. 대부분 지역이 투기과열지구 및 청약과열지역으로 지정됨."@ko .
+    rdfs:label "서울"@ko .
 
-:Gyeonggi rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
-    :regionName "경기" ;
+:Gyeonggi rdf:type owl:NamedIndividual , :MetropolitanArea ;
+    :regionName "경기도"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "경기도"@ko .
+
+:Incheon rdf:type owl:NamedIndividual , :MetropolitanArea ;
+    :regionName "인천광역시"^^xsd:string ;
     :isSpeculativeOverheatedZone false ;
     :isSubscriptionOverheatedArea false ;
-    rdfs:label "경기도"@ko ;
-    rdfs:label "Gyeonggi"@en ;
-    rdfs:comment "서울을 둘러싼 수도권 지역. 일부 시(과천, 광명 등)는 투기과열지구로 지정될 수 있음."@ko .
+    rdfs:label "인천"@ko .
 
-:Incheon rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
-    :regionName "인천" ;
+# 지방 광역시
+:Busan rdf:type owl:NamedIndividual , :Region ;
+    :regionName "부산광역시"^^xsd:string ;
     :isSpeculativeOverheatedZone false ;
     :isSubscriptionOverheatedArea false ;
-    rdfs:label "인천광역시"@ko ;
-    rdfs:label "Incheon"@en ;
-    rdfs:comment "서해안에 위치한 수도권 항구 도시."@ko .
+    rdfs:label "부산"@ko .
+
+:Daejeon rdf:type owl:NamedIndividual , :Region ;
+    :regionName "대전광역시"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "대전"@ko .
+
+# 기타 지역 (신규 추가)
+:Sejong rdf:type owl:NamedIndividual , :Region ;
+    :regionName "세종특별자치시"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea true ;
+    rdfs:label "세종"@ko .
+
+:Gangwon rdf:type owl:NamedIndividual , :Region ;
+    :regionName "강원도"^^xsd:string ;
+    :isSpeculativeOverheatedZone false ;
+    :isSubscriptionOverheatedArea false ;
+    rdfs:label "강원"@ko .
 
 ###############################################################################
-#    2. 도시근로자 가구당 월평균 소득 개체 (2024년 기준)
+#
+#    Content from: 02_institutions.ttl
+#
 ###############################################################################
 
-:UrbanWorker_2024_1person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
-    :yearOfStandard 2024 ;
-    :householdSize 1 ;
-    :standardAmount 3000000 ;
-    rdfs:label "2024년 1인 가구 도시근로자 월평균 소득"@ko ;
-    rdfs:comment "생애최초 특공에서 1인 가구는 2인 가구 기준을 적용받음."@ko .
+###############################################################################
+#    추천 기관 (Institution) 인스턴스
+###############################################################################
 
-:UrbanWorker_2024_2person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
-    :yearOfStandard 2024 ;
-    :householdSize 2 ;
-    :standardAmount 5000000 ;
-    rdfs:label "2024년 2인 가구 도시근로자 월평균 소득"@ko .
+:MOHW rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "보건복지부"@ko ;
+    rdfs:comment "장애인 등을 추천하는 기관"@ko .
 
-:UrbanWorker_2024_3person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+:SME_Agency rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "중소벤처기업부"@ko ;
+    rdfs:comment "중소기업 근로자를 추천하는 기관"@ko .
+
+:MPVA rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "국가보훈부"@ko ;
+    rdfs:comment "국가유공자를 추천하는 기관"@ko .
+
+# 신규 추가 기관
+:MND rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "국방부"@ko ;
+    rdfs:comment "장기복무 제대군인을 추천하는 기관"@ko .
+
+:Gyeonggi_Welfare rdf:type owl:NamedIndividual , :Institution ;
+    rdfs:label "경기도 장애인복지과"@ko ;
+    rdfs:comment "지방자치단체 위임 추천 기관 예시"@ko .
+
+###############################################################################
+#
+#    Content from: 03_definitions.ttl
+#
+###############################################################################
+
+###############################################################################
+#    기준 소득 (StandardIncome) - 2024년 도시근로자 월평균 소득
+###############################################################################
+
+:StandardIncome_2024_3 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
     :yearOfStandard 2024 ;
     :householdSize 3 ;
-    :standardAmount 5400000 ;
-    rdfs:label "2024년 3인 가구 도시근로자 월평균 소득"@ko .
+    :standardAmount 6718198 ;
+    rdfs:label "2024년 3인 가구 기준소득"@ko .
 
-:UrbanWorker_2024_4person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+:StandardIncome_2024_4 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
     :yearOfStandard 2024 ;
     :householdSize 4 ;
-    :standardAmount 6200000 ;
-    rdfs:label "2024년 4인 가구 도시근로자 월평균 소득"@ko .
+    :standardAmount 7622056 ;
+    rdfs:label "2024년 4인 가구 기준소득"@ko .
 
-:UrbanWorker_2024_5person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+:StandardIncome_2024_5 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
     :yearOfStandard 2024 ;
     :householdSize 5 ;
-    :standardAmount 6700000 ;
-    rdfs:label "2024년 5인 가구 도시근로자 월평균 소득"@ko .
+    :standardAmount 7900320 ;
+    rdfs:label "2024년 5인 가구 기준소득"@ko .
 
-:UrbanWorker_2024_6person rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+# 6인 이상 가구 추가
+:StandardIncome_2024_6 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
     :yearOfStandard 2024 ;
     :householdSize 6 ;
-    :standardAmount 7200000 ;
-    rdfs:label "2024년 6인 가구 도시근로자 월평균 소득"@ko ;
-    rdfs:comment "7인 이상 가구는 6인 가구 기준에 1인당 50만원을 추가하여 산정함."@ko .
+    :standardAmount 8560000 ;
+    rdfs:label "2024년 6인 가구 기준소득"@ko .
 
 ###############################################################################
-#    3. 예치금 요건 개체 (Deposit Requirement Individuals)
+#    예치금 요건 (DepositRequirement)
 ###############################################################################
 
-# 3.1 서울 지역 예치금 요건
-
-:Seoul_Deposit_Under85 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Seoul ;
+# 서울/부산 (투기과열지구 등 주요지역)
+:DepositReq_Seoul_85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
     :minArea "0.0"^^xsd:float ;
     :maxArea "85.0"^^xsd:float ;
     :requiredDepositAmount 3000000 ;
-    rdfs:label "서울 85㎡ 이하 예치금 요건"@ko ;
-    rdfs:comment "서울 지역 전용면적 85㎡ 이하 주택 청약 시 필요한 최소 예치금: 300만원"@ko .
+    rdfs:label "서울/부산 85㎡ 이하 예치금"@ko .
 
-:Seoul_Deposit_85to102 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Seoul ;
+:DepositReq_Seoul_102 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
     :minArea "85.0"^^xsd:float ;
     :maxArea "102.0"^^xsd:float ;
     :requiredDepositAmount 6000000 ;
-    rdfs:label "서울 85~102㎡ 예치금 요건"@ko ;
-    rdfs:comment "서울 지역 전용면적 85㎡ 초과 102㎡ 이하 주택 청약 시 필요한 최소 예치금: 600만원"@ko .
+    rdfs:label "서울/부산 102㎡ 이하 예치금"@ko .
 
-:Seoul_Deposit_102to135 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Seoul ;
+:DepositReq_Seoul_135 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
     :minArea "102.0"^^xsd:float ;
     :maxArea "135.0"^^xsd:float ;
     :requiredDepositAmount 10000000 ;
-    rdfs:label "서울 102~135㎡ 예치금 요건"@ko ;
-    rdfs:comment "서울 지역 전용면적 102㎡ 초과 135㎡ 이하 주택 청약 시 필요한 최소 예치금: 1,000만원"@ko .
+    rdfs:label "서울/부산 135㎡ 이하 예치금"@ko .
 
-:Seoul_Deposit_Over135 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Seoul ;
+:DepositReq_Seoul_All rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
     :minArea "135.0"^^xsd:float ;
-    :maxArea "999999.0"^^xsd:float ;
+    :maxArea "9999.0"^^xsd:float ;
     :requiredDepositAmount 15000000 ;
-    rdfs:label "서울 135㎡ 초과 예치금 요건"@ko ;
-    rdfs:comment "서울 지역 전용면적 135㎡ 초과 모든 주택 청약 시 필요한 최소 예치금: 1,500만원"@ko .
+    rdfs:label "서울/부산 모든면적 예치금"@ko .
 
-# 3.2 경기도 지역 예치금 요건
+# 기타 광역시
+:DepositReq_Metro_85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Incheon , :Daejeon , :Sejong ;
+    :minArea "0.0"^^xsd:float ;
+    :maxArea "85.0"^^xsd:float ;
+    :requiredDepositAmount 2500000 ;
+    rdfs:label "기타광역시 85㎡ 이하 예치금"@ko .
 
-:Gyeonggi_Deposit_Under85 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Gyeonggi ;
+# 경기도 및 기타 시/군
+:DepositReq_Other_85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Gyeonggi , :Gangwon ;
     :minArea "0.0"^^xsd:float ;
     :maxArea "85.0"^^xsd:float ;
     :requiredDepositAmount 2000000 ;
-    rdfs:label "경기 85㎡ 이하 예치금 요건"@ko ;
-    rdfs:comment "경기도 지역 전용면적 85㎡ 이하 주택 청약 시 필요한 최소 예치금: 200만원"@ko .
-
-:Gyeonggi_Deposit_85to102 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Gyeonggi ;
-    :minArea "85.0"^^xsd:float ;
-    :maxArea "102.0"^^xsd:float ;
-    :requiredDepositAmount 3000000 ;
-    rdfs:label "경기 85~102㎡ 예치금 요건"@ko ;
-    rdfs:comment "경기도 지역 전용면적 85㎡ 초과 102㎡ 이하 주택 청약 시 필요한 최소 예치금: 300만원"@ko .
-
-:Gyeonggi_Deposit_102to135 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Gyeonggi ;
-    :minArea "102.0"^^xsd:float ;
-    :maxArea "135.0"^^xsd:float ;
-    :requiredDepositAmount 5000000 ;
-    rdfs:label "경기 102~135㎡ 예치금 요건"@ko ;
-    rdfs:comment "경기도 지역 전용면적 102㎡ 초과 135㎡ 이하 주택 청약 시 필요한 최소 예치금: 500만원"@ko .
-
-:Gyeonggi_Deposit_Over135 rdf:type owl:NamedIndividual , :DepositRequirement ;
-    :appliesInRegion :Gyeonggi ;
-    :minArea "135.0"^^xsd:float ;
-    :maxArea "999999.0"^^xsd:float ;
-    :requiredDepositAmount 10000000 ;
-    rdfs:label "경기 135㎡ 초과 예치금 요건"@ko ;
-    rdfs:comment "경기도 지역 전용면적 135㎡ 초과 모든 주택 청약 시 필요한 최소 예치금: 1,000만원"@ko .
+    rdfs:label "기타지역 85㎡ 이하 예치금"@ko .
 
 ###############################################################################
-#    4. 소득 기준선 개체 (Income Threshold Individuals)
+#    선정 방식 (SelectionMethod)
 ###############################################################################
 
-# 4.1 신혼부부 특별공급 소득 기준
+:PointBased_100 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "1.0"^^xsd:float ;
+    rdfs:label "가점제 100%"@ko .
 
-:Newlywed_Income_100pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
-    :incomePercentage 100 ;
-    rdfs:label "신혼부부 우선공급 소득 기준 (100%)"@ko ;
-    rdfs:comment "신혼부부 특별공급 우선공급(만 6세 이하 자녀 또는 소득 100% 이하)의 소득 기준"@ko .
+:PointBased_70_Lottery_30 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.7"^^xsd:float ;
+    rdfs:label "가점제 70%"@ko .
 
-:Newlywed_Income_140pct_SingleIncome rdf:type owl:NamedIndividual , :IncomeThreshold ;
-    :incomePercentage 140 ;
-    rdfs:label "신혼부부 일반공급 소득 기준 (140%, 단독소득)"@ko ;
-    rdfs:comment "신혼부부 특별공급 일반공급에서 단독소득 가구의 소득 기준: 도시근로자 월평균 소득의 140%"@ko .
+:PointBased_40_Lottery_60 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.4"^^xsd:float ;
+    rdfs:label "가점제 40%"@ko .
 
-:Newlywed_Income_160pct_DualIncome rdf:type owl:NamedIndividual , :IncomeThreshold ;
-    :incomePercentage 160 ;
-    rdfs:label "신혼부부 일반공급 소득 기준 (160%, 맞벌이)"@ko ;
-    rdfs:comment "신혼부부 특별공급 일반공급에서 맞벌이 가구의 소득 기준: 도시근로자 월평균 소득의 160%"@ko .
+:PointBased_50_Lottery_50 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.5"^^xsd:float ;
+    rdfs:label "가점제 50%"@ko .
 
-# 4.2 생애최초 특별공급 소득 기준
-
-:FirstTimeHomeBuyer_Income_100pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
-    :incomePercentage 100 ;
-    rdfs:label "생애최초 특별공급 소득 기준 (100%)"@ko ;
-    rdfs:comment "생애최초 특별공급의 기본 소득 기준: 도시근로자 월평균 소득의 100%"@ko .
-
-:FirstTimeHomeBuyer_Income_130pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
-    :incomePercentage 130 ;
-    rdfs:label "생애최초 특별공급 소득 기준 (130%)"@ko ;
-    rdfs:comment "생애최초 특별공급의 완화 소득 기준: 도시근로자 월평균 소득의 130% (추첨제 적용)"@ko .
-
-# 4.3 국민주택 일반공급 소득 기준
-
-:NationalHousing_Income_100pct rdf:type owl:NamedIndividual , :IncomeThreshold ;
-    :incomePercentage 100 ;
-    rdfs:label "국민주택 일반공급 소득 기준 (100%)"@ko ;
-    rdfs:comment "국민주택 일반공급 1순위 자격의 소득 기준: 도시근로자 월평균 소득의 100% 이하"@ko .
+:Lottery_100 rdf:type owl:NamedIndividual , :LotteryBasedSelection ;
+    :selectionRatio "1.0"^^xsd:float ;
+    rdfs:label "추첨제 100%"@ko .
 
 ###############################################################################
-#    5. 자산 기준선 개체 (Asset Threshold Individuals)
+#    소득 기준선 (IncomeThreshold) - 특별공급 유형별 소득 기준
 ###############################################################################
 
-:NationalHousing_AssetThreshold_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
-    :maxRealEstateValue 215000000 ;
-    :maxVehicleValue 37080000 ;
+# 신혼부부 특별공급 소득 기준
+:IncomeThreshold_Newlywed_100 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 100 ;
+    :appliesTo :NewlywedPrioritySupply ;
+    rdfs:comment "신혼부부 우선공급 - 도시근로자 월평균소득 100% 이하"@ko ;
+    rdfs:label "신혼부부 우선공급 소득기준 100%"@ko .
+
+:IncomeThreshold_Newlywed_130 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 130 ;
+    :appliesTo :NewlywedGeneralSupply ;
+    rdfs:comment "신혼부부 일반공급 - 도시근로자 월평균소득 130% 이하"@ko ;
+    rdfs:label "신혼부부 일반공급 소득기준 130%"@ko .
+
+:IncomeThreshold_Newlywed_DualIncome_140 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 140 ;
+    :appliesTo :NewlywedCoupleSupply ;
+    rdfs:comment "신혼부부 맞벌이 - 도시근로자 월평균소득 140% 이하"@ko ;
+    rdfs:label "신혼부부 맞벌이 소득기준 140%"@ko .
+
+# 생애최초 특별공급 소득 기준
+:IncomeThreshold_FirstTime_130 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 130 ;
+    :appliesTo :FirstTimeHomeBuyerSupply ;
+    rdfs:comment "생애최초 - 도시근로자 월평균소득 130% 이하"@ko ;
+    rdfs:label "생애최초 소득기준 130%"@ko .
+
+:IncomeThreshold_FirstTime_160 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 160 ;
+    :appliesTo :FirstTimeHomeBuyerSupply ;
+    rdfs:comment "생애최초 추첨제 - 도시근로자 월평균소득 160% 이하"@ko ;
+    rdfs:label "생애최초 추첨제 소득기준 160%"@ko .
+
+# 다자녀 특별공급 소득 기준
+:IncomeThreshold_MultiChild_120 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 120 ;
+    :appliesTo :MultiChildHouseholdSupply ;
+    rdfs:comment "다자녀 가구 - 도시근로자 월평균소득 120% 이하"@ko ;
+    rdfs:label "다자녀 소득기준 120%"@ko .
+
+# 노부모부양 특별공급 소득 기준
+:IncomeThreshold_AgedParents_120 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 120 ;
+    :appliesTo :SupportingAgedParentsSupply ;
+    rdfs:comment "노부모부양 - 도시근로자 월평균소득 120% 이하"@ko ;
+    rdfs:label "노부모부양 소득기준 120%"@ko .
+
+###############################################################################
+#    자산 기준선 (AssetThreshold) - 2024년 기준
+###############################################################################
+
+# 부동산 자산 기준
+:AssetThreshold_RealEstate_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "부동산"^^xsd:string ;
+    :thresholdAmount 215500000 ;
     :yearOfStandard 2024 ;
-    rdfs:label "국민주택 자산 기준 (2024년)"@ko ;
-    rdfs:comment "국민주택 1순위 신청 시 세대 전체의 자산 보유 한도. 부동산: 2억 1,500만원 이하, 자동차: 3,708만원 이하"@ko .
+    rdfs:comment "2024년 부동산(토지+건물) 자산 기준 - 2억 1,550만원"@ko ;
+    rdfs:label "2024년 부동산 자산기준"@ko .
 
-###############################################################################
-#    5-1. 노부모부양 특별공급 요건 개체 (2024년 기준)
-###############################################################################
-
-:AgedParentsSupport_Requirement_2024 rdf:type owl:NamedIndividual , :SupportingAgedParentsRequirement ;
-    :minElderlyAge 65 ;
-    :minSupportYears 3 ;
+# 자동차 자산 기준
+:AssetThreshold_Vehicle_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "자동차"^^xsd:string ;
+    :thresholdAmount 37570000 ;
     :yearOfStandard 2024 ;
-    rdfs:label "노부모부양 특별공급 요건 (2024년)"@ko ;
-    rdfs:comment "2024년 기준 노부모부양 특별공급 요건: 만 65세 이상 부모를 3년 이상 부양"@ko .
+    rdfs:comment "2024년 자동차 자산 기준 - 3,757만원 (장애인 사용 차량 제외)"@ko ;
+    rdfs:label "2024년 자동차 자산기준"@ko .
 
-###############################################################################
-#    6. 청약 공급 유형 개체 (Subscription Supply Type Individuals)
-###############################################################################
+# 총 자산 기준 (국민주택)
+:AssetThreshold_Total_National_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "총자산"^^xsd:string ;
+    :thresholdAmount 361200000 ;
+    :yearOfStandard 2024 ;
+    :appliesTo :NationalHousing ;
+    rdfs:comment "2024년 국민주택 총 자산 기준 - 3억 6,120만원"@ko ;
+    rdfs:label "2024년 국민주택 총자산기준"@ko .
 
-:GeneralSupply_Type rdf:type owl:NamedIndividual , :GeneralSupply ;
-    rdfs:label "일반공급"@ko ;
-    rdfs:comment "청약통장 가입자 대상 일반 청약 공급"@ko .
-
-:NewlywedCoupleSupply_Type rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
-    rdfs:label "신혼부부 특별공급"@ko ;
-    rdfs:comment "혼인 기간 7년 이내 또는 만 6세 이하 자녀를 둔 한부모가족 대상 특별공급"@ko .
-
-:FirstTimeHomeBuyerSupply_Type rdf:type owl:NamedIndividual , :FirstTimeHomeBuyerSupply ;
-    rdfs:label "생애최초 특별공급"@ko ;
-    rdfs:comment "세대원 전원이 과거 주택 소유 이력이 없는 생애 최초 주택 구매자 대상 특별공급"@ko .
-
-:MultiChildHouseholdSupply_Type rdf:type owl:NamedIndividual , :MultiChildHouseholdSupply ;
-    rdfs:label "다자녀가구 특별공급"@ko ;
-    rdfs:comment "만 19세 미만 자녀 3명 이상(태아 포함) 가구 대상 특별공급"@ko .
-
-:SupportingAgedParentsSupply_Type rdf:type owl:NamedIndividual , :SupportingAgedParentsSupply ;
-    rdfs:label "노부모부양 특별공급"@ko ;
-    rdfs:comment "만 65세 이상 직계존속을 3년 이상 부양하는 무주택 세대주 대상 특별공급"@ko .
-
-:InstitutionalRecommendation_Type rdf:type owl:NamedIndividual , :InstitutionalRecommendation ;
-    rdfs:label "기관추천 특별공급"@ko ;
-    rdfs:comment "국가유공자, 장애인, 중소기업 근로자 등 관련 기관의 추천을 받은 자 대상 특별공급"@ko .
-
-###############################################################################
-#    7. 추천 기관 개체 (Institution Individuals)
-#
-#    설계 변경: 기관들은 Individual로 정의됩니다.
-#    (이전에 Primitive Class였으나 변경됨)
-###############################################################################
-
-:NationalVeteransInstitution_Korea rdf:type owl:NamedIndividual , :Institution ;
-    rdfs:label "국가보훈처"@ko ;
-    rdfs:label "National Veterans Institution"@en ;
-    rdfs:comment "국가유공자 및 보훈대상자에 대한 기관추천 특별공급 추천 기관"@ko .
-
-:LocalGovernment_Generic rdf:type owl:NamedIndividual , :Institution ;
-    rdfs:label "지방자치단체"@ko ;
-    rdfs:label "Local Government"@en ;
-    rdfs:comment "장애인, 철거민 등에 대한 기관추천 특별공급 추천 기관"@ko .
-
-:SMEMinistry_Korea rdf:type owl:NamedIndividual , :Institution ;
-    rdfs:label "중소벤처기업부"@ko ;
-    rdfs:label "SME Ministry"@en ;
-    rdfs:comment "중소기업 근로자에 대한 기관추천 특별공급 추천 기관"@ko .
-
-:NorthKoreanRefugeeFoundation_Korea rdf:type owl:NamedIndividual , :Institution ;
-    rdfs:label "북한이탈주민지원재단"@ko ;
-    rdfs:label "North Korean Refugee Foundation"@en ;
-    rdfs:comment "북한이탈주민에 대한 기관추천 특별공급 추천 기관"@ko .
-
+# 총 자산 기준 (민영주택 - 생애최초)
+:AssetThreshold_Total_Private_FirstTime_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "총자산"^^xsd:string ;
+    :thresholdAmount 500000000 ;
+    :yearOfStandard 2024 ;
+    :appliesTo :FirstTimeHomeBuyerSupply ;
+    rdfs:comment "2024년 민영주택 생애최초 총 자산 기준 - 5억원"@ko ;
+    rdfs:label "2024년 민영 생애최초 총자산기준"@ko .
 ###############################################################################
 #
-#    개체 통계 요약
-#
-#    지역: 3개 (Seoul, Gyeonggi, Incheon)
-#    도시근로자 소득 기준: 6개 (1~6인 가구)
-#    예치금 요건: 8개 (서울 4개, 경기 4개)
-#    소득 기준선: 6개 (신혼부부 3개, 생애최초 2개, 국민주택 1개)
-#    자산 기준선: 1개 (국민주택)
-#    공급 유형: 6개 (일반공급, 특별공급 5종)
-#    추천 기관: 4개 (국가보훈처, 지자체, 중소벤처부, 북한이탈주민재단)
-#    총합: 34개
+#    Content from: 04_housing.ttl
 #
 ###############################################################################
+
+###############################################################################
+#    주택 (Housing) 인스턴스
+###############################################################################
+
+# 최동현이 소유한 주택 (기존)
+:Housing_Choi rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.5"^^xsd:float ;
+    :price 850000000 ;
+    :isLocatedIn :Seoul ;
+    :isOwnedBy :Choi_DongHyun ;
+    rdfs:label "최동현 소유 아파트"@ko .
+
+# 청약 대상 주택들 (기존)
+:Housing_Project_A rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 650000000 ;
+    :isLocatedIn :Seoul ;
+    :usesSelectionMethod :PointBased_100 ;
+    rdfs:label "서울 A 아파트 59㎡"@ko .
+
+:Housing_Project_B rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 900000000 ;
+    :isLocatedIn :Seoul ;
+    :usesSelectionMethod :PointBased_100 ;
+    rdfs:label "서울 B 아파트 84㎡"@ko .
+
+:Housing_Project_C rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 450000000 ;
+    :isLocatedIn :Gyeonggi ;
+    :usesSelectionMethod :PointBased_40_Lottery_60 ;
+    rdfs:label "경기 C 국민주택 59㎡"@ko .
+
+:Housing_Project_D rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "102.0"^^xsd:float ;
+    :price 1200000000 ;
+    :isLocatedIn :Gyeonggi ;
+    :usesSelectionMethod :PointBased_50_Lottery_50 ;
+    rdfs:label "경기 D 아파트 102㎡"@ko .
+
+:Housing_Project_E rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "74.0"^^xsd:float ;
+    :price 380000000 ;
+    :isLocatedIn :Busan ;
+    :usesSelectionMethod :Lottery_100 ;
+    rdfs:label "부산 E 아파트 74㎡"@ko .
+
+# 소형저가주택 예시 (기존)
+:Housing_SmallLowPrice rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 120000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "경기 소형저가주택"@ko .
+
+# 신규 추가: 계약취소주택 (CancelledContractHousing)
+:Housing_Cancelled_F rdf:type owl:NamedIndividual , :CancelledContractHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 880000000 ;
+    :isLocatedIn :Seoul ;
+    :usesSelectionMethod :Lottery_100 ;
+    rdfs:comment "불법전매 등으로 계약이 취소되어 재공급되는 주택"@ko ;
+    rdfs:label "서울 F 계약취소분 84㎡"@ko .
+
+# 신규 추가: 사후접수주택 (PostSubscriptionHousing, 무순위)
+:Housing_Post_G rdf:type owl:NamedIndividual , :PostSubscriptionHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 400000000 ;
+    :isLocatedIn :Incheon ;
+    :usesSelectionMethod :Lottery_100 ;
+    rdfs:comment "잔여 세대에 대해 무순위로 공급되는 주택"@ko ;
+    rdfs:label "인천 G 무순위 줍줍 59㎡"@ko .
+
+###############################################################################
+#    1. 서울 / 민간분양 / 진행 중 및 예정 (Real World Examples)
+###############################################################################
+
+# 서울 서초구 해링턴플레이스 서초 (2025.11)
+:Housing_Harrington_Seocho rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1800000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 민간분양 (2025년 11월)"@ko ;
+    rdfs:label "해링턴플레이스 서초 84㎡"@ko .
+
+# 서울 서초구 반포래미안트리니원 (2025.11, 계약진행중)
+:Housing_Banpo_Raemian_Trinity rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "114.0"^^xsd:float ;
+    :price 3200000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 민간분양 (2025년 11월, 계약 중)"@ko ;
+    rdfs:label "반포래미안트리니원 114㎡"@ko .
+
+# 서울 서초구 방배더유엘포레 (2025.11, 후분양)
+:Housing_Bangbae_TheUL rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 1500000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 후분양 아파트 (2025년 11월)"@ko ;
+    rdfs:label "방배더유엘포레 59㎡"@ko .
+
+# 서울 서초구 아크로드서초 (2025.12 예정)
+:Housing_Acrode_Seocho rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 2100000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 분양 예정 (2025년 12월)"@ko ;
+    rdfs:label "아크로드서초 84㎡"@ko .
+
+# 서울 영등포구 더샵르프리베 (2026.02 예정)
+:Housing_TheSharp_LePrive rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1400000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 영등포구 문래진주 재건축 (2026년 2월)"@ko ;
+    rdfs:label "더샵르프리베 84㎡"@ko .
+
+# 서울 강서구 래미안엘라비네 (2026 예정)
+:Housing_Raemian_Ellavine rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1250000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 강서구 방화6구역 (2026년)"@ko ;
+    rdfs:label "래미안엘라비네 84㎡"@ko .
+
+# 서울 서초구 반포디에이치클래스트 (2026 예정)
+:Housing_Banpo_DH_Classest rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "135.0"^^xsd:float ;
+    :price 4500000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 반포주공1단지 재건축 (2026년)"@ko ;
+    rdfs:label "반포디에이치클래스트 135㎡"@ko .
+
+# 서울 서초구 방배포레스트자이 (2026 예정)
+:Housing_Bangbae_ForestXi rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 2000000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 방배13구역 (2026년)"@ko ;
+    rdfs:label "방배포레스트자이 84㎡"@ko .
+
+# 서울 강북구 강북3재정비촉진 (2026 예정)
+:Housing_Gangbuk3_Redevelopment rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 800000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 강북구 재정비촉진지구 (2026년)"@ko ;
+    rdfs:label "강북3구역 재개발 59㎡"@ko .
+
+# 서울 구로구 남구로역세권재개발 (2026.10 예정)
+:Housing_Namguro_Redevelopment rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 850000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 구로구 남구로역세권 (2026년 10월)"@ko ;
+    rdfs:label "남구로역세권 재개발 59㎡"@ko .
+
+# 서울 동작구 노량진2구역 (2026 예정)
+:Housing_Noryangjin2 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1300000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 동작구 노량진뉴타운 2구역 (2026년)"@ko ;
+    rdfs:label "노량진2구역 재개발 84㎡"@ko .
+
+###############################################################################
+#    2. 경기 / 민간분양 / 진행 중 및 예정
+###############################################################################
+
+# 경기 부천시 엘리프 원종 (접수중)
+:Housing_Elif_Wonjong rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 550000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 부천시 민간분양 (접수중)"@ko ;
+    rdfs:label "엘리프 원종 59㎡"@ko .
+
+# 경기 성남시 복정역 에피트 (접수중)
+:Housing_Bokjeong_Epit rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1100000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 성남시 복정1지구 민간분양 (접수중)"@ko ;
+    rdfs:label "성남복정1지구 에피트 84㎡"@ko .
+
+# 경기 성남시 더샵분당센트로 (2025.12 예정)
+:Housing_TheSharp_Bundang_Centro rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1200000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 성남시 분당 민간분양 (2025년 12월)"@ko ;
+    rdfs:label "더샵분당센트로 84㎡"@ko .
+
+# 경기 성남시 느티마을4단지 리모델링 (2026 예정)
+:Housing_Neuti_Village4 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "74.0"^^xsd:float ;
+    :price 950000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 성남시 리모델링 사업 (2026년)"@ko ;
+    rdfs:label "느티마을4단지 74㎡"@ko .
+
+# 경기 화성시 e편한세상동탄역어반원 (민간임대) - PrivateHousing으로 분류
+:Housing_Dongtan_UrbanOne rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 600000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 화성시 민간임대 (2025년 1월)"@ko ;
+    rdfs:label "e편한세상동탄역어반원 84㎡"@ko .
+
+# 경기 의정부 탑석푸르지오파크7
+:Housing_Tapseok_Prugio rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 700000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "탑석푸르지오파크7 84㎡"@ko .
+
+# 경기 평택 브레인시티푸르지오
+:Housing_BrainCity_Prugio rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 550000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "브레인시티푸르지오 84㎡"@ko .
+
+# 경기 용인 클러스터용인경남아너스빌
+:Housing_Yongin_Honorsville rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 650000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "용인경남아너스빌 84㎡"@ko .
+
+# 경기 평택 브레인시티수자인
+:Housing_BrainCity_Sujain rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 420000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "평택브레인시티수자인 59㎡"@ko .
+
+# 경기 김포 풍무역 푸르지오 더 마크
+:Housing_Pungmu_Prugio_Mark rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 680000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "풍무역 푸르지오 더 마크 84㎡"@ko .
+
+# 경기 파주 운정 아이파크 시티
+:Housing_Unjeong_IPark rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 620000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "운정 아이파크 시티 84㎡"@ko .
+
+###############################################################################
+#    3. 공공분양 / 신혼희망타운 (NationalHousing)
+###############################################################################
+
+# 김포고촌2A1 (2025.12)
+:Housing_Gimpo_Gochon_2A1 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 380000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 김포시 공공분양 (2025년 12월)"@ko ;
+    rdfs:label "김포고촌2A1 공공분양 55㎡"@ko .
+
+# 군포대야미A2 신혼희망타운 (2025.12)
+:Housing_Gunpo_Daeyami_A2 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 400000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 군포시 신혼희망타운 (2025년 12월)"@ko ;
+    rdfs:label "군포대야미A2 신혼희망타운 55㎡"@ko .
+
+# 하남교산A8 (2026 예정)
+:Housing_Hanam_Gyosan_A8 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 480000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 하남시 3기신도시 공공분양 (2026년)"@ko ;
+    rdfs:label "하남교산A8 공공분양 59㎡"@ko .
+
+# 고양창릉S2 (2026.06)
+:Housing_Goyang_Changneung_S2 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 460000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 고양시 3기신도시 공공분양 (2026년 6월)"@ko ;
+    rdfs:label "고양창릉S2 공공분양 59㎡"@ko .
+
+# 안양관양그리니티시티 (2026.04)
+:Housing_Anyang_Greenity rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 520000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 안양시 공공분양 (2026년 4월)"@ko ;
+    rdfs:label "안양관양그리니티시티 59㎡"@ko .
+
+# 수원광교A17 (2026.10)
+:Housing_Gwanggyo_A17 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 850000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 수원시 광교지구 공공분양 (2026년 10월)"@ko ;
+    rdfs:label "수원광교A17 공공분양 84㎡"@ko .
+
+# 남양주왕숙A17 (2026.10)
+:Housing_Namyangju_Wangsuk_A17 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 420000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 남양주시 3기신도시 공공분양 (2026년 10월)"@ko ;
+    rdfs:label "남양주왕숙A17 공공분양 59㎡"@ko .
+
+# 구리갈매역세권A3 (2026.12)
+:Housing_Guri_Galmae_A3 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 390000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 구리시 역세권 공공분양 (2026년 12월)"@ko ;
+    rdfs:label "구리갈매역세권A3 공공분양 55㎡"@ko .
+###############################################################################
+#
+#    Content from: 05_households.ttl
+#
+###############################################################################
+
+###############################################################################
+#    세대 (Household) 인스턴스
+###############################################################################
+
+# 세대 1: 김철수 가족 (무주택 다자녀 가구, 맞벌이)
+:Household_Kim rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Kim_ChulSoo ;
+    :hasMember :Kim_ChulSoo , :Lee_YoungHee , :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    rdfs:label "김철수 세대"@ko .
+
+# 세대 2: 박영호 가족 (무주택 신혼부부, 영유아 자녀 있음)
+:Household_Park rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Park_YoungHo ;
+    :hasMember :Park_YoungHo , :Choi_SuJin , :Park_HaNeul ;
+    rdfs:label "박영호 세대"@ko .
+
+# 세대 3: 이민수 가족 (노부모 부양)
+:Household_Lee rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Lee_MinSoo ;
+    :hasMember :Lee_MinSoo , :Jung_MiYoung , :Lee_DongGu ;
+    rdfs:label "이민수 세대"@ko .
+
+# 세대 4: 정수영 (1인 가구, 생애최초)
+:Household_Jung rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Jung_SooYoung ;
+    :hasMember :Jung_SooYoung ;
+    rdfs:label "정수영 세대"@ko .
+
+# 세대 5: 최동현 가족 (유주택 세대)
+:Household_Choi rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Choi_DongHyun ;
+    :hasMember :Choi_DongHyun , :Kim_EunJi ;
+    rdfs:label "최동현 세대"@ko .
+
+# 세대 6: 한지영 (한부모 가족)
+:Household_Han rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Han_JiYoung ;
+    :hasMember :Han_JiYoung , :Han_SeoYoon ;
+    rdfs:label "한지영 세대"@ko .
+
+# 세대 7: 윤재호 (예비 신혼부부)
+:Household_Yoon rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Yoon_JaeHo ;
+    :hasMember :Yoon_JaeHo ;
+    rdfs:label "윤재호 세대"@ko .
+
+# 세대 8: 강민정 (기관추천 대상 - 장애인)
+:Household_Kang rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Kang_MinJung ;
+    :hasMember :Kang_MinJung ;
+    rdfs:label "강민정 세대"@ko .
+
+# 세대 9: 장광 (계약취소 주택 신청용, 서울 거주)
+:Household_Zang rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Zang_Kwang ;
+    :hasMember :Zang_Kwang ;
+    rdfs:label "장광 세대"@ko .
+
+# 세대 10: 임무 (무순위 청약 신청용, 인천 거주)
+:Household_Lim rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Lim_Mu ;
+    :hasMember :Lim_Mu ;
+    rdfs:label "임무 세대"@ko .
+
+###############################################################################
+#
+#    Content from: 06_people.ttl
+#
+###############################################################################
+
+###############################################################################
+#    세대구성원 (HouseholdMember) - 사람 (Person)
+#
+#    주의: 모든 HouseholdMember는 다음 타입을 명시적으로 가져야 합니다:
+#    1. HousingOwner 또는 NonHousingOwner (현재 주택 소유 여부)
+#    2. HousingOwnershipHistoryHolder 또는 NeverOwnedHousingPerson (과거 소유 이력)
+#    이는 OWL의 Open World Assumption을 극복하기 위한 Closed World 구현입니다.
+###############################################################################
+
+# === 세대 1: 김철수 가족 (무주택, 소유 이력 있음 - 과거 처분) ===
+:Kim_ChulSoo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :HousingOwnershipHistoryHolder ;
+    :name "김철수"^^xsd:string ;
+    :age 45 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :marriageRegistrationDate "2005-03-15"^^xsd:date ;
+    :personalIncome 5000000 ;
+    :employmentStatus "재직"^^xsd:string ;
+    :hasDisability false ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Kim ;
+    :homelessPeriodInYears 10 ;
+    :homelessPeriodPoints 20 ;
+    :dependentCount 4 ;
+    :dependentFamilyPoints 25 ;
+    :accountPeriodInYears 8 ;
+    :accountPeriodPoints 10 ;
+    :totalSubscriptionPoints 55 ;
+    :hasSpouse :Lee_YoungHee ;
+    :hasChild :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    :hasMinorChild :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    :hasDependent :Lee_YoungHee , :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    :hasResidenceHistory :ResidenceHistory_Kim ;
+    :hasOwnershipHistory :OwnershipHistory_Kim_Past ;
+    rdfs:label "김철수"@ko .
+
+:Lee_YoungHee rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "이영희"^^xsd:string ;
+    :age 43 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 4000000 ;
+    :employmentStatus "재직"^^xsd:string ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasSpouse :Kim_ChulSoo ;
+    :hasChild :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    rdfs:label "이영희"@ko .
+
+:Kim_MinJi rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김민지"^^xsd:string ;
+    :age 17 ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasParent :Kim_ChulSoo , :Lee_YoungHee ;
+    rdfs:label "김민지"@ko .
+
+:Kim_MinSoo rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김민수"^^xsd:string ;
+    :age 14 ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasParent :Kim_ChulSoo , :Lee_YoungHee ;
+    rdfs:label "김민수"@ko .
+
+:Kim_MinHo rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김민호"^^xsd:string ;
+    :age 10 ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasParent :Kim_ChulSoo , :Lee_YoungHee ;
+    rdfs:label "김민호"@ko .
+
+# === 세대 2: 박영호 가족 (무주택, 소유 이력 없음) ===
+:Park_YoungHo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "박영호"^^xsd:string ;
+    :age 32 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :marriageRegistrationDate "2022-05-20"^^xsd:date ;
+    :personalIncome 4500000 ;
+    :employmentStatus "재직"^^xsd:string ;
+    :belongsToHousehold :Household_Park ;
+    :livesIn :Gyeonggi ;
+    :hasSubscriptionAccount :Account_Park ;
+    :homelessPeriodInYears 5 ;
+    :homelessPeriodPoints 10 ;
+    :dependentCount 2 ;
+    :dependentFamilyPoints 10 ;
+    :accountPeriodInYears 3 ;
+    :accountPeriodPoints 4 ;
+    :totalSubscriptionPoints 24 ;
+    :hasSpouse :Choi_SuJin ;
+    :hasChild :Park_HaNeul ;
+    :hasInfantChild :Park_HaNeul ;
+    :hasDependent :Choi_SuJin , :Park_HaNeul ;
+    :hasResidenceHistory :ResidenceHistory_Park ;
+    rdfs:label "박영호"@ko .
+
+:Choi_SuJin rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "최수진"^^xsd:string ;
+    :age 30 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 3500000 ;
+    :belongsToHousehold :Household_Park ;
+    :livesIn :Gyeonggi ;
+    :hasSpouse :Park_YoungHo ;
+    :hasChild :Park_HaNeul ;
+    rdfs:label "최수진"@ko .
+
+:Park_HaNeul rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "박하늘"^^xsd:string ;
+    :age 2 ;
+    :belongsToHousehold :Household_Park ;
+    :livesIn :Gyeonggi ;
+    :hasParent :Park_YoungHo , :Choi_SuJin ;
+    rdfs:label "박하늘"@ko .
+
+# === 세대 3: 이민수 가족 (무주택, 소유 이력 없음) ===
+:Lee_MinSoo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "이민수"^^xsd:string ;
+    :age 48 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :marriageRegistrationDate "2000-11-11"^^xsd:date ;
+    :personalIncome 6000000 ;
+    :belongsToHousehold :Household_Lee ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Lee ;
+    :homelessPeriodInYears 15 ;
+    :homelessPeriodPoints 32 ;
+    :dependentCount 2 ;
+    :dependentFamilyPoints 10 ;
+    :accountPeriodInYears 15 ;
+    :accountPeriodPoints 17 ;
+    :totalSubscriptionPoints 59 ;
+    :hasSpouse :Jung_MiYoung ;
+    :hasParent :Lee_DongGu ;
+    :hasDependent :Jung_MiYoung , :Lee_DongGu ;
+    :hasElderlyDependent :Lee_DongGu ;
+    :hasResidenceHistory :ResidenceHistory_Lee ;
+    rdfs:label "이민수"@ko .
+
+:Jung_MiYoung rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "정미영"^^xsd:string ;
+    :age 46 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 0 ;
+    :employmentStatus "주부"^^xsd:string ;
+    :belongsToHousehold :Household_Lee ;
+    :livesIn :Seoul ;
+    :hasSpouse :Lee_MinSoo ;
+    rdfs:label "정미영"@ko .
+
+:Lee_DongGu rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "이동구"^^xsd:string ;
+    :age 78 ;
+    :belongsToHousehold :Household_Lee ;
+    :livesIn :Seoul ;
+    :hasChild :Lee_MinSoo ;
+    :supportStartDate "2020-01-15"^^xsd:date ;
+    rdfs:label "이동구"@ko .
+
+# === 세대 4: 정수영 (무주택, 소유 이력 없음 - 생애최초 자격) ===
+:Jung_SooYoung rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "정수영"^^xsd:string ;
+    :age 29 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 3800000 ;
+    :belongsToHousehold :Household_Jung ;
+    :livesIn :Incheon ;
+    :hasSubscriptionAccount :Account_Jung ;
+    :homelessPeriodInYears 8 ;
+    :homelessPeriodPoints 16 ;
+    :dependentCount 0 ;
+    :dependentFamilyPoints 5 ;
+    :accountPeriodInYears 5 ;
+    :accountPeriodPoints 6 ;
+    :totalSubscriptionPoints 27 ;
+    :taxPaymentDuration 7 ;
+    :hasResidenceHistory :ResidenceHistory_Jung ;
+    :hasTaxPaymentHistory :TaxHistory_Jung_2018 , :TaxHistory_Jung_2019 , :TaxHistory_Jung_2020 , :TaxHistory_Jung_2021 , :TaxHistory_Jung_2022 , :TaxHistory_Jung_2023 , :TaxHistory_Jung_2024 ;
+    rdfs:label "정수영"@ko .
+
+# === 세대 5: 최동현 (유주택, 소유 이력 있음) ===
+:Choi_DongHyun rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :HousingOwner , :HousingOwnershipHistoryHolder ;
+    :name "최동현"^^xsd:string ;
+    :age 52 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 8000000 ;
+    :belongsToHousehold :Household_Choi ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Choi ;
+    :owns :Housing_Choi ;
+    :hasOwnershipHistory :OwnershipHistory_Choi ;
+    :hasSpouse :Kim_EunJi ;
+    :hasResidenceHistory :ResidenceHistory_Choi ;
+    rdfs:label "최동현"@ko .
+
+:Kim_EunJi rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김은지"^^xsd:string ;
+    :age 50 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 5000000 ;
+    :belongsToHousehold :Household_Choi ;
+    :livesIn :Seoul ;
+    :hasSpouse :Choi_DongHyun ;
+    rdfs:label "김은지"@ko .
+
+# === 세대 6: 한지영 (무주택, 소유 이력 없음) ===
+:Han_JiYoung rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "한지영"^^xsd:string ;
+    :age 35 ;
+    :maritalStatus "이혼"^^xsd:string ;
+    :personalIncome 3200000 ;
+    :isSingleParent true ;
+    :singleParentCertificationDate "2023-02-10"^^xsd:date ;
+    :belongsToHousehold :Household_Han ;
+    :livesIn :Gyeonggi ;
+    :hasSubscriptionAccount :Account_Han ;
+    :homelessPeriodInYears 6 ;
+    :homelessPeriodPoints 12 ;
+    :dependentCount 1 ;
+    :dependentFamilyPoints 10 ;
+    :accountPeriodInYears 4 ;
+    :accountPeriodPoints 5 ;
+    :totalSubscriptionPoints 27 ;
+    :hasChild :Han_SeoYoon ;
+    :hasInfantChild :Han_SeoYoon ;
+    :hasDependent :Han_SeoYoon ;
+    :hasResidenceHistory :ResidenceHistory_Han ;
+    rdfs:label "한지영"@ko .
+
+:Han_SeoYoon rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "한서윤"^^xsd:string ;
+    :age 5 ;
+    :belongsToHousehold :Household_Han ;
+    :livesIn :Gyeonggi ;
+    :hasParent :Han_JiYoung ;
+    rdfs:label "한서윤"@ko .
+
+# === 세대 7: 윤재호 (무주택, 소유 이력 없음) ===
+:Yoon_JaeHo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "윤재호"^^xsd:string ;
+    :age 31 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 4200000 ;
+    :hasFianceCommitment true ;
+    :expectedMarriageDate "2025-06-15"^^xsd:date ;
+    :belongsToHousehold :Household_Yoon ;
+    :livesIn :Busan ;
+    :hasSubscriptionAccount :Account_Yoon ;
+    :homelessPeriodInYears 4 ;
+    :homelessPeriodPoints 8 ;
+    :dependentCount 0 ;
+    :dependentFamilyPoints 5 ;
+    :accountPeriodInYears 2 ;
+    :accountPeriodPoints 3 ;
+    :totalSubscriptionPoints 16 ;
+    :hasResidenceHistory :ResidenceHistory_Yoon ;
+    rdfs:label "윤재호"@ko .
+
+# === 세대 8: 강민정 (무주택, 소유 이력 없음) ===
+:Kang_MinJung rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "강민정"^^xsd:string ;
+    :age 40 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 2800000 ;
+    :hasDisability true ;
+    :belongsToHousehold :Household_Kang ;
+    :livesIn :Daejeon ;
+    :hasSubscriptionAccount :Account_Kang ;
+    :homelessPeriodInYears 12 ;
+    :homelessPeriodPoints 24 ;
+    :dependentCount 0 ;
+    :dependentFamilyPoints 5 ;
+    :accountPeriodInYears 10 ;
+    :accountPeriodPoints 13 ;
+    :totalSubscriptionPoints 42 ;
+    :isRecommendedBy :MOHW ;
+    :recommendationDate "2024-10-01"^^xsd:date ;
+    :recommendationNumber "REC-2024-00123"^^xsd:string ;
+    :hasResidenceHistory :ResidenceHistory_Kang ;
+    rdfs:label "강민정"@ko .
+
+# === 세대 9: 장광 (무주택, 소유 이력 없음) ===
+:Zang_Kwang rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "장광"^^xsd:string ;
+    :age 38 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 4000000 ;
+    :belongsToHousehold :Household_Zang ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Zang ;
+    :hasResidenceHistory :ResidenceHistory_Zang ;
+    rdfs:label "장광"@ko .
+
+# === 세대 10: 임무 (무주택, 소유 이력 없음) ===
+:Lim_Mu rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "임무"^^xsd:string ;
+    :age 27 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 2000000 ;
+    :belongsToHousehold :Household_Lim ;
+    :livesIn :Incheon ;
+    :hasSubscriptionAccount :Account_Lim ;
+    :hasResidenceHistory :ResidenceHistory_Lim ;
+    rdfs:label "임무"@ko .
+###############################################################################
+#
+#    Content from: 07_assets_financial.ttl
+#
+###############################################################################
+
+###############################################################################
+#    소득 (Income) 인스턴스
+###############################################################################
+
+:Income_Kim rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 9000000 ;
+    rdfs:label "김철수 세대 소득"@ko .
+
+:Income_Park rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 8000000 ;
+    rdfs:label "박영호 세대 소득"@ko .
+
+:Income_Lee rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 6000000 ;
+    rdfs:label "이민수 세대 소득"@ko .
+
+:Income_Jung rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 3800000 ;
+    rdfs:label "정수영 세대 소득"@ko .
+
+:Income_Choi rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 13000000 ;
+    rdfs:label "최동현 세대 소득"@ko .
+
+:Income_Han rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 3200000 ;
+    rdfs:label "한지영 세대 소득"@ko .
+
+:Income_Yoon rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 4200000 ;
+    rdfs:label "윤재호 세대 소득"@ko .
+
+:Income_Kang rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 2800000 ;
+    rdfs:label "강민정 세대 소득"@ko .
+
+:Income_Zang rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 4000000 ;
+    rdfs:label "장광 세대 소득"@ko .
+
+:Income_Lim rdf:type owl:NamedIndividual , :Income ;
+    :monthlyAverageIncome 2000000 ;
+    rdfs:label "임무 세대 소득"@ko .
+
+# 세대와 소득 연결
+:Household_Kim :hasIncome :Income_Kim .
+:Household_Park :hasIncome :Income_Park .
+:Household_Lee :hasIncome :Income_Lee .
+:Household_Jung :hasIncome :Income_Jung .
+:Household_Choi :hasIncome :Income_Choi .
+:Household_Han :hasIncome :Income_Han .
+:Household_Yoon :hasIncome :Income_Yoon .
+:Household_Kang :hasIncome :Income_Kang .
+:Household_Zang :hasIncome :Income_Zang .
+:Household_Lim :hasIncome :Income_Lim .
+
+###############################################################################
+#    청약통장 (SubscriptionAccount) 인스턴스
+###############################################################################
+
+:Account_Kim rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2016-123456"^^xsd:string ;
+    :accountOpeningDate "2016-03-10"^^xsd:date ;
+    :depositAmount 15000000 ;
+    :monthlyPaymentCount 96 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "김철수 청약통장"@ko .
+
+:Account_Park rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2021-234567"^^xsd:string ;
+    :accountOpeningDate "2021-07-15"^^xsd:date ;
+    :depositAmount 8000000 ;
+    :monthlyPaymentCount 40 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "박영호 청약통장"@ko .
+
+:Account_Lee rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2009-345678"^^xsd:string ;
+    :accountOpeningDate "2009-01-20"^^xsd:date ;
+    :depositAmount 25000000 ;
+    :monthlyPaymentCount 180 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "이민수 청약통장"@ko .
+
+:Account_Jung rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2019-456789"^^xsd:string ;
+    :accountOpeningDate "2019-09-05"^^xsd:date ;
+    :depositAmount 10000000 ;
+    :monthlyPaymentCount 60 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "정수영 청약통장"@ko .
+
+:Account_Choi rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2005-567890"^^xsd:string ;
+    :accountOpeningDate "2005-05-01"^^xsd:date ;
+    :depositAmount 30000000 ;
+    :monthlyPaymentCount 230 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "최동현 청약통장"@ko .
+
+:Account_Han rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2020-678901"^^xsd:string ;
+    :accountOpeningDate "2020-04-20"^^xsd:date ;
+    :depositAmount 6500000 ;
+    :monthlyPaymentCount 48 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "한지영 청약통장"@ko .
+
+:Account_Yoon rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2022-789012"^^xsd:string ;
+    :accountOpeningDate "2022-11-01"^^xsd:date ;
+    :depositAmount 5000000 ;
+    :monthlyPaymentCount 24 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "윤재호 청약통장"@ko .
+
+:Account_Kang rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2014-890123"^^xsd:string ;
+    :accountOpeningDate "2014-08-15"^^xsd:date ;
+    :depositAmount 18000000 ;
+    :monthlyPaymentCount 120 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "강민정 청약통장"@ko .
+
+:Account_Zang rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2023-000001"^^xsd:string ;
+    :accountOpeningDate "2023-01-01"^^xsd:date ;
+    :depositAmount 3000000 ;
+    :monthlyPaymentCount 12 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "장광 청약통장"@ko .
+
+:Account_Lim rdf:type owl:NamedIndividual , :SubscriptionAccount ;
+    :accountNumber "110-2024-000002"^^xsd:string ;
+    :accountOpeningDate "2024-01-01"^^xsd:date ;
+    :depositAmount 100000 ;
+    :monthlyPaymentCount 6 ;
+    :accountType "주택청약종합저축"^^xsd:string ;
+    rdfs:label "임무 청약통장"@ko .
+
+###############################################################################
+#    자산 (Asset) 인스턴스
+###############################################################################
+
+:RealEstate_Choi rdf:type owl:NamedIndividual , :RealEstate ;
+    :realEstateAssetValue 850000000 ;
+    :isAssetOwnedBy :Choi_DongHyun ;
+    rdfs:label "최동현 부동산 자산"@ko .
+
+:Vehicle_Kim rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 35000000 ;
+    :isVehicleOwnedBy :Kim_ChulSoo ;
+    rdfs:label "김철수 차량"@ko .
+
+:Vehicle_Lee rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 28000000 ;
+    :isVehicleOwnedBy :Lee_MinSoo ;
+    rdfs:label "이민수 차량"@ko .
+
+# 신규 추가 자산
+:Land_Kim rdf:type owl:NamedIndividual , :LandAsset ;
+    :realEstateAssetValue 100000000 ;
+    :isAssetOwnedBy :Kim_ChulSoo ;
+    rdfs:comment "김철수 보유 농지 (토지 자산)"@ko ;
+    rdfs:label "김철수 농지"@ko .
+
+:Building_Lee rdf:type owl:NamedIndividual , :BuildingAsset ;
+    :realEstateAssetValue 200000000 ;
+    :isAssetOwnedBy :Lee_MinSoo ;
+    rdfs:comment "이민수 보유 상가 (건물 자산)"@ko ;
+    rdfs:label "이민수 상가"@ko .
+
+:Vehicle_Jung_Luxury rdf:type owl:NamedIndividual , :VehicleAsset ;
+    :vehicleAssetValue 150000000 ;
+    :isVehicleOwnedBy :Jung_SooYoung ;
+    rdfs:comment "정수영 보유 고가 차량 (자산 기준 초과 테스트용)"@ko ;
+    rdfs:label "정수영 스포츠카"@ko .
+
+###############################################################################
+#
+#    Content from: 08_histories.ttl
+#
+###############################################################################
+
+###############################################################################
+#    거주 이력 (ResidenceHistory) 인스턴스
+###############################################################################
+
+:ResidenceHistory_Kim rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2010-03-01"^^xsd:date ;
+    :residenceDurationInYears "14.5"^^xsd:float ;
+    rdfs:label "김철수 서울 거주 이력"@ko .
+
+:ResidenceHistory_Park rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Gyeonggi ;
+    :residenceStartDate "2019-06-15"^^xsd:date ;
+    :residenceDurationInYears "5.5"^^xsd:float ;
+    rdfs:label "박영호 경기 거주 이력"@ko .
+
+:ResidenceHistory_Lee rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2000-01-01"^^xsd:date ;
+    :residenceDurationInYears "24.0"^^xsd:float ;
+    rdfs:label "이민수 서울 거주 이력"@ko .
+
+:ResidenceHistory_Jung rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Incheon ;
+    :residenceStartDate "2017-03-01"^^xsd:date ;
+    :residenceDurationInYears "7.8"^^xsd:float ;
+    rdfs:label "정수영 인천 거주 이력"@ko .
+
+:ResidenceHistory_Choi rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "1998-01-01"^^xsd:date ;
+    :residenceDurationInYears "26.0"^^xsd:float ;
+    rdfs:label "최동현 서울 거주 이력"@ko .
+
+:ResidenceHistory_Han rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Gyeonggi ;
+    :residenceStartDate "2018-09-01"^^xsd:date ;
+    :residenceDurationInYears "6.2"^^xsd:float ;
+    rdfs:label "한지영 경기 거주 이력"@ko .
+
+:ResidenceHistory_Yoon rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Busan ;
+    :residenceStartDate "2020-01-01"^^xsd:date ;
+    :residenceDurationInYears "4.9"^^xsd:float ;
+    rdfs:label "윤재호 부산 거주 이력"@ko .
+
+:ResidenceHistory_Kang rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Daejeon ;
+    :residenceStartDate "2012-06-01"^^xsd:date ;
+    :residenceDurationInYears "12.5"^^xsd:float ;
+    rdfs:label "강민정 대전 거주 이력"@ko .
+
+:ResidenceHistory_Zang rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Seoul ;
+    :residenceStartDate "2015-01-01"^^xsd:date ;
+    :residenceDurationInYears "9.0"^^xsd:float ;
+    rdfs:label "장광 서울 거주 이력"@ko .
+
+:ResidenceHistory_Lim rdf:type owl:NamedIndividual , :ResidenceHistory ;
+    :residedIn :Incheon ;
+    :residenceStartDate "2023-01-01"^^xsd:date ;
+    :residenceDurationInYears "1.0"^^xsd:float ;
+    rdfs:label "임무 인천 거주 이력"@ko .
+
+
+###############################################################################
+#    소득세 납부 이력 (TaxPaymentHistory) 인스턴스
+###############################################################################
+
+:TaxHistory_Jung_2018 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2018"^^xsd:gYear ;
+    :taxAmount 1200000 ;
+    rdfs:label "정수영 2018년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2019 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2019"^^xsd:gYear ;
+    :taxAmount 1500000 ;
+    rdfs:label "정수영 2019년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2020 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2020"^^xsd:gYear ;
+    :taxAmount 1800000 ;
+    rdfs:label "정수영 2020년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2021 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2021"^^xsd:gYear ;
+    :taxAmount 2000000 ;
+    rdfs:label "정수영 2021년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2022"^^xsd:gYear ;
+    :taxAmount 2200000 ;
+    rdfs:label "정수영 2022년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2023"^^xsd:gYear ;
+    :taxAmount 2500000 ;
+    rdfs:label "정수영 2023년 소득세 납부"@ko .
+
+:TaxHistory_Jung_2024 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2024"^^xsd:gYear ;
+    :taxAmount 2700000 ;
+    rdfs:label "정수영 2024년 소득세 납부"@ko .
+
+# 박영호 (3년 납부 예시)
+:TaxHistory_Park_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2022"^^xsd:gYear ;
+    :taxAmount 1500000 ;
+    rdfs:label "박영호 2022년 소득세 납부"@ko .
+
+:TaxHistory_Park_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2023"^^xsd:gYear ;
+    :taxAmount 1800000 ;
+    rdfs:label "박영호 2023년 소득세 납부"@ko .
+
+:TaxHistory_Park_2024 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
+    :taxYear "2024"^^xsd:gYear ;
+    :taxAmount 2000000 ;
+    rdfs:label "박영호 2024년 소득세 납부"@ko .
+
+###############################################################################
+#    주택 소유 이력 (HousingOwnershipHistory) 인스턴스
+###############################################################################
+
+:OwnershipHistory_Choi rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownedHousing :Housing_Choi ;
+    :ownershipStartDate "2010-05-15"^^xsd:date ;
+    rdfs:label "최동현 주택 소유 이력"@ko .
+
+# 김철수 과거 소유 이력 (현재 무주택자 판단 로직 검증용)
+:OwnershipHistory_Kim_Past rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
+    :ownershipStartDate "2000-01-01"^^xsd:date ;
+    :ownershipEndDate "2014-01-01"^^xsd:date ;
+    rdfs:label "김철수 과거 주택 소유 이력"@ko .
+
+###############################################################################
+#    당첨 이력 (WinningRecord) 인스턴스
+###############################################################################
+
+:WinningRecord_Sample rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2020-06-15"^^xsd:date ;
+    :restrictionPeriodInYears 7 ;
+    :contractCompleted true ;
+    :isSubjectToRestriction true ;
+    rdfs:label "샘플 당첨 이력 (제한기간 중)"@ko .
+
+:WinningRecord_Expired rdf:type owl:NamedIndividual , :WinningRecord ;
+    :winningDate "2010-01-01"^^xsd:date ;
+    :restrictionPeriodInYears 5 ;
+    :contractCompleted true ;
+    :isSubjectToRestriction false ;
+    rdfs:label "만료된 당첨 이력"@ko .
+
+###############################################################################
+#
+#    Content from: 09_applications.ttl
+#
+###############################################################################
+
+###############################################################################
+#    청약 신청 (SubscriptionApplication) 인스턴스
+###############################################################################
+
+# 1. 다자녀 가구 특별공급
+:Application_Kim_MultiChild rdf:type owl:NamedIndividual , :MultiChildHouseholdSupply ;
+    :recruitmentAnnouncementDate "2024-11-01"^^xsd:date ;
+    :isForHousing :Housing_Project_B ;
+    rdfs:label "김철수 다자녀 특별공급 신청"@ko .
+
+# 2. 신혼부부 특별공급 (우선공급)
+:Application_Park_Newlywed rdf:type owl:NamedIndividual , :NewlywedPrioritySupply ;
+    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
+    :isForHousing :Housing_Project_C ;
+    rdfs:label "박영호 신혼부부 특별공급 신청"@ko .
+
+# 3. 노부모 부양 특별공급
+:Application_Lee_AgedParents rdf:type owl:NamedIndividual , :SupportingAgedParentsSupply ;
+    :recruitmentAnnouncementDate "2024-11-01"^^xsd:date ;
+    :isForHousing :Housing_Project_B ;
+    rdfs:label "이민수 노부모부양 특별공급 신청"@ko .
+
+# 4. 생애최초 특별공급
+:Application_Jung_FirstTime rdf:type owl:NamedIndividual , :FirstTimeHomeBuyerSupply ;
+    :recruitmentAnnouncementDate "2024-11-20"^^xsd:date ;
+    :isForHousing :Housing_Project_A ;
+    rdfs:label "정수영 생애최초 특별공급 신청"@ko .
+
+# 5. 신혼부부 특별공급 (한부모가족)
+:Application_Han_SingleParent rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
+    :isForHousing :Housing_Project_C ;
+    rdfs:label "한지영 (한부모가족) 신혼부부 특별공급 신청"@ko .
+
+# 6. 신혼부부 특별공급 (예비신혼부부)
+:Application_Yoon_Prospective rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
+    :recruitmentAnnouncementDate "2024-12-01"^^xsd:date ;
+    :isForHousing :Housing_Project_E ;
+    rdfs:label "윤재호 (예비신혼) 특별공급 신청"@ko .
+
+# 7. 기관추천 특별공급
+:Application_Kang_Institutional rdf:type owl:NamedIndividual , :InstitutionalRecommendation ;
+    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
+    :isForHousing :Housing_Project_D ;
+    rdfs:label "강민정 기관추천 특별공급 신청"@ko .
+
+# 8. 일반공급
+:Application_Kim_General rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :recruitmentAnnouncementDate "2024-11-01"^^xsd:date ;
+    :isForHousing :Housing_Project_A ;
+    rdfs:label "김철수 일반공급 신청"@ko .
+
+# 9. 계약취소주택 재공급 신청 (신규)
+:Application_Zang_Cancelled rdf:type owl:NamedIndividual , :GeneralSupply ;
+    :recruitmentAnnouncementDate "2024-12-10"^^xsd:date ;
+    :isForHousing :Housing_Cancelled_F ;
+    rdfs:label "장광 계약취소분 신청"@ko .
+
+# 10. 무순위 청약 신청 (신규)
+:Application_Lim_Unranked rdf:type owl:NamedIndividual , :UnrankedSubscription ;
+    :recruitmentAnnouncementDate "2024-12-20"^^xsd:date ;
+    :isForHousing :Housing_Post_G ;
+    rdfs:label "임무 무순위 청약 신청"@ko .
+
+# 신청자와 청약 신청 연결
+:Kim_ChulSoo :appliesFor :Application_Kim_MultiChild , :Application_Kim_General .
+:Park_YoungHo :appliesFor :Application_Park_Newlywed .
+:Lee_MinSoo :appliesFor :Application_Lee_AgedParents .
+:Jung_SooYoung :appliesFor :Application_Jung_FirstTime .
+:Han_JiYoung :appliesFor :Application_Han_SingleParent .
+:Yoon_JaeHo :appliesFor :Application_Yoon_Prospective .
+:Kang_MinJung :appliesFor :Application_Kang_Institutional .
+:Zang_Kwang :appliesFor :Application_Zang_Cancelled .
+:Lim_Mu :appliesFor :Application_Lim_Unranked .
 
 ###############################################################################
 #
@@ -2169,6 +3240,38 @@
     rdfs:comment "직계비속인 자녀를 나타냅니다."@ko .
 
 ###############################################################################
+#    1.1 Housing Ownership Status (주택 소유 상태) - Closed World 구현
+###############################################################################
+
+:HousingOwner rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "HousingOwner"@en ;
+    rdfs:label "주택 소유자"@ko ;
+    rdfs:comment "현재 주택을 소유하고 있는 세대구성원입니다. 모든 HouseholdMember는 HousingOwner 또는 NonHousingOwner 중 하나여야 합니다."@ko .
+
+:NonHousingOwner rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "NonHousingOwner"@en ;
+    rdfs:label "무주택자"@ko ;
+    rdfs:comment "현재 주택을 소유하지 않은 세대구성원입니다. 모든 HouseholdMember는 HousingOwner 또는 NonHousingOwner 중 하나여야 합니다."@ko .
+
+###############################################################################
+#    1.2 Housing Ownership History Status (주택 소유 이력 상태) - Closed World 구현
+###############################################################################
+
+:HousingOwnershipHistoryHolder rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "HousingOwnershipHistoryHolder"@en ;
+    rdfs:label "주택 소유 이력 보유자"@ko ;
+    rdfs:comment "과거에 주택을 소유한 적이 있는 사람입니다. 생애최초 특공 자격 판단에 사용됩니다."@ko .
+
+:NeverOwnedHousingPerson rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "NeverOwnedHousingPerson"@en ;
+    rdfs:label "주택 소유 이력 없는 자"@ko ;
+    rdfs:comment "과거에 주택을 소유한 적이 없는 사람입니다. 생애최초 특공 자격 판단에 사용됩니다."@ko .
+
+###############################################################################
 #    2. Household (세대)
 ###############################################################################
 
@@ -2399,45 +3502,11 @@
     rdfs:label "자산 기준선"@ko ;
     rdfs:comment "특정 청약 유형에 적용되는 자산 보유 한도를 나타냅니다."@ko .
 
-:SupportingAgedParentsRequirement rdf:type owl:Class ;
-    rdfs:subClassOf :Concept ;
-    rdfs:label "SupportingAgedParentsRequirement"@en ;
-    rdfs:label "노부모부양 요건"@ko ;
-    rdfs:comment "노부모부양 특별공급의 자격 요건(최소 부모 나이, 최소 부양 기간 등)을 나타냅니다."@ko .
-
 :DepositRequirement rdf:type owl:Class ;
     rdfs:subClassOf :Concept ;
     rdfs:label "DepositRequirement"@en ;
     rdfs:label "예치금 요건"@ko ;
     rdfs:comment "지역별, 면적별로 요구되는 청약통장 예치금 기준을 나타냅니다."@ko .
-
-###############################################################################
-#    6.4 SubscriptionPoint (청약 가점) 관련
-###############################################################################
-
-:SubscriptionPoint rdf:type owl:Class ;
-    rdfs:subClassOf :Concept ;
-    rdfs:label "SubscriptionPoint"@en ;
-    rdfs:label "청약 가점"@ko ;
-    rdfs:comment "청약 가점제에서 사용되는 점수 체계를 나타냅니다."@ko .
-
-:HomelessPeriodPoint rdf:type owl:Class ;
-    rdfs:subClassOf :SubscriptionPoint ;
-    rdfs:label "HomelessPeriodPoint"@en ;
-    rdfs:label "무주택 기간 점수"@ko ;
-    rdfs:comment "무주택 기간에 따른 가점 (최대 32점)입니다."@ko .
-
-:DependentFamilyPoint rdf:type owl:Class ;
-    rdfs:subClassOf :SubscriptionPoint ;
-    rdfs:label "DependentFamilyPoint"@en ;
-    rdfs:label "부양가족 수 점수"@ko ;
-    rdfs:comment "부양가족 수에 따른 가점 (최대 35점)입니다."@ko .
-
-:AccountPeriodPoint rdf:type owl:Class ;
-    rdfs:subClassOf :SubscriptionPoint ;
-    rdfs:label "AccountPeriodPoint"@en ;
-    rdfs:label "청약통장 가입 기간 점수"@ko ;
-    rdfs:comment "청약통장 가입 기간에 따른 가점 (최대 17점)입니다."@ko .
 
 ###############################################################################
 #    6.5 SelectionMethod (당첨자 선정 방식)
@@ -2537,6 +3606,12 @@
 
 # HouseholdMember = HeadOfHousehold ⊔ NonHeadOfHouseholdMember
 :HouseholdMember owl:disjointUnionOf ( :HeadOfHousehold :NonHeadOfHouseholdMember ) .
+
+# HouseholdMember = HousingOwner ⊔ NonHousingOwner
+:HouseholdMember owl:disjointUnionOf ( :HousingOwner :NonHousingOwner ) .
+
+# 모든 HouseholdMember = HousingOwnershipHistoryHolder ⊔ NeverOwnedHousingPerson
+:HouseholdMember  owl:disjointUnionOf ( :HousingOwnershipHistoryHolder :NeverOwnedHousingPerson ) .
 
 ###############################################################################
 #    Covering Axiom (커버링 공리)
@@ -2806,1070 +3881,5 @@
 #    생애최초: 2개 (규칙 19-20)
 #    총합: 20개
 #
-###############################################################################
-
-###############################################################################
-#
-#    Content from: test_data.ttl
-#
-###############################################################################
-
-###############################################################################
-#
-#    테스트 데이터 (Test Data)
-#
-#    이 파일은 Competency Questions(CQ) 검증을 위한 테스트 데이터를 정의합니다.
-#    가상의 신청자, 주택, 세대 등을 포함합니다.
-#
-#    작성일: 2024년 11월
-#    목적: CQ 1-24번에 대한 SPARQL 쿼리 및 추론 테스트
-#
-###############################################################################
-
-###############################################################################
-#    1. 테스트용 주택 (Test Housing)
-###############################################################################
-
-# 1.1 서울 소재 소형 민영주택
-:TestHousing_Seoul_Small_01 rdf:type owl:NamedIndividual , :PrivateHousing ;
-    :isLocatedIn :Seoul ;
-    :area "59.8"^^xsd:float ;
-    :price 950000000 ;
-    :usesSelectionMethod :TestSelection_PointBased_100pct ;
-    rdfs:label "서울 강남 래미안 59㎡"@ko ;
-    rdfs:comment "투기과열지구 소재 소형 주택, 100% 가점제 적용"@ko .
-
-:TestHousing_Seoul_Small_02 rdf:type owl:NamedIndividual , :PrivateHousing ;
-    :isLocatedIn :Seoul ;
-    :area "84.5"^^xsd:float ;
-    :price 1200000000 ;
-    :usesSelectionMethod :TestSelection_PointBased_100pct ;
-    rdfs:label "서울 송파 헬리오시티 84㎡"@ko ;
-    rdfs:comment "투기과열지구 소재, 가점제 100% 적용"@ko .
-
-# 1.2 서울 소재 중대형 민영주택
-:TestHousing_Seoul_Large_01 rdf:type owl:NamedIndividual , :PrivateHousing ;
-    :isLocatedIn :Seoul ;
-    :area "101.5"^^xsd:float ;
-    :price 1800000000 ;
-    :usesSelectionMethod :TestSelection_Mixed_50_50 ;
-    rdfs:label "서울 마포 래미안 101㎡"@ko ;
-    rdfs:comment "투기과열지구 소재, 가점제 50% + 추첨제 50%"@ko .
-
-:TestHousing_Seoul_Large_02 rdf:type owl:NamedIndividual , :PrivateHousing ;
-    :isLocatedIn :Seoul ;
-    :area "140.2"^^xsd:float ;
-    :price 2500000000 ;
-    :usesSelectionMethod :TestSelection_Mixed_50_50 ;
-    rdfs:label "서울 서초 자이 140㎡"@ko ;
-    rdfs:comment "대형 평형, 혼합 선정 방식"@ko .
-
-# 1.3 경기도 소재 민영주택
-:TestHousing_Gyeonggi_01 rdf:type owl:NamedIndividual , :PrivateHousing ;
-    :isLocatedIn :Gyeonggi ;
-    :area "74.9"^^xsd:float ;
-    :price 650000000 ;
-    :usesSelectionMethod :TestSelection_PointBased_100pct ;
-    rdfs:label "경기 성남 판교 푸르지오 74㎡"@ko ;
-    rdfs:comment "경기도 소재, 청약과열지역 아님"@ko .
-
-:TestHousing_Gyeonggi_02 rdf:type owl:NamedIndividual , :PrivateHousing ;
-    :isLocatedIn :Gyeonggi ;
-    :area "84.3"^^xsd:float ;
-    :price 520000000 ;
-    :usesSelectionMethod :TestSelection_PointBased_100pct ;
-    rdfs:label "경기 수원 광교 호반베르디움 84㎡"@ko ;
-    rdfs:comment "경기도 소재 중소형 주택"@ko .
-
-# 1.4 서울 소재 국민주택
-:TestHousing_Seoul_National_01 rdf:type owl:NamedIndividual , :NationalHousing ;
-    :isLocatedIn :Seoul ;
-    :area "46.5"^^xsd:float ;
-    :price 380000000 ;
-    :usesSelectionMethod :TestSelection_PointBased_100pct ;
-    rdfs:label "서울 강동 LH행복주택 46㎡"@ko ;
-    rdfs:comment "국민주택, 소득 및 자산 기준 적용"@ko .
-
-:TestHousing_Seoul_National_02 rdf:type owl:NamedIndividual , :NationalHousing ;
-    :isLocatedIn :Seoul ;
-    :area "59.5"^^xsd:float ;
-    :price 450000000 ;
-    :usesSelectionMethod :TestSelection_PointBased_100pct ;
-    rdfs:label "서울 은평 SH공사 59㎡"@ko ;
-    rdfs:comment "서울시 공공주택"@ko .
-
-# 1.5 소형·저가주택
-:TestHousing_SmallLowPrice_01 rdf:type owl:NamedIndividual , :Housing ;
-    :isLocatedIn :Seoul ;
-    :area "42.0"^^xsd:float ;
-    :price 120000000 ;
-    :disposalDate "2021-05-15"^^xsd:date ;
-    rdfs:label "서울 노원 소형주택 42㎡"@ko ;
-    rdfs:comment "면적 60㎡ 이하, 가격 1.3억 이하 → SmallLowPriceHousing_Defined로 자동 분류"@ko .
-
-:TestHousing_SmallLowPrice_02 rdf:type owl:NamedIndividual , :Housing ;
-    :isLocatedIn :Incheon ;
-    :area "55.0"^^xsd:float ;
-    :price 95000000 ;
-    rdfs:label "인천 부평 소형빌라 55㎡"@ko ;
-    rdfs:comment "현재 소유 중인 소형저가주택 예시"@ko .
-
-# 1.6 사후접수주택
-:TestHousing_PostSubscription_01 rdf:type owl:NamedIndividual , :PostSubscriptionHousing ;
-    :isLocatedIn :Seoul ;
-    :area "84.0"^^xsd:float ;
-    :price 980000000 ;
-    rdfs:label "서울 강서 미분양 무순위 84㎡"@ko ;
-    rdfs:comment "1, 2순위 미계약 물량"@ko .
-
-###############################################################################
-#    2. 선정 방식 (Selection Methods)
-###############################################################################
-
-:TestSelection_PointBased_100pct rdf:type owl:NamedIndividual , :PointBasedSelection ;
-    :selectionRatio "1.0"^^xsd:float ;
-    rdfs:label "가점제 100%"@ko ;
-    rdfs:comment "85㎡ 이하 투기과열지구 주택에 적용"@ko .
-
-:TestSelection_Mixed_50_50 rdf:type owl:NamedIndividual , :SelectionMethod ;
-    rdfs:label "혼합 선정 방식"@ko ;
-    rdfs:comment "85㎡ 초과 주택에 적용"@ko .
-
-:TestSelection_PointBased_50pct rdf:type owl:NamedIndividual , :PointBasedSelection ;
-    :selectionRatio "0.5"^^xsd:float .
-
-:TestSelection_Lottery_50pct rdf:type owl:NamedIndividual , :LotteryBasedSelection ;
-    :selectionRatio "0.5"^^xsd:float .
-
-###############################################################################
-#    3. 청약 신청 (Subscription Applications)
-###############################################################################
-
-:TestApp_General_01 rdf:type owl:NamedIndividual , :GeneralSupply ;
-    :isForHousing :TestHousing_Seoul_Small_01 ;
-    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
-    rdfs:label "서울 강남 래미안 일반공급"@ko .
-
-:TestApp_General_02 rdf:type owl:NamedIndividual , :GeneralSupply ;
-    :isForHousing :TestHousing_Gyeonggi_01 ;
-    :recruitmentAnnouncementDate "2024-11-12"^^xsd:date ;
-    rdfs:label "경기 판교 일반공급"@ko .
-
-:TestApp_General_03 rdf:type owl:NamedIndividual , :GeneralSupply ;
-    :isForHousing :TestHousing_Seoul_National_01 ;
-    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
-    rdfs:label "서울 강동 LH행복주택 일반공급"@ko .
-
-:TestApp_Newlywed_01 rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
-    :isForHousing :TestHousing_Seoul_Small_02 ;
-    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
-    rdfs:label "서울 송파 신혼부부 특공"@ko .
-
-:TestApp_Newlywed_02 rdf:type owl:NamedIndividual , :NewlywedCoupleSupply ;
-    :isForHousing :TestHousing_Gyeonggi_02 ;
-    :recruitmentAnnouncementDate "2024-11-15"^^xsd:date ;
-    rdfs:label "경기 수원 신혼부부 특공"@ko .
-
-:TestApp_FirstTime_01 rdf:type owl:NamedIndividual , :SubscriptionApplication ;
-    :supplyType :FirstTimeHomeBuyerSupply ;
-    :isForHousing :TestHousing_Seoul_Large_01 ;
-    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
-    rdfs:label "서울 마포 생애최초 특공"@ko .
-
-:TestApp_MultiChild_01 rdf:type owl:NamedIndividual , :MultiChildHouseholdSupply ;
-    :isForHousing :TestHousing_Seoul_Small_01 ;
-    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
-    rdfs:label "서울 강남 다자녀가구 특공"@ko .
-
-:TestApp_AgedParents_01 rdf:type owl:NamedIndividual , :SupportingAgedParentsSupply ;
-    :isForHousing :TestHousing_Seoul_Small_02 ;
-    :recruitmentAnnouncementDate "2024-11-10"^^xsd:date ;
-    rdfs:label "서울 송파 노부모부양 특공"@ko .
-
-:TestApp_Institutional_01 rdf:type owl:NamedIndividual , :InstitutionalRecommendation ;
-    :isForHousing :TestHousing_Gyeonggi_01 ;
-    :recruitmentAnnouncementDate "2024-11-12"^^xsd:date ;
-    rdfs:label "경기 판교 기관추천 특공"@ko .
-
-###############################################################################
-#    4. 당첨 이력 (Winning Records)
-###############################################################################
-
-:TestWinningRecord_Recent_01 rdf:type owl:NamedIndividual , :WinningRecord ;
-    :winningDate "2021-06-20"^^xsd:date ;
-    :contractCompleted true ;
-    :isSubjectToRestriction true ;
-    :restrictionPeriodInYears 5 ;
-    rdfs:label "2021년 당첨 이력 (제한 중)"@ko ;
-    rdfs:comment "2021년 당첨, 5년 제한 → 2026년까지 1순위 불가"@ko .
-
-:TestWinningRecord_Recent_02 rdf:type owl:NamedIndividual , :WinningRecord ;
-    :winningDate "2020-03-10"^^xsd:date ;
-    :contractCompleted false ;
-    :isSubjectToRestriction true ;
-    :restrictionPeriodInYears 5 ;
-    rdfs:label "2020년 당첨 후 계약 포기"@ko ;
-    rdfs:comment "계약 포기해도 재당첨 제한 적용"@ko .
-
-:TestWinningRecord_Old_01 rdf:type owl:NamedIndividual , :WinningRecord ;
-    :winningDate "2014-08-15"^^xsd:date ;
-    :contractCompleted true ;
-    :isSubjectToRestriction true ;
-    :restrictionPeriodInYears 5 ;
-    rdfs:label "2014년 당첨 이력 (제한 만료)"@ko ;
-    rdfs:comment "10년 전 당첨, 현재는 자격 회복"@ko .
-
-###############################################################################
-#    5. 주택 소유 이력 (Housing Ownership History)
-###############################################################################
-
-:TestOwnership_SmallLowPrice_Disposed rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
-    :ownedHousing :TestHousing_SmallLowPrice_01 ;
-    :ownershipStartDate "2019-03-01"^^xsd:date ;
-    :ownershipEndDate "2021-05-15"^^xsd:date ;
-    rdfs:label "소형저가주택 처분 이력"@ko ;
-    rdfs:comment "2021년 5월 처분 → 무주택 기간 시작일"@ko .
-
-:TestOwnership_Regular_Past rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
-    :ownedHousing :TestHousing_Gyeonggi_01 ;
-    :ownershipStartDate "2015-06-01"^^xsd:date ;
-    :ownershipEndDate "2018-12-31"^^xsd:date ;
-    rdfs:label "일반 주택 과거 소유"@ko ;
-    rdfs:comment "생애최초 특공 자격 없음"@ko .
-
-:TestOwnership_Current_01 rdf:type owl:NamedIndividual , :HousingOwnershipHistory ;
-    :ownedHousing :TestHousing_Gyeonggi_02 ;
-    :ownershipStartDate "2022-01-15"^^xsd:date ;
-    rdfs:label "현재 1주택 보유"@ko ;
-    rdfs:comment "ownershipEndDate 없음 → 현재 소유 중"@ko .
-
-###############################################################################
-#    6. 거주 이력 (Residence History)
-###############################################################################
-
-:TestResidence_Seoul_LongTerm rdf:type owl:NamedIndividual , :ResidenceHistory ;
-    :residedIn :Seoul ;
-    :residenceStartDate "2020-01-01"^^xsd:date ;
-    :residenceDurationInYears "4.9"^^xsd:float ;
-    rdfs:label "서울 장기 거주 이력"@ko ;
-    rdfs:comment "2020년부터 현재까지 약 5년"@ko .
-
-:TestResidence_Gyeonggi_MidTerm rdf:type owl:NamedIndividual , :ResidenceHistory ;
-    :residedIn :Gyeonggi ;
-    :residenceStartDate "2022-06-01"^^xsd:date ;
-    :residenceDurationInYears "2.4"^^xsd:float ;
-    rdfs:label "경기도 중기 거주 이력"@ko .
-
-:TestResidence_Incheon_ShortTerm rdf:type owl:NamedIndividual , :ResidenceHistory ;
-    :residedIn :Incheon ;
-    :residenceStartDate "2024-05-01"^^xsd:date ;
-    :residenceDurationInYears "0.5"^^xsd:float ;
-    rdfs:label "인천 단기 거주 이력"@ko .
-
-###############################################################################
-#    7. 소득세 납부 이력 (Tax Payment History)
-###############################################################################
-
-:TestTax_2019 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2019"^^xsd:gYear ;
-    :taxAmount 2500000 .
-
-:TestTax_2020 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2020"^^xsd:gYear ;
-    :taxAmount 3000000 .
-
-:TestTax_2021 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2021"^^xsd:gYear ;
-    :taxAmount 3200000 .
-
-:TestTax_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2022"^^xsd:gYear ;
-    :taxAmount 3500000 .
-
-:TestTax_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2023"^^xsd:gYear ;
-    :taxAmount 3800000 .
-
-:TestTax_Short_2022 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2022"^^xsd:gYear ;
-    :taxAmount 1500000 .
-
-:TestTax_Short_2023 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2023"^^xsd:gYear ;
-    :taxAmount 1800000 .
-
-:TestTax_Short_2024 rdf:type owl:NamedIndividual , :TaxPaymentHistory ;
-    :taxYear "2024"^^xsd:gYear ;
-    :taxAmount 2000000 .
-
-###############################################################################
-#    8. 추가 지역 (Additional Regions)
-###############################################################################
-
-:TestRegion_Gwacheon rdf:type owl:NamedIndividual , :Region , :MetropolitanArea ;
-    :regionName "과천" ;
-    :isSpeculativeOverheatedZone true ;
-    :isSubscriptionOverheatedArea true ;
-    rdfs:label "경기 과천시"@ko ;
-    rdfs:comment "경기도 내 투기과열지구"@ko .
-
-###############################################################################
-#    9. CQ 1-3: 신청자 A (기본 자격)
-###############################################################################
-
-:TestApplicant_A rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "800101-1234567" ;
-    :name "김철수" ;
-    :age "31"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :marriageRegistrationDate "2021-03-15"^^xsd:date ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_A ;
-    :hasSubscriptionAccount :TestAccount_A ;
-    :appliesFor :TestApp_General_01 ;
-    :homelessStartDate "2019-01-01"^^xsd:date ;
-    :hasResidenceHistory :TestResidence_Seoul_LongTerm ;
-    :totalSubscriptionPoints 65 ;
-    :personalIncome 3700000 ;
-    rdfs:label "신청자 A (김철수)"@ko ;
-    rdfs:comment "CQ 1-3 대응: 성년, 청약통장 2년 이상, 무주택세대주"@ko .
-
-:TestAccount_A rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "1234-5678-9012" ;
-    :accountType "주택청약종합저축" ;
-    :accountOpeningDate "2022-05-10"^^xsd:date ;
-    :depositAmount 3500000 ;
-    :monthlyPaymentCount 30 ;
-    rdfs:label "신청자 A의 청약통장"@ko ;
-    rdfs:comment "가입 기간 2.5년, 예치금 350만원, 월납입 30회"@ko .
-
-:TestHousehold_A rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_A , :TestSpouse_A , :TestChild_A1 ;
-    :hasHead :TestApplicant_A ;
-    :hasIncome :TestIncome_A ;
-    :hasTotalAsset :TestAsset_A ;
-    rdfs:label "신청자 A의 세대"@ko ;
-    rdfs:comment "세대주 + 배우자 + 미성년 자녀 1명"@ko .
-
-:TestSpouse_A rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "850615-2345678" ;
-    :name "이영희" ;
-    :age "28"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :belongsToHousehold :TestHousehold_A ;
-    :hasSpouse :TestApplicant_A ;
-    :personalIncome 3500000 ;
-    rdfs:label "배우자 D (이영희)"@ko .
-
-:TestChild_A1 rdf:type owl:NamedIndividual , :Child , :MinorChild ;
-    :nationalID "201506-3456789" ;
-    :name "김민지" ;
-    :age "9"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_A ;
-    :hasParent :TestApplicant_A , :TestSpouse_A ;
-    rdfs:label "자녀 E (김민지)"@ko ;
-    rdfs:comment "만 9세 미성년 자녀"@ko .
-
-:TestIncome_A rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 7200000 ;
-    rdfs:comment "신청자 3,700만원 + 배우자 3,500만원 = 7,200만원"@ko .
-
-:TestAsset_A rdf:type owl:NamedIndividual , :Asset ;
-    :realEstateAssetValue 50000000 ;
-    :vehicleAssetValue 15000000 ;
-    rdfs:comment "부동산 5천만원, 차량 1천5백만원 → 국민주택 자산 기준 충족"@ko .
-
-###############################################################################
-#    10. CQ 4: 신청자 F (경기 거주, 서울 신청)
-###############################################################################
-
-:TestApplicant_F rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "900315-1567890" ;
-    :name "박준호" ;
-    :age "34"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Gyeonggi ;
-    :belongsToHousehold :TestHousehold_F ;
-    :hasSubscriptionAccount :TestAccount_F ;
-    :appliesFor :TestApp_General_01 ;
-    :homelessStartDate "2020-01-01"^^xsd:date ;
-    :hasResidenceHistory :TestResidence_Gyeonggi_MidTerm ;
-    :personalIncome 4300000 ;
-    rdfs:label "신청자 F (박준호)"@ko ;
-    rdfs:comment "CQ 4 대응: 경기 거주, 서울 주택 신청 → OtherRegionApplicant"@ko .
-
-:TestAccount_F rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "2345-6789-0123" ;
-    :accountType "주택청약종합저축" ;
-    :accountOpeningDate "2021-01-10"^^xsd:date ;
-    :depositAmount 2800000 ;
-    :monthlyPaymentCount 45 ;
-    rdfs:comment "가입 기간 3.8년, 예치금 280만원"@ko .
-
-:TestHousehold_F rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_F , :TestSpouse_F ;
-    :hasHead :TestApplicant_F ;
-    :hasIncome :TestIncome_F ;
-    rdfs:label "신청자 F의 세대"@ko ;
-    rdfs:comment "부부 2인 가구"@ko .
-
-:TestSpouse_F rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "920808-2678901" ;
-    :name "최수진" ;
-    :age "32"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_F ;
-    :hasSpouse :TestApplicant_F ;
-    :personalIncome 4200000 .
-
-:TestIncome_F rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 8500000 ;
-    rdfs:comment "부부 합산 소득 850만원"@ko .
-
-###############################################################################
-#    11. CQ 5: 신청자 G (소형저가주택 처분)
-###############################################################################
-
-:TestApplicant_G rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "870420-1789012" ;
-    :name "정대현" ;
-    :age "37"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_G ;
-    :hasSubscriptionAccount :TestAccount_G ;
-    :appliesFor :TestApp_General_02 ;
-    :hasResidenceHistory :TestResidence_Seoul_LongTerm ;
-    :personalIncome 3800000 ;
-    rdfs:label "신청자 G (정대현)"@ko ;
-    rdfs:comment "CQ 5 대응: 배우자가 소형저가주택 처분 이력 있음"@ko .
-
-:TestSpouse_G rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "880705-2890123" ;
-    :name "한지민" ;
-    :age "36"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_G ;
-    :hasSpouse :TestApplicant_G ;
-    :hasOwnershipHistory :TestOwnership_SmallLowPrice_Disposed ;
-    :personalIncome 4000000 ;
-    rdfs:label "배우자 G (한지민)"@ko ;
-    rdfs:comment "2021년 5월 소형저가주택 처분 → 무주택 기간 2021-05-15부터"@ko .
-
-:TestHousehold_G rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_G , :TestSpouse_G ;
-    :hasHead :TestApplicant_G ;
-    :hasIncome :TestIncome_G .
-
-:TestAccount_G rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "3456-7890-1234" ;
-    :accountOpeningDate "2020-08-01"^^xsd:date ;
-    :depositAmount 3200000 ;
-    :monthlyPaymentCount 52 .
-
-:TestIncome_G rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 7800000 .
-
-###############################################################################
-#    12. CQ 7: 신청자 L (투기과열지구 1주택자)
-###############################################################################
-
-:TestApplicant_L rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "860910-1901234" ;
-    :name "송민수" ;
-    :age "38"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :TestRegion_Gwacheon ;
-    :belongsToHousehold :TestHousehold_L ;
-    :hasSubscriptionAccount :TestAccount_L ;
-    :appliesFor :TestApp_General_01 ;
-    :owns :TestHousing_Gyeonggi_02 ;
-    :hasOwnershipHistory :TestOwnership_Current_01 ;
-    :personalIncome 7000000 ;
-    rdfs:label "신청자 L (송민수)"@ko ;
-    rdfs:comment "CQ 7 대응: 투기과열지구 거주, 1주택 보유 → 조건부 1순위"@ko .
-
-:TestHousehold_L rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_L , :TestSpouse_L ;
-    :hasHead :TestApplicant_L ;
-    :hasIncome :TestIncome_L .
-
-:TestSpouse_L rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "880225-2012345" ;
-    :name "윤서연" ;
-    :age "36"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_L ;
-    :hasSpouse :TestApplicant_L ;
-    :personalIncome 5000000 .
-
-:TestAccount_L rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "4567-8901-2345" ;
-    :accountOpeningDate "2019-03-01"^^xsd:date ;
-    :depositAmount 8000000 ;
-    :monthlyPaymentCount 68 .
-
-:TestIncome_L rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 12000000 ;
-    rdfs:comment "고소득 가구 (1,200만원)"@ko .
-
-###############################################################################
-#    13. CQ 12: 신청자 K (예치금 부족)
-###############################################################################
-
-:TestApplicant_K rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "910512-1123456" ;
-    :name "이승현" ;
-    :age "33"^^xsd:integer ;
-    :maritalStatus "미혼" ;
-    :livesIn :Gyeonggi ;
-    :belongsToHousehold :TestHousehold_K ;
-    :hasSubscriptionAccount :TestAccount_K ;
-    :appliesFor :TestApp_General_01 ;
-    :homelessStartDate "2018-01-01"^^xsd:date ;
-    :personalIncome 4200000 ;
-    rdfs:label "신청자 K (이승현)"@ko ;
-    rdfs:comment "CQ 12 대응: 예치금 250만원, 50만원 부족"@ko .
-
-:TestAccount_K rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "5678-9012-3456" ;
-    :accountOpeningDate "2021-06-01"^^xsd:date ;
-    :depositAmount 2500000 ;
-    :monthlyPaymentCount 41 ;
-    rdfs:comment "예치금 250만원 → 서울 85㎡ 이하는 300만원 필요 → 50만원 부족"@ko .
-
-:TestHousehold_K rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_K ;
-    :hasHead :TestApplicant_K ;
-    :hasIncome :TestIncome_K ;
-    rdfs:comment "1인 가구"@ko .
-
-:TestIncome_K rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 4200000 .
-
-###############################################################################
-#    14. CQ 13: 신청자 R (신혼부부 특공)
-###############################################################################
-
-:TestApplicant_R rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "890620-1234567" ;
-    :name "최준영" ;
-    :age "35"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :marriageRegistrationDate "2019-09-20"^^xsd:date ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_R ;
-    :hasSubscriptionAccount :TestAccount_R ;
-    :appliesFor :TestApp_Newlywed_01 ;
-    :homelessStartDate "2018-01-01"^^xsd:date ;
-    :hasChild :TestChild_R1 ;
-    :personalIncome 3500000 ;
-    rdfs:label "신청자 R (최준영)"@ko ;
-    rdfs:comment "CQ 13 대응: 신혼부부 특공, 결혼 5년, 자녀 1명"@ko .
-
-:TestHousehold_R rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_R , :TestSpouse_R , :TestChild_R1 ;
-    :hasHead :TestApplicant_R ;
-    :hasIncome :TestIncome_R .
-
-:TestSpouse_R rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "910815-2345678" ;
-    :name "강은지" ;
-    :age "33"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :belongsToHousehold :TestHousehold_R ;
-    :hasSpouse :TestApplicant_R ;
-    :personalIncome 4500000 .
-
-:TestChild_R1 rdf:type owl:NamedIndividual , :Child , :MinorChild , :InfantChild ;
-    :nationalID "220310-3456789" ;
-    :name "최서준" ;
-    :age "2"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_R ;
-    :hasParent :TestApplicant_R , :TestSpouse_R ;
-    rdfs:comment "만 2세 자녀 → 우선공급 대상"@ko .
-
-:TestAccount_R rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "6789-0123-4567" ;
-    :accountOpeningDate "2023-06-01"^^xsd:date ;
-    :depositAmount 2000000 ;
-    :monthlyPaymentCount 17 ;
-    rdfs:comment "특공은 6개월 이상이면 충족"@ko .
-
-:TestIncome_R rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 8000000 ;
-    rdfs:comment "3인 가구 기준 5,400만원의 140% = 7,560만원 이하 충족"@ko .
-
-###############################################################################
-#    15. CQ 14: 신청자 S (생애최초 특공)
-###############################################################################
-
-:TestApplicant_S rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "890225-2123456" ;
-    :name "정수아" ;
-    :age "35"^^xsd:integer ;
-    :maritalStatus "미혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_S ;
-    :hasSubscriptionAccount :TestAccount_S ;
-    :appliesFor :TestApp_FirstTime_01 ;
-    :homelessStartDate "1989-02-25"^^xsd:date ;
-    :taxPaymentDuration 7 ;
-    :hasTaxPaymentHistory :TestTax_2019 , :TestTax_2020 , :TestTax_2021 , :TestTax_2022 , :TestTax_2023 ;
-    :personalIncome 5500000 ;
-    rdfs:label "신청자 S (정수아)"@ko ;
-    rdfs:comment "CQ 14 대응: 미혼 1인 가구, 소득세 5년 이상 납부"@ko .
-
-:TestHousehold_S rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_S ;
-    :hasHead :TestApplicant_S ;
-    :hasIncome :TestIncome_S ;
-    rdfs:comment "1인 가구 → 2인 가구 기준 적용"@ko .
-
-:TestAccount_S rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "7890-1234-5678" ;
-    :accountOpeningDate "2020-01-15"^^xsd:date ;
-    :depositAmount 10000000 ;
-    :monthlyPaymentCount 58 .
-
-:TestIncome_S rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 5500000 ;
-    rdfs:comment "2인 가구 기준 5,000만원의 130% = 6,500만원 이하 충족"@ko .
-
-###############################################################################
-#    16. CQ 15: 신청자 T (다자녀가구 특공)
-###############################################################################
-
-:TestApplicant_T rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "850710-1345678" ;
-    :name "김태호" ;
-    :age "39"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_T ;
-    :hasSubscriptionAccount :TestAccount_T ;
-    :appliesFor :TestApp_MultiChild_01 ;
-    :homelessStartDate "2019-01-01"^^xsd:date ;
-    :hasChild :TestChild_T1 , :TestChild_T2 , :TestChild_T3 ;
-    :personalIncome 4400000 ;
-    rdfs:label "신청자 T (김태호)"@ko ;
-    rdfs:comment "CQ 15 대응: 다자녀가구 특공, 미성년 자녀 3명"@ko .
-
-:TestHousehold_T rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_T , :TestSpouse_T , :TestChild_T1 , :TestChild_T2 , :TestChild_T3 ;
-    :hasHead :TestApplicant_T ;
-    :hasIncome :TestIncome_T ;
-    rdfs:comment "5인 가구 (부부 + 자녀 3명)"@ko .
-
-:TestSpouse_T rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "860920-2456789" ;
-    :name "박미경" ;
-    :age "38"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_T ;
-    :hasSpouse :TestApplicant_T ;
-    :personalIncome 3800000 .
-
-:TestChild_T1 rdf:type owl:NamedIndividual , :Child , :MinorChild ;
-    :nationalID "060415-3567890" ;
-    :name "김지우" ;
-    :age "18"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_T ;
-    :hasParent :TestApplicant_T , :TestSpouse_T ;
-    rdfs:comment "만 18세 자녀"@ko .
-
-:TestChild_T2 rdf:type owl:NamedIndividual , :Child , :MinorChild ;
-    :nationalID "140625-4678901" ;
-    :name "김서윤" ;
-    :age "10"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_T ;
-    :hasParent :TestApplicant_T , :TestSpouse_T ;
-    rdfs:comment "만 10세 자녀"@ko .
-
-:TestChild_T3 rdf:type owl:NamedIndividual , :Child , :MinorChild , :InfantChild ;
-    :nationalID "190820-3789012" ;
-    :name "김예준" ;
-    :age "5"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_T ;
-    :hasParent :TestApplicant_T , :TestSpouse_T ;
-    rdfs:comment "만 5세 자녀"@ko .
-
-:TestAccount_T rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "8901-2345-6789" ;
-    :accountOpeningDate "2022-12-01"^^xsd:date ;
-    :depositAmount 3000000 ;
-    :monthlyPaymentCount 23 .
-
-:TestIncome_T rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 8200000 .
-
-###############################################################################
-#    17. CQ 16: 신청자 U (노부모부양 특공)
-###############################################################################
-
-:TestApplicant_U rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "830512-1456789" ;
-    :name "이동진" ;
-    :age "41"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_U ;
-    :hasSubscriptionAccount :TestAccount_U ;
-    :appliesFor :TestApp_AgedParents_01 ;
-    :homelessStartDate "2018-01-01"^^xsd:date ;
-    :hasDependent :TestParent_U1 ;
-    :hasElderlyDependent :TestParent_U1 ;
-    :personalIncome 5500000 ;
-    rdfs:label "신청자 U (이동진)"@ko ;
-    rdfs:comment "CQ 16 대응: 노부모부양 특공, 만 65세 이상 부모 3년 이상 부양"@ko .
-
-:TestHousehold_U rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_U , :TestSpouse_U , :TestParent_U1 ;
-    :hasHead :TestApplicant_U ;
-    :hasIncome :TestIncome_U .
-
-:TestSpouse_U rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "850718-2567890" ;
-    :name "김하늘" ;
-    :age "39"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_U ;
-    :hasSpouse :TestApplicant_U ;
-    :personalIncome 5500000 .
-
-:TestParent_U1 rdf:type owl:NamedIndividual , :HouseholdMember , :QualifiedDependent , :ElderlyDependent ;
-    :nationalID "570320-1678901" ;
-    :name "이철호" ;
-    :age "67"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_U ;
-    :hasChild :TestApplicant_U ;
-    :supportStartDate "2019-09-01"^^xsd:date ;
-    rdfs:label "신청자 U의 아버지 (이철호)"@ko ;
-    rdfs:comment "만 67세, 2019년 9월부터 부양 (5년 이상)"@ko .
-
-:TestAccount_U rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "9012-3456-7890" ;
-    :accountOpeningDate "2019-06-01"^^xsd:date ;
-    :depositAmount 12000000 ;
-    :monthlyPaymentCount 65 .
-
-:TestIncome_U rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 11000000 .
-
-###############################################################################
-#    18. CQ 17: 신청자 V (기관추천 특공)
-###############################################################################
-
-:TestApplicant_V rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "880410-2678901" ;
-    :name "한미영" ;
-    :age "36"^^xsd:integer ;
-    :maritalStatus "미혼" ;
-    :hasDisability true ;
-    :livesIn :Gyeonggi ;
-    :belongsToHousehold :TestHousehold_V ;
-    :hasSubscriptionAccount :TestAccount_V ;
-    :appliesFor :TestApp_Institutional_01 ;
-    :homelessStartDate "1988-04-10"^^xsd:date ;
-    :isRecommendedBy :LocalGovernment_Generic ;
-    :recommendationDate "2024-10-15"^^xsd:date ;
-    :recommendationNumber "2024-GG-0012345" ;
-    :personalIncome 2800000 ;
-    rdfs:label "신청자 V (한미영)"@ko ;
-    rdfs:comment "CQ 17 대응: 장애인 기관추천 특공"@ko .
-
-:TestHousehold_V rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_V ;
-    :hasHead :TestApplicant_V ;
-    :hasIncome :TestIncome_V .
-
-:TestAccount_V rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "0123-4567-8901" ;
-    :accountOpeningDate "2023-08-01"^^xsd:date ;
-    :depositAmount 1500000 ;
-    :monthlyPaymentCount 15 .
-
-:TestIncome_V rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 2800000 .
-
-###############################################################################
-#    19. CQ 20: 신청자 Y (소득 기준)
-###############################################################################
-
-:TestApplicant_Y rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "900530-1789012" ;
-    :name "조민준" ;
-    :age "34"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :marriageRegistrationDate "2020-05-10"^^xsd:date ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_Y ;
-    :hasSubscriptionAccount :TestAccount_Y ;
-    :appliesFor :TestApp_Newlywed_02 ;
-    :homelessStartDate "2019-01-01"^^xsd:date ;
-    :personalIncome 3800000 ;
-    rdfs:label "신청자 Y (조민준)"@ko ;
-    rdfs:comment "CQ 20 대응: 신혼부부 특공, 소득 800만원"@ko .
-
-:TestHousehold_Y rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_Y , :TestSpouse_Y ;
-    :hasHead :TestApplicant_Y ;
-    :hasIncome :TestIncome_Y ;
-    rdfs:comment "맞벌이 가구 → 160% 기준 적용"@ko .
-
-:TestSpouse_Y rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "920715-2890123" ;
-    :name "임지현" ;
-    :age "32"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_Y ;
-    :hasSpouse :TestApplicant_Y ;
-    :personalIncome 4200000 .
-
-:TestAccount_Y rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "1234-5678-9012" ;
-    :accountOpeningDate "2023-03-01"^^xsd:date ;
-    :depositAmount 2500000 ;
-    :monthlyPaymentCount 20 .
-
-:TestIncome_Y rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 8000000 ;
-    rdfs:comment "2인 가구 5,000만원의 160% = 8,000만원 → 정확히 기준선"@ko .
-
-###############################################################################
-#    20. CQ 21: 신청자 Z (자산 기준)
-###############################################################################
-
-:TestApplicant_Z rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "880820-1901234" ;
-    :name "홍길동" ;
-    :age "36"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_Z ;
-    :hasSubscriptionAccount :TestAccount_Z ;
-    :appliesFor :TestApp_General_03 ;
-    :homelessStartDate "2020-01-01"^^xsd:date ;
-    :ownsLand :TestLand_Z1 ;
-    :ownsBuilding :TestBuilding_Z1 ;
-    :ownsVehicle :TestVehicle_Z1 ;
-    :personalIncome 4700000 ;
-    rdfs:label "신청자 Z (홍길동)"@ko ;
-    rdfs:comment "CQ 21 대응: 자산 보유 기준 초과 여부 확인"@ko .
-
-:TestLand_Z1 rdf:type owl:NamedIndividual , :LandAsset ;
-    :landAssetValue 100000000 ;
-    rdfs:comment "토지 1억원"@ko .
-
-:TestBuilding_Z1 rdf:type owl:NamedIndividual , :BuildingAsset ;
-    :buildingAssetValue 200000000 ;
-    rdfs:comment "건물 2억원"@ko .
-
-:TestVehicle_Z1 rdf:type owl:NamedIndividual , :VehicleAsset ;
-    :vehicleAssetValue 30000000 ;
-    rdfs:comment "자동차 3천만원"@ko .
-
-:TestHousehold_Z rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_Z , :TestSpouse_Z ;
-    :hasHead :TestApplicant_Z ;
-    :hasIncome :TestIncome_Z ;
-    :hasTotalAsset :TestAsset_Z .
-
-:TestSpouse_Z rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "890915-2012345" ;
-    :name "김민지" ;
-    :age "35"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_Z ;
-    :hasSpouse :TestApplicant_Z ;
-    :personalIncome 4500000 .
-
-:TestAccount_Z rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "2345-6789-0123" ;
-    :accountOpeningDate "2021-05-01"^^xsd:date ;
-    :depositAmount 5000000 ;
-    :monthlyPaymentCount 42 .
-
-:TestIncome_Z rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 9200000 .
-
-:TestAsset_Z rdf:type owl:NamedIndividual , :Asset ;
-    :realEstateAssetValue 300000000 ;
-    :vehicleAssetValue 30000000 ;
-    rdfs:comment "부동산 3억 → 국민주택 기준 2.15억 초과, 차량 3천만원 → 기준 3,708만원 이하"@ko .
-
-###############################################################################
-#    21. CQ 24: 신청자 W (육아휴직 소득)
-###############################################################################
-
-:TestApplicant_W rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "910705-1123456" ;
-    :name "신동욱" ;
-    :age "33"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :marriageRegistrationDate "2021-06-20"^^xsd:date ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_W ;
-    :hasSubscriptionAccount :TestAccount_W ;
-    :appliesFor :TestApp_Newlywed_01 ;
-    :homelessStartDate "2020-01-01"^^xsd:date ;
-    :personalIncome 5000000 ;
-    :hasChild :TestChild_W1 ;
-    rdfs:label "신청자 W (신동욱)"@ko ;
-    rdfs:comment "CQ 24 대응: 배우자 육아휴직 중 소득 산정"@ko .
-
-:TestSpouse_W rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "920810-2234567" ;
-    :name "오수진" ;
-    :age "32"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_W ;
-    :hasSpouse :TestApplicant_W ;
-    :isOnChildcareLeave true ;
-    :childcareLeaveAllowance 1500000 ;
-    :personalIncome 1500000 ;
-    rdfs:label "배우자 W (오수진)"@ko ;
-    rdfs:comment "육아휴직 급여 150만원 → 소득으로 산정"@ko .
-
-:TestHousehold_W rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_W , :TestSpouse_W , :TestChild_W1 ;
-    :hasHead :TestApplicant_W ;
-    :hasIncome :TestIncome_W .
-
-:TestChild_W1 rdf:type owl:NamedIndividual , :Child , :MinorChild , :InfantChild ;
-    :nationalID "230415-3345678" ;
-    :name "신예린" ;
-    :age "1"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_W ;
-    :hasParent :TestApplicant_W , :TestSpouse_W .
-
-:TestAccount_W rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "3456-7890-1234" ;
-    :accountOpeningDate "2023-01-10"^^xsd:date ;
-    :depositAmount 3000000 ;
-    :monthlyPaymentCount 22 .
-
-:TestIncome_W rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 6500000 ;
-    rdfs:comment "신청자 500만원 + 배우자 육아휴직 급여 150만원 = 650만원"@ko .
-
-###############################################################################
-#    22. CQ 6: 신청자 H (재당첨 제한)
-###############################################################################
-
-:TestApplicant_H rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "820315-1234567" ;
-    :name "박지훈" ;
-    :age "42"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_H ;
-    :hasSubscriptionAccount :TestAccount_H ;
-    :appliesFor :TestApp_General_01 ;
-    :homelessStartDate "2010-01-01"^^xsd:date ;
-    :hasWinningRecord :TestWinningRecord_Old_01 ;
-    :personalIncome 5700000 ;
-    rdfs:label "신청자 H (박지훈)"@ko ;
-    rdfs:comment "CQ 6 대응: 10년 전 당첨 포기, 재당첨 제한 만료"@ko .
-
-:TestHousehold_H rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_H , :TestSpouse_H ;
-    :hasHead :TestApplicant_H ;
-    :hasIncome :TestIncome_H .
-
-:TestSpouse_H rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "840525-2345678" ;
-    :name "정유진" ;
-    :age "40"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_H ;
-    :hasSpouse :TestApplicant_H ;
-    :personalIncome 4800000 .
-
-:TestAccount_H rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "4567-8901-2345" ;
-    :accountOpeningDate "2018-03-01"^^xsd:date ;
-    :depositAmount 8000000 ;
-    :monthlyPaymentCount 80 .
-
-:TestIncome_H rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 10500000 .
-
-###############################################################################
-#    23. CQ 10: 신청자 P (세대원)
-###############################################################################
-
-:TestApplicant_P rdf:type owl:NamedIndividual , :Applicant , :NonHeadOfHouseholdMember ;
-    :nationalID "920820-2456789" ;
-    :name "서지영" ;
-    :age "32"^^xsd:integer ;
-    :maritalStatus "미혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_P ;
-    :hasSubscriptionAccount :TestAccount_P ;
-    :appliesFor :TestApp_General_03 ;
-    :homelessStartDate "1992-08-20"^^xsd:date ;
-    :personalIncome 3500000 ;
-    rdfs:label "신청자 P (서지영)"@ko ;
-    rdfs:comment "CQ 10 대응: 세대원 신분으로 국민주택 1순위 신청 불가"@ko .
-
-:TestHousehold_P rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_P , :TestParent_P1 ;
-    :hasHead :TestParent_P1 ;
-    :hasIncome :TestIncome_P .
-
-:TestParent_P1 rdf:type owl:NamedIndividual , :HouseholdMember , :HeadOfHousehold ;
-    :nationalID "650420-1567890" ;
-    :name "서대용" ;
-    :age "59"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_P ;
-    :hasChild :TestApplicant_P ;
-    :personalIncome 6000000 .
-
-:TestAccount_P rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "5678-9012-3456" ;
-    :accountOpeningDate "2020-02-01"^^xsd:date ;
-    :depositAmount 4000000 ;
-    :monthlyPaymentCount 56 .
-
-:TestIncome_P rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 9500000 .
-
-###############################################################################
-#    24. CQ 11: 신청자 Q (세대 내 5년 이내 당첨 이력)
-###############################################################################
-
-:TestApplicant_Q rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ;
-    :nationalID "870925-1678901" ;
-    :name "강민수" ;
-    :age "37"^^xsd:integer ;
-    :maritalStatus "기혼" ;
-    :livesIn :Seoul ;
-    :belongsToHousehold :TestHousehold_Q ;
-    :hasSubscriptionAccount :TestAccount_Q ;
-    :appliesFor :TestApp_General_01 ;
-    :homelessStartDate "2018-01-01"^^xsd:date ;
-    :personalIncome 5300000 ;
-    rdfs:label "신청자 Q (강민수)"@ko ;
-    rdfs:comment "CQ 11 대응: 배우자에 당첨 이력 있어 1순위 불가"@ko .
-
-:TestSpouse_Q rdf:type owl:NamedIndividual , :HouseholdMember ;
-    :nationalID "890610-2789012" ;
-    :name "이서윤" ;
-    :age "35"^^xsd:integer ;
-    :belongsToHousehold :TestHousehold_Q ;
-    :hasSpouse :TestApplicant_Q ;
-    :hasWinningRecord :TestWinningRecord_Recent_01 ;
-    :personalIncome 4500000 ;
-    rdfs:comment "2021년 당첨 이력 보유 → 세대 전체 1순위 불가"@ko .
-
-:TestHousehold_Q rdf:type owl:NamedIndividual , :Household ;
-    :hasMember :TestApplicant_Q , :TestSpouse_Q ;
-    :hasHead :TestApplicant_Q ;
-    :hasIncome :TestIncome_Q ;
-    rdfs:comment "최근 당첨 이력 있는 세대"@ko .
-
-:TestAccount_Q rdf:type owl:NamedIndividual , :SubscriptionAccount ;
-    :accountNumber "6789-0123-4567" ;
-    :accountOpeningDate "2019-07-01"^^xsd:date ;
-    :depositAmount 7000000 ;
-    :monthlyPaymentCount 64 .
-
-:TestIncome_Q rdf:type owl:NamedIndividual , :Income ;
-    :monthlyAverageIncome 9800000 .
-
-###############################################################################
-#    End of Test Data
 ###############################################################################
 

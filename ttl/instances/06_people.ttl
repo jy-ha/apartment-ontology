@@ -1,0 +1,333 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    세대구성원 (HouseholdMember) - 사람 (Person)
+#
+#    주의: 모든 HouseholdMember는 다음 타입을 명시적으로 가져야 합니다:
+#    1. HousingOwner 또는 NonHousingOwner (현재 주택 소유 여부)
+#    2. HousingOwnershipHistoryHolder 또는 NeverOwnedHousingPerson (과거 소유 이력)
+#    이는 OWL의 Open World Assumption을 극복하기 위한 Closed World 구현입니다.
+###############################################################################
+
+# === 세대 1: 김철수 가족 (무주택, 소유 이력 있음 - 과거 처분) ===
+:Kim_ChulSoo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :HousingOwnershipHistoryHolder ;
+    :name "김철수"^^xsd:string ;
+    :age 45 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :marriageRegistrationDate "2005-03-15"^^xsd:date ;
+    :personalIncome 5000000 ;
+    :employmentStatus "재직"^^xsd:string ;
+    :hasDisability false ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Kim ;
+    :homelessPeriodInYears 10 ;
+    :homelessPeriodPoints 20 ;
+    :dependentCount 4 ;
+    :dependentFamilyPoints 25 ;
+    :accountPeriodInYears 8 ;
+    :accountPeriodPoints 10 ;
+    :totalSubscriptionPoints 55 ;
+    :hasSpouse :Lee_YoungHee ;
+    :hasChild :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    :hasMinorChild :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    :hasDependent :Lee_YoungHee , :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    :hasResidenceHistory :ResidenceHistory_Kim ;
+    :hasOwnershipHistory :OwnershipHistory_Kim_Past ;
+    rdfs:label "김철수"@ko .
+
+:Lee_YoungHee rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "이영희"^^xsd:string ;
+    :age 43 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 4000000 ;
+    :employmentStatus "재직"^^xsd:string ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasSpouse :Kim_ChulSoo ;
+    :hasChild :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    rdfs:label "이영희"@ko .
+
+:Kim_MinJi rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김민지"^^xsd:string ;
+    :age 17 ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasParent :Kim_ChulSoo , :Lee_YoungHee ;
+    rdfs:label "김민지"@ko .
+
+:Kim_MinSoo rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김민수"^^xsd:string ;
+    :age 14 ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasParent :Kim_ChulSoo , :Lee_YoungHee ;
+    rdfs:label "김민수"@ko .
+
+:Kim_MinHo rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김민호"^^xsd:string ;
+    :age 10 ;
+    :belongsToHousehold :Household_Kim ;
+    :livesIn :Seoul ;
+    :hasParent :Kim_ChulSoo , :Lee_YoungHee ;
+    rdfs:label "김민호"@ko .
+
+# === 세대 2: 박영호 가족 (무주택, 소유 이력 없음) ===
+:Park_YoungHo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "박영호"^^xsd:string ;
+    :age 32 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :marriageRegistrationDate "2022-05-20"^^xsd:date ;
+    :personalIncome 4500000 ;
+    :employmentStatus "재직"^^xsd:string ;
+    :belongsToHousehold :Household_Park ;
+    :livesIn :Gyeonggi ;
+    :hasSubscriptionAccount :Account_Park ;
+    :homelessPeriodInYears 5 ;
+    :homelessPeriodPoints 10 ;
+    :dependentCount 2 ;
+    :dependentFamilyPoints 10 ;
+    :accountPeriodInYears 3 ;
+    :accountPeriodPoints 4 ;
+    :totalSubscriptionPoints 24 ;
+    :hasSpouse :Choi_SuJin ;
+    :hasChild :Park_HaNeul ;
+    :hasInfantChild :Park_HaNeul ;
+    :hasDependent :Choi_SuJin , :Park_HaNeul ;
+    :hasResidenceHistory :ResidenceHistory_Park ;
+    rdfs:label "박영호"@ko .
+
+:Choi_SuJin rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "최수진"^^xsd:string ;
+    :age 30 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 3500000 ;
+    :belongsToHousehold :Household_Park ;
+    :livesIn :Gyeonggi ;
+    :hasSpouse :Park_YoungHo ;
+    :hasChild :Park_HaNeul ;
+    rdfs:label "최수진"@ko .
+
+:Park_HaNeul rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "박하늘"^^xsd:string ;
+    :age 2 ;
+    :belongsToHousehold :Household_Park ;
+    :livesIn :Gyeonggi ;
+    :hasParent :Park_YoungHo , :Choi_SuJin ;
+    rdfs:label "박하늘"@ko .
+
+# === 세대 3: 이민수 가족 (무주택, 소유 이력 없음) ===
+:Lee_MinSoo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "이민수"^^xsd:string ;
+    :age 48 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :marriageRegistrationDate "2000-11-11"^^xsd:date ;
+    :personalIncome 6000000 ;
+    :belongsToHousehold :Household_Lee ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Lee ;
+    :homelessPeriodInYears 15 ;
+    :homelessPeriodPoints 32 ;
+    :dependentCount 2 ;
+    :dependentFamilyPoints 10 ;
+    :accountPeriodInYears 15 ;
+    :accountPeriodPoints 17 ;
+    :totalSubscriptionPoints 59 ;
+    :hasSpouse :Jung_MiYoung ;
+    :hasParent :Lee_DongGu ;
+    :hasDependent :Jung_MiYoung , :Lee_DongGu ;
+    :hasElderlyDependent :Lee_DongGu ;
+    :hasResidenceHistory :ResidenceHistory_Lee ;
+    rdfs:label "이민수"@ko .
+
+:Jung_MiYoung rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "정미영"^^xsd:string ;
+    :age 46 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 0 ;
+    :employmentStatus "주부"^^xsd:string ;
+    :belongsToHousehold :Household_Lee ;
+    :livesIn :Seoul ;
+    :hasSpouse :Lee_MinSoo ;
+    rdfs:label "정미영"@ko .
+
+:Lee_DongGu rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "이동구"^^xsd:string ;
+    :age 78 ;
+    :belongsToHousehold :Household_Lee ;
+    :livesIn :Seoul ;
+    :hasChild :Lee_MinSoo ;
+    :supportStartDate "2020-01-15"^^xsd:date ;
+    rdfs:label "이동구"@ko .
+
+# === 세대 4: 정수영 (무주택, 소유 이력 없음 - 생애최초 자격) ===
+:Jung_SooYoung rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "정수영"^^xsd:string ;
+    :age 29 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 3800000 ;
+    :belongsToHousehold :Household_Jung ;
+    :livesIn :Incheon ;
+    :hasSubscriptionAccount :Account_Jung ;
+    :homelessPeriodInYears 8 ;
+    :homelessPeriodPoints 16 ;
+    :dependentCount 0 ;
+    :dependentFamilyPoints 5 ;
+    :accountPeriodInYears 5 ;
+    :accountPeriodPoints 6 ;
+    :totalSubscriptionPoints 27 ;
+    :taxPaymentDuration 7 ;
+    :hasResidenceHistory :ResidenceHistory_Jung ;
+    :hasTaxPaymentHistory :TaxHistory_Jung_2018 , :TaxHistory_Jung_2019 , :TaxHistory_Jung_2020 , :TaxHistory_Jung_2021 , :TaxHistory_Jung_2022 , :TaxHistory_Jung_2023 , :TaxHistory_Jung_2024 ;
+    rdfs:label "정수영"@ko .
+
+# === 세대 5: 최동현 (유주택, 소유 이력 있음) ===
+:Choi_DongHyun rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :HousingOwner , :HousingOwnershipHistoryHolder ;
+    :name "최동현"^^xsd:string ;
+    :age 52 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 8000000 ;
+    :belongsToHousehold :Household_Choi ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Choi ;
+    :owns :Housing_Choi ;
+    :hasOwnershipHistory :OwnershipHistory_Choi ;
+    :hasSpouse :Kim_EunJi ;
+    :hasResidenceHistory :ResidenceHistory_Choi ;
+    rdfs:label "최동현"@ko .
+
+:Kim_EunJi rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "김은지"^^xsd:string ;
+    :age 50 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 5000000 ;
+    :belongsToHousehold :Household_Choi ;
+    :livesIn :Seoul ;
+    :hasSpouse :Choi_DongHyun ;
+    rdfs:label "김은지"@ko .
+
+# === 세대 6: 한지영 (무주택, 소유 이력 없음) ===
+:Han_JiYoung rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "한지영"^^xsd:string ;
+    :age 35 ;
+    :maritalStatus "이혼"^^xsd:string ;
+    :personalIncome 3200000 ;
+    :isSingleParent true ;
+    :singleParentCertificationDate "2023-02-10"^^xsd:date ;
+    :belongsToHousehold :Household_Han ;
+    :livesIn :Gyeonggi ;
+    :hasSubscriptionAccount :Account_Han ;
+    :homelessPeriodInYears 6 ;
+    :homelessPeriodPoints 12 ;
+    :dependentCount 1 ;
+    :dependentFamilyPoints 10 ;
+    :accountPeriodInYears 4 ;
+    :accountPeriodPoints 5 ;
+    :totalSubscriptionPoints 27 ;
+    :hasChild :Han_SeoYoon ;
+    :hasInfantChild :Han_SeoYoon ;
+    :hasDependent :Han_SeoYoon ;
+    :hasResidenceHistory :ResidenceHistory_Han ;
+    rdfs:label "한지영"@ko .
+
+:Han_SeoYoon rdf:type owl:NamedIndividual , :HouseholdMember , :NonHeadOfHouseholdMember , :Child , :QualifiedDependent ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "한서윤"^^xsd:string ;
+    :age 5 ;
+    :belongsToHousehold :Household_Han ;
+    :livesIn :Gyeonggi ;
+    :hasParent :Han_JiYoung ;
+    rdfs:label "한서윤"@ko .
+
+# === 세대 7: 윤재호 (무주택, 소유 이력 없음) ===
+:Yoon_JaeHo rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "윤재호"^^xsd:string ;
+    :age 31 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 4200000 ;
+    :hasFianceCommitment true ;
+    :expectedMarriageDate "2025-06-15"^^xsd:date ;
+    :belongsToHousehold :Household_Yoon ;
+    :livesIn :Busan ;
+    :hasSubscriptionAccount :Account_Yoon ;
+    :homelessPeriodInYears 4 ;
+    :homelessPeriodPoints 8 ;
+    :dependentCount 0 ;
+    :dependentFamilyPoints 5 ;
+    :accountPeriodInYears 2 ;
+    :accountPeriodPoints 3 ;
+    :totalSubscriptionPoints 16 ;
+    :hasResidenceHistory :ResidenceHistory_Yoon ;
+    rdfs:label "윤재호"@ko .
+
+# === 세대 8: 강민정 (무주택, 소유 이력 없음) ===
+:Kang_MinJung rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "강민정"^^xsd:string ;
+    :age 40 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 2800000 ;
+    :hasDisability true ;
+    :belongsToHousehold :Household_Kang ;
+    :livesIn :Daejeon ;
+    :hasSubscriptionAccount :Account_Kang ;
+    :homelessPeriodInYears 12 ;
+    :homelessPeriodPoints 24 ;
+    :dependentCount 0 ;
+    :dependentFamilyPoints 5 ;
+    :accountPeriodInYears 10 ;
+    :accountPeriodPoints 13 ;
+    :totalSubscriptionPoints 42 ;
+    :isRecommendedBy :MOHW ;
+    :recommendationDate "2024-10-01"^^xsd:date ;
+    :recommendationNumber "REC-2024-00123"^^xsd:string ;
+    :hasResidenceHistory :ResidenceHistory_Kang ;
+    rdfs:label "강민정"@ko .
+
+# === 세대 9: 장광 (무주택, 소유 이력 없음) ===
+:Zang_Kwang rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "장광"^^xsd:string ;
+    :age 38 ;
+    :maritalStatus "기혼"^^xsd:string ;
+    :personalIncome 4000000 ;
+    :belongsToHousehold :Household_Zang ;
+    :livesIn :Seoul ;
+    :hasSubscriptionAccount :Account_Zang ;
+    :hasResidenceHistory :ResidenceHistory_Zang ;
+    rdfs:label "장광"@ko .
+
+# === 세대 10: 임무 (무주택, 소유 이력 없음) ===
+:Lim_Mu rdf:type owl:NamedIndividual , :Applicant , :HeadOfHousehold ,
+    :NonHousingOwner , :NeverOwnedHousingPerson ;
+    :name "임무"^^xsd:string ;
+    :age 27 ;
+    :maritalStatus "미혼"^^xsd:string ;
+    :personalIncome 2000000 ;
+    :belongsToHousehold :Household_Lim ;
+    :livesIn :Incheon ;
+    :hasSubscriptionAccount :Account_Lim ;
+    :hasResidenceHistory :ResidenceHistory_Lim ;
+    rdfs:label "임무"@ko .

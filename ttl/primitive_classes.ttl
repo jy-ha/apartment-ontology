@@ -59,6 +59,38 @@
     rdfs:comment "직계비속인 자녀를 나타냅니다."@ko .
 
 ###############################################################################
+#    1.1 Housing Ownership Status (주택 소유 상태) - Closed World 구현
+###############################################################################
+
+:HousingOwner rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "HousingOwner"@en ;
+    rdfs:label "주택 소유자"@ko ;
+    rdfs:comment "현재 주택을 소유하고 있는 세대구성원입니다. 모든 HouseholdMember는 HousingOwner 또는 NonHousingOwner 중 하나여야 합니다."@ko .
+
+:NonHousingOwner rdf:type owl:Class ;
+    rdfs:subClassOf :HouseholdMember ;
+    rdfs:label "NonHousingOwner"@en ;
+    rdfs:label "무주택자"@ko ;
+    rdfs:comment "현재 주택을 소유하지 않은 세대구성원입니다. 모든 HouseholdMember는 HousingOwner 또는 NonHousingOwner 중 하나여야 합니다."@ko .
+
+###############################################################################
+#    1.2 Housing Ownership History Status (주택 소유 이력 상태) - Closed World 구현
+###############################################################################
+
+:HousingOwnershipHistoryHolder rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "HousingOwnershipHistoryHolder"@en ;
+    rdfs:label "주택 소유 이력 보유자"@ko ;
+    rdfs:comment "과거에 주택을 소유한 적이 있는 사람입니다. 생애최초 특공 자격 판단에 사용됩니다."@ko .
+
+:NeverOwnedHousingPerson rdf:type owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "NeverOwnedHousingPerson"@en ;
+    rdfs:label "주택 소유 이력 없는 자"@ko ;
+    rdfs:comment "과거에 주택을 소유한 적이 없는 사람입니다. 생애최초 특공 자격 판단에 사용됩니다."@ko .
+
+###############################################################################
 #    2. Household (세대)
 ###############################################################################
 
@@ -289,45 +321,11 @@
     rdfs:label "자산 기준선"@ko ;
     rdfs:comment "특정 청약 유형에 적용되는 자산 보유 한도를 나타냅니다."@ko .
 
-:SupportingAgedParentsRequirement rdf:type owl:Class ;
-    rdfs:subClassOf :Concept ;
-    rdfs:label "SupportingAgedParentsRequirement"@en ;
-    rdfs:label "노부모부양 요건"@ko ;
-    rdfs:comment "노부모부양 특별공급의 자격 요건(최소 부모 나이, 최소 부양 기간 등)을 나타냅니다."@ko .
-
 :DepositRequirement rdf:type owl:Class ;
     rdfs:subClassOf :Concept ;
     rdfs:label "DepositRequirement"@en ;
     rdfs:label "예치금 요건"@ko ;
     rdfs:comment "지역별, 면적별로 요구되는 청약통장 예치금 기준을 나타냅니다."@ko .
-
-###############################################################################
-#    6.4 SubscriptionPoint (청약 가점) 관련
-###############################################################################
-
-:SubscriptionPoint rdf:type owl:Class ;
-    rdfs:subClassOf :Concept ;
-    rdfs:label "SubscriptionPoint"@en ;
-    rdfs:label "청약 가점"@ko ;
-    rdfs:comment "청약 가점제에서 사용되는 점수 체계를 나타냅니다."@ko .
-
-:HomelessPeriodPoint rdf:type owl:Class ;
-    rdfs:subClassOf :SubscriptionPoint ;
-    rdfs:label "HomelessPeriodPoint"@en ;
-    rdfs:label "무주택 기간 점수"@ko ;
-    rdfs:comment "무주택 기간에 따른 가점 (최대 32점)입니다."@ko .
-
-:DependentFamilyPoint rdf:type owl:Class ;
-    rdfs:subClassOf :SubscriptionPoint ;
-    rdfs:label "DependentFamilyPoint"@en ;
-    rdfs:label "부양가족 수 점수"@ko ;
-    rdfs:comment "부양가족 수에 따른 가점 (최대 35점)입니다."@ko .
-
-:AccountPeriodPoint rdf:type owl:Class ;
-    rdfs:subClassOf :SubscriptionPoint ;
-    rdfs:label "AccountPeriodPoint"@en ;
-    rdfs:label "청약통장 가입 기간 점수"@ko ;
-    rdfs:comment "청약통장 가입 기간에 따른 가점 (최대 17점)입니다."@ko .
 
 ###############################################################################
 #    6.5 SelectionMethod (당첨자 선정 방식)
@@ -427,6 +425,12 @@
 
 # HouseholdMember = HeadOfHousehold ⊔ NonHeadOfHouseholdMember
 :HouseholdMember owl:disjointUnionOf ( :HeadOfHousehold :NonHeadOfHouseholdMember ) .
+
+# HouseholdMember = HousingOwner ⊔ NonHousingOwner
+:HouseholdMember owl:disjointUnionOf ( :HousingOwner :NonHousingOwner ) .
+
+# 모든 HouseholdMember = HousingOwnershipHistoryHolder ⊔ NeverOwnedHousingPerson
+:HouseholdMember  owl:disjointUnionOf ( :HousingOwnershipHistoryHolder :NeverOwnedHousingPerson ) .
 
 ###############################################################################
 #    Covering Axiom (커버링 공리)

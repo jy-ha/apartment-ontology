@@ -12,7 +12,12 @@
 ### `HomelessHouseholdMember` (무주택세대구성원)
 - **설명**: 세대주를 포함한 세대원 전원이 주택을 소유하지 않은 세대의 구성원을 정의합니다. 소형·저가주택 소유는 예외적으로 무주택으로 간주될 수 있습니다.
 - **논리 정의 (Equivalent To)**:
-    - `HouseholdMember` that `belongsToHousehold` some (`Household` that not (`hasMember` some (`Person` that `owns` some (`Housing` that not `SmallLowPriceHousing`))))
+    - `HouseholdMember` and `belongsToHousehold` some (`Household` and (`hasMember` only `NonHousingOwner`))
+- **설계 참고 (Closed World 구현)**: 
+    - OWL의 Open World Assumption(OWA) 문제를 해결하기 위해 `HousingOwner`와 `NonHousingOwner` 클래스를 도입했습니다.
+    - 이 두 클래스는 **Disjoint**(상호 배타)이며, **Covering Axiom**으로 모든 `HouseholdMember`는 둘 중 하나에 속해야 합니다.
+    - 인스턴스 데이터에서 모든 세대구성원에게 명시적으로 `HousingOwner` 또는 `NonHousingOwner` 타입을 부여해야 합니다.
+    - 이 방식으로 `hasMember only NonHousingOwner`가 정상적으로 추론됩니다.
 
 ### `HeadOfHomelessHousehold` (무주택세대주)
 - **설명**: 무주택세대구성원이면서 세대주인 사람을 정의합니다.
@@ -38,16 +43,6 @@
 - **설명**: 특정 지역에 3년 이상 거주한 사람을 정의합니다.
 - **논리 정의 (Equivalent To)**:
     - `Person` and `hasResidenceHistory` some (`ResidenceHistory` and (`residenceDurationInYears` some xsd:float[>= 3.0]))
-
-### `NeverOwnedHousing` (주택 소유 이력 없음)
-- **설명**: 본인이 과거에 단 한 번도 주택을 소유한 적이 없는 사람을 정의합니다. 생애최초 특공의 핵심 요건입니다.
-- **논리 정의 (Equivalent To)**:
-    - `Person` and not (`hasOwnershipHistory` some `HousingOwnershipHistory`)
-
-### `EverOwnedHousing` (주택 소유 이력 있음)
-- **설명**: 본인이 과거에 주택을 소유한 적이 있는 사람을 정의합니다.
-- **논리 정의 (Equivalent To)**:
-    - `Person` and (`hasOwnershipHistory` some `HousingOwnershipHistory`)
 
 ### `QualifiedDependent_Defined` (인정 부양가족 - 정의)
 - **설명**: 가점제에서 부양가족으로 인정되는 세대구성원을 정의합니다. 만 65세 이상이거나 만 19세 미만이어야 합니다.
@@ -197,8 +192,12 @@
 ### `FirstTimeHomeBuyer_Qualified` (생애최초 자격자)
 - **설명**: 생애최초 특공의 핵심 요건인 '본인 및 세대원 전원이 주택 소유 이력 없음'을 충족하는 신청자를 정의합니다.
 - **논리 정의 (Equivalent To)**:
-    - `Applicant` and `NeverOwnedHousing` and
-    - `belongsToHousehold` some (`Household` that (`hasMember` only `NeverOwnedHousing`))
+    - `Applicant` and `NeverOwnedHousingPerson` and
+    - `belongsToHousehold` some (`Household` and (`hasMember` only `NeverOwnedHousingPerson`))
+- **설계 참고 (Closed World 구현)**:
+    - `HousingOwnershipHistoryHolder`와 `NeverOwnedHousingPerson`은 **Disjoint** + **Covering Axiom**으로 정의됩니다.
+    - 모든 `HouseholdMember`에게 명시적으로 둘 중 하나의 타입을 부여해야 합니다.
+    - 이 방식으로 `hasMember only NeverOwnedHousingPerson`이 정상적으로 추론됩니다.
 
 ### `ElderlyParentSupporter` (노부모 부양자)
 - **설명**: 만 65세 이상 부모를 부양하는 청약 신청자를 정의합니다. 부양 기간과 무관하게 추론됩니다.

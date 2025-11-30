@@ -1,0 +1,72 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    세대 (Household) 인스턴스
+###############################################################################
+
+# 세대 1: 김철수 가족 (무주택 다자녀 가구, 맞벌이)
+:Household_Kim rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Kim_ChulSoo ;
+    :hasMember :Kim_ChulSoo , :Lee_YoungHee , :Kim_MinJi , :Kim_MinSoo , :Kim_MinHo ;
+    rdfs:label "김철수 세대"@ko .
+
+# 세대 2: 박영호 가족 (무주택 신혼부부, 영유아 자녀 있음)
+:Household_Park rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Park_YoungHo ;
+    :hasMember :Park_YoungHo , :Choi_SuJin , :Park_HaNeul ;
+    rdfs:label "박영호 세대"@ko .
+
+# 세대 3: 이민수 가족 (노부모 부양)
+:Household_Lee rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Lee_MinSoo ;
+    :hasMember :Lee_MinSoo , :Jung_MiYoung , :Lee_DongGu ;
+    rdfs:label "이민수 세대"@ko .
+
+# 세대 4: 정수영 (1인 가구, 생애최초)
+:Household_Jung rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Jung_SooYoung ;
+    :hasMember :Jung_SooYoung ;
+    rdfs:label "정수영 세대"@ko .
+
+# 세대 5: 최동현 가족 (유주택 세대)
+:Household_Choi rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Choi_DongHyun ;
+    :hasMember :Choi_DongHyun , :Kim_EunJi ;
+    rdfs:label "최동현 세대"@ko .
+
+# 세대 6: 한지영 (한부모 가족)
+:Household_Han rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Han_JiYoung ;
+    :hasMember :Han_JiYoung , :Han_SeoYoon ;
+    rdfs:label "한지영 세대"@ko .
+
+# 세대 7: 윤재호 (예비 신혼부부)
+:Household_Yoon rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Yoon_JaeHo ;
+    :hasMember :Yoon_JaeHo ;
+    rdfs:label "윤재호 세대"@ko .
+
+# 세대 8: 강민정 (기관추천 대상 - 장애인)
+:Household_Kang rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Kang_MinJung ;
+    :hasMember :Kang_MinJung ;
+    rdfs:label "강민정 세대"@ko .
+
+# 세대 9: 장광 (계약취소 주택 신청용, 서울 거주)
+:Household_Zang rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Zang_Kwang ;
+    :hasMember :Zang_Kwang ;
+    rdfs:label "장광 세대"@ko .
+
+# 세대 10: 임무 (무순위 청약 신청용, 인천 거주)
+:Household_Lim rdf:type owl:NamedIndividual , :Household ;
+    :hasHead :Lim_Mu ;
+    :hasMember :Lim_Mu ;
+    rdfs:label "임무 세대"@ko .
+

@@ -1,0 +1,326 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    주택 (Housing) 인스턴스
+###############################################################################
+
+# 최동현이 소유한 주택 (기존)
+:Housing_Choi rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.5"^^xsd:float ;
+    :price 850000000 ;
+    :isLocatedIn :Seoul ;
+    :isOwnedBy :Choi_DongHyun ;
+    rdfs:label "최동현 소유 아파트"@ko .
+
+# 청약 대상 주택들 (기존)
+:Housing_Project_A rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 650000000 ;
+    :isLocatedIn :Seoul ;
+    :usesSelectionMethod :PointBased_100 ;
+    rdfs:label "서울 A 아파트 59㎡"@ko .
+
+:Housing_Project_B rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 900000000 ;
+    :isLocatedIn :Seoul ;
+    :usesSelectionMethod :PointBased_100 ;
+    rdfs:label "서울 B 아파트 84㎡"@ko .
+
+:Housing_Project_C rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 450000000 ;
+    :isLocatedIn :Gyeonggi ;
+    :usesSelectionMethod :PointBased_40_Lottery_60 ;
+    rdfs:label "경기 C 국민주택 59㎡"@ko .
+
+:Housing_Project_D rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "102.0"^^xsd:float ;
+    :price 1200000000 ;
+    :isLocatedIn :Gyeonggi ;
+    :usesSelectionMethod :PointBased_50_Lottery_50 ;
+    rdfs:label "경기 D 아파트 102㎡"@ko .
+
+:Housing_Project_E rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "74.0"^^xsd:float ;
+    :price 380000000 ;
+    :isLocatedIn :Busan ;
+    :usesSelectionMethod :Lottery_100 ;
+    rdfs:label "부산 E 아파트 74㎡"@ko .
+
+# 소형저가주택 예시 (기존)
+:Housing_SmallLowPrice rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 120000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "경기 소형저가주택"@ko .
+
+# 신규 추가: 계약취소주택 (CancelledContractHousing)
+:Housing_Cancelled_F rdf:type owl:NamedIndividual , :CancelledContractHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 880000000 ;
+    :isLocatedIn :Seoul ;
+    :usesSelectionMethod :Lottery_100 ;
+    rdfs:comment "불법전매 등으로 계약이 취소되어 재공급되는 주택"@ko ;
+    rdfs:label "서울 F 계약취소분 84㎡"@ko .
+
+# 신규 추가: 사후접수주택 (PostSubscriptionHousing, 무순위)
+:Housing_Post_G rdf:type owl:NamedIndividual , :PostSubscriptionHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 400000000 ;
+    :isLocatedIn :Incheon ;
+    :usesSelectionMethod :Lottery_100 ;
+    rdfs:comment "잔여 세대에 대해 무순위로 공급되는 주택"@ko ;
+    rdfs:label "인천 G 무순위 줍줍 59㎡"@ko .
+
+###############################################################################
+#    1. 서울 / 민간분양 / 진행 중 및 예정 (Real World Examples)
+###############################################################################
+
+# 서울 서초구 해링턴플레이스 서초 (2025.11)
+:Housing_Harrington_Seocho rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1800000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 민간분양 (2025년 11월)"@ko ;
+    rdfs:label "해링턴플레이스 서초 84㎡"@ko .
+
+# 서울 서초구 반포래미안트리니원 (2025.11, 계약진행중)
+:Housing_Banpo_Raemian_Trinity rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "114.0"^^xsd:float ;
+    :price 3200000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 민간분양 (2025년 11월, 계약 중)"@ko ;
+    rdfs:label "반포래미안트리니원 114㎡"@ko .
+
+# 서울 서초구 방배더유엘포레 (2025.11, 후분양)
+:Housing_Bangbae_TheUL rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 1500000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 후분양 아파트 (2025년 11월)"@ko ;
+    rdfs:label "방배더유엘포레 59㎡"@ko .
+
+# 서울 서초구 아크로드서초 (2025.12 예정)
+:Housing_Acrode_Seocho rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 2100000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 분양 예정 (2025년 12월)"@ko ;
+    rdfs:label "아크로드서초 84㎡"@ko .
+
+# 서울 영등포구 더샵르프리베 (2026.02 예정)
+:Housing_TheSharp_LePrive rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1400000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 영등포구 문래진주 재건축 (2026년 2월)"@ko ;
+    rdfs:label "더샵르프리베 84㎡"@ko .
+
+# 서울 강서구 래미안엘라비네 (2026 예정)
+:Housing_Raemian_Ellavine rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1250000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 강서구 방화6구역 (2026년)"@ko ;
+    rdfs:label "래미안엘라비네 84㎡"@ko .
+
+# 서울 서초구 반포디에이치클래스트 (2026 예정)
+:Housing_Banpo_DH_Classest rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "135.0"^^xsd:float ;
+    :price 4500000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 반포주공1단지 재건축 (2026년)"@ko ;
+    rdfs:label "반포디에이치클래스트 135㎡"@ko .
+
+# 서울 서초구 방배포레스트자이 (2026 예정)
+:Housing_Bangbae_ForestXi rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 2000000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 서초구 방배13구역 (2026년)"@ko ;
+    rdfs:label "방배포레스트자이 84㎡"@ko .
+
+# 서울 강북구 강북3재정비촉진 (2026 예정)
+:Housing_Gangbuk3_Redevelopment rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 800000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 강북구 재정비촉진지구 (2026년)"@ko ;
+    rdfs:label "강북3구역 재개발 59㎡"@ko .
+
+# 서울 구로구 남구로역세권재개발 (2026.10 예정)
+:Housing_Namguro_Redevelopment rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 850000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 구로구 남구로역세권 (2026년 10월)"@ko ;
+    rdfs:label "남구로역세권 재개발 59㎡"@ko .
+
+# 서울 동작구 노량진2구역 (2026 예정)
+:Housing_Noryangjin2 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1300000000 ;
+    :isLocatedIn :Seoul ;
+    rdfs:comment "서울 동작구 노량진뉴타운 2구역 (2026년)"@ko ;
+    rdfs:label "노량진2구역 재개발 84㎡"@ko .
+
+###############################################################################
+#    2. 경기 / 민간분양 / 진행 중 및 예정
+###############################################################################
+
+# 경기 부천시 엘리프 원종 (접수중)
+:Housing_Elif_Wonjong rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 550000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 부천시 민간분양 (접수중)"@ko ;
+    rdfs:label "엘리프 원종 59㎡"@ko .
+
+# 경기 성남시 복정역 에피트 (접수중)
+:Housing_Bokjeong_Epit rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1100000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 성남시 복정1지구 민간분양 (접수중)"@ko ;
+    rdfs:label "성남복정1지구 에피트 84㎡"@ko .
+
+# 경기 성남시 더샵분당센트로 (2025.12 예정)
+:Housing_TheSharp_Bundang_Centro rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 1200000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 성남시 분당 민간분양 (2025년 12월)"@ko ;
+    rdfs:label "더샵분당센트로 84㎡"@ko .
+
+# 경기 성남시 느티마을4단지 리모델링 (2026 예정)
+:Housing_Neuti_Village4 rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "74.0"^^xsd:float ;
+    :price 950000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 성남시 리모델링 사업 (2026년)"@ko ;
+    rdfs:label "느티마을4단지 74㎡"@ko .
+
+# 경기 화성시 e편한세상동탄역어반원 (민간임대) - PrivateHousing으로 분류
+:Housing_Dongtan_UrbanOne rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 600000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 화성시 민간임대 (2025년 1월)"@ko ;
+    rdfs:label "e편한세상동탄역어반원 84㎡"@ko .
+
+# 경기 의정부 탑석푸르지오파크7
+:Housing_Tapseok_Prugio rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 700000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "탑석푸르지오파크7 84㎡"@ko .
+
+# 경기 평택 브레인시티푸르지오
+:Housing_BrainCity_Prugio rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 550000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "브레인시티푸르지오 84㎡"@ko .
+
+# 경기 용인 클러스터용인경남아너스빌
+:Housing_Yongin_Honorsville rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 650000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "용인경남아너스빌 84㎡"@ko .
+
+# 경기 평택 브레인시티수자인
+:Housing_BrainCity_Sujain rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 420000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "평택브레인시티수자인 59㎡"@ko .
+
+# 경기 김포 풍무역 푸르지오 더 마크
+:Housing_Pungmu_Prugio_Mark rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 680000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "풍무역 푸르지오 더 마크 84㎡"@ko .
+
+# 경기 파주 운정 아이파크 시티
+:Housing_Unjeong_IPark rdf:type owl:NamedIndividual , :PrivateHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 620000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:label "운정 아이파크 시티 84㎡"@ko .
+
+###############################################################################
+#    3. 공공분양 / 신혼희망타운 (NationalHousing)
+###############################################################################
+
+# 김포고촌2A1 (2025.12)
+:Housing_Gimpo_Gochon_2A1 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 380000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 김포시 공공분양 (2025년 12월)"@ko ;
+    rdfs:label "김포고촌2A1 공공분양 55㎡"@ko .
+
+# 군포대야미A2 신혼희망타운 (2025.12)
+:Housing_Gunpo_Daeyami_A2 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 400000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 군포시 신혼희망타운 (2025년 12월)"@ko ;
+    rdfs:label "군포대야미A2 신혼희망타운 55㎡"@ko .
+
+# 하남교산A8 (2026 예정)
+:Housing_Hanam_Gyosan_A8 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 480000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 하남시 3기신도시 공공분양 (2026년)"@ko ;
+    rdfs:label "하남교산A8 공공분양 59㎡"@ko .
+
+# 고양창릉S2 (2026.06)
+:Housing_Goyang_Changneung_S2 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 460000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 고양시 3기신도시 공공분양 (2026년 6월)"@ko ;
+    rdfs:label "고양창릉S2 공공분양 59㎡"@ko .
+
+# 안양관양그리니티시티 (2026.04)
+:Housing_Anyang_Greenity rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 520000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 안양시 공공분양 (2026년 4월)"@ko ;
+    rdfs:label "안양관양그리니티시티 59㎡"@ko .
+
+# 수원광교A17 (2026.10)
+:Housing_Gwanggyo_A17 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "84.0"^^xsd:float ;
+    :price 850000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 수원시 광교지구 공공분양 (2026년 10월)"@ko ;
+    rdfs:label "수원광교A17 공공분양 84㎡"@ko .
+
+# 남양주왕숙A17 (2026.10)
+:Housing_Namyangju_Wangsuk_A17 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "59.0"^^xsd:float ;
+    :price 420000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 남양주시 3기신도시 공공분양 (2026년 10월)"@ko ;
+    rdfs:label "남양주왕숙A17 공공분양 59㎡"@ko .
+
+# 구리갈매역세권A3 (2026.12)
+:Housing_Guri_Galmae_A3 rdf:type owl:NamedIndividual , :NationalHousing ;
+    :area "55.0"^^xsd:float ;
+    :price 390000000 ;
+    :isLocatedIn :Gyeonggi ;
+    rdfs:comment "경기 구리시 역세권 공공분양 (2026년 12월)"@ko ;
+    rdfs:label "구리갈매역세권A3 공공분양 55㎡"@ko .

@@ -1,0 +1,197 @@
+@prefix : <http://www.example.org/apartment-subscription-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.example.org/apartment-subscription-ontology> .
+
+###############################################################################
+#    기준 소득 (StandardIncome) - 2024년 도시근로자 월평균 소득
+###############################################################################
+
+:StandardIncome_2024_3 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 3 ;
+    :standardAmount 6718198 ;
+    rdfs:label "2024년 3인 가구 기준소득"@ko .
+
+:StandardIncome_2024_4 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 4 ;
+    :standardAmount 7622056 ;
+    rdfs:label "2024년 4인 가구 기준소득"@ko .
+
+:StandardIncome_2024_5 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 5 ;
+    :standardAmount 7900320 ;
+    rdfs:label "2024년 5인 가구 기준소득"@ko .
+
+# 6인 이상 가구 추가
+:StandardIncome_2024_6 rdf:type owl:NamedIndividual , :UrbanWorkerStandardIncome ;
+    :yearOfStandard 2024 ;
+    :householdSize 6 ;
+    :standardAmount 8560000 ;
+    rdfs:label "2024년 6인 가구 기준소득"@ko .
+
+###############################################################################
+#    예치금 요건 (DepositRequirement)
+###############################################################################
+
+# 서울/부산 (투기과열지구 등 주요지역)
+:DepositReq_Seoul_85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
+    :minArea "0.0"^^xsd:float ;
+    :maxArea "85.0"^^xsd:float ;
+    :requiredDepositAmount 3000000 ;
+    rdfs:label "서울/부산 85㎡ 이하 예치금"@ko .
+
+:DepositReq_Seoul_102 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
+    :minArea "85.0"^^xsd:float ;
+    :maxArea "102.0"^^xsd:float ;
+    :requiredDepositAmount 6000000 ;
+    rdfs:label "서울/부산 102㎡ 이하 예치금"@ko .
+
+:DepositReq_Seoul_135 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
+    :minArea "102.0"^^xsd:float ;
+    :maxArea "135.0"^^xsd:float ;
+    :requiredDepositAmount 10000000 ;
+    rdfs:label "서울/부산 135㎡ 이하 예치금"@ko .
+
+:DepositReq_Seoul_All rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Seoul , :Busan ;
+    :minArea "135.0"^^xsd:float ;
+    :maxArea "9999.0"^^xsd:float ;
+    :requiredDepositAmount 15000000 ;
+    rdfs:label "서울/부산 모든면적 예치금"@ko .
+
+# 기타 광역시
+:DepositReq_Metro_85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Incheon , :Daejeon , :Sejong ;
+    :minArea "0.0"^^xsd:float ;
+    :maxArea "85.0"^^xsd:float ;
+    :requiredDepositAmount 2500000 ;
+    rdfs:label "기타광역시 85㎡ 이하 예치금"@ko .
+
+# 경기도 및 기타 시/군
+:DepositReq_Other_85 rdf:type owl:NamedIndividual , :DepositRequirement ;
+    :appliesInRegion :Gyeonggi , :Gangwon ;
+    :minArea "0.0"^^xsd:float ;
+    :maxArea "85.0"^^xsd:float ;
+    :requiredDepositAmount 2000000 ;
+    rdfs:label "기타지역 85㎡ 이하 예치금"@ko .
+
+###############################################################################
+#    선정 방식 (SelectionMethod)
+###############################################################################
+
+:PointBased_100 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "1.0"^^xsd:float ;
+    rdfs:label "가점제 100%"@ko .
+
+:PointBased_70_Lottery_30 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.7"^^xsd:float ;
+    rdfs:label "가점제 70%"@ko .
+
+:PointBased_40_Lottery_60 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.4"^^xsd:float ;
+    rdfs:label "가점제 40%"@ko .
+
+:PointBased_50_Lottery_50 rdf:type owl:NamedIndividual , :PointBasedSelection ;
+    :selectionRatio "0.5"^^xsd:float ;
+    rdfs:label "가점제 50%"@ko .
+
+:Lottery_100 rdf:type owl:NamedIndividual , :LotteryBasedSelection ;
+    :selectionRatio "1.0"^^xsd:float ;
+    rdfs:label "추첨제 100%"@ko .
+
+###############################################################################
+#    소득 기준선 (IncomeThreshold) - 특별공급 유형별 소득 기준
+###############################################################################
+
+# 신혼부부 특별공급 소득 기준
+:IncomeThreshold_Newlywed_100 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 100 ;
+    :appliesTo :NewlywedPrioritySupply ;
+    rdfs:comment "신혼부부 우선공급 - 도시근로자 월평균소득 100% 이하"@ko ;
+    rdfs:label "신혼부부 우선공급 소득기준 100%"@ko .
+
+:IncomeThreshold_Newlywed_130 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 130 ;
+    :appliesTo :NewlywedGeneralSupply ;
+    rdfs:comment "신혼부부 일반공급 - 도시근로자 월평균소득 130% 이하"@ko ;
+    rdfs:label "신혼부부 일반공급 소득기준 130%"@ko .
+
+:IncomeThreshold_Newlywed_DualIncome_140 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 140 ;
+    :appliesTo :NewlywedCoupleSupply ;
+    rdfs:comment "신혼부부 맞벌이 - 도시근로자 월평균소득 140% 이하"@ko ;
+    rdfs:label "신혼부부 맞벌이 소득기준 140%"@ko .
+
+# 생애최초 특별공급 소득 기준
+:IncomeThreshold_FirstTime_130 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 130 ;
+    :appliesTo :FirstTimeHomeBuyerSupply ;
+    rdfs:comment "생애최초 - 도시근로자 월평균소득 130% 이하"@ko ;
+    rdfs:label "생애최초 소득기준 130%"@ko .
+
+:IncomeThreshold_FirstTime_160 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 160 ;
+    :appliesTo :FirstTimeHomeBuyerSupply ;
+    rdfs:comment "생애최초 추첨제 - 도시근로자 월평균소득 160% 이하"@ko ;
+    rdfs:label "생애최초 추첨제 소득기준 160%"@ko .
+
+# 다자녀 특별공급 소득 기준
+:IncomeThreshold_MultiChild_120 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 120 ;
+    :appliesTo :MultiChildHouseholdSupply ;
+    rdfs:comment "다자녀 가구 - 도시근로자 월평균소득 120% 이하"@ko ;
+    rdfs:label "다자녀 소득기준 120%"@ko .
+
+# 노부모부양 특별공급 소득 기준
+:IncomeThreshold_AgedParents_120 rdf:type owl:NamedIndividual , :IncomeThreshold ;
+    :thresholdPercentage 120 ;
+    :appliesTo :SupportingAgedParentsSupply ;
+    rdfs:comment "노부모부양 - 도시근로자 월평균소득 120% 이하"@ko ;
+    rdfs:label "노부모부양 소득기준 120%"@ko .
+
+###############################################################################
+#    자산 기준선 (AssetThreshold) - 2024년 기준
+###############################################################################
+
+# 부동산 자산 기준
+:AssetThreshold_RealEstate_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "부동산"^^xsd:string ;
+    :thresholdAmount 215500000 ;
+    :yearOfStandard 2024 ;
+    rdfs:comment "2024년 부동산(토지+건물) 자산 기준 - 2억 1,550만원"@ko ;
+    rdfs:label "2024년 부동산 자산기준"@ko .
+
+# 자동차 자산 기준
+:AssetThreshold_Vehicle_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "자동차"^^xsd:string ;
+    :thresholdAmount 37570000 ;
+    :yearOfStandard 2024 ;
+    rdfs:comment "2024년 자동차 자산 기준 - 3,757만원 (장애인 사용 차량 제외)"@ko ;
+    rdfs:label "2024년 자동차 자산기준"@ko .
+
+# 총 자산 기준 (국민주택)
+:AssetThreshold_Total_National_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "총자산"^^xsd:string ;
+    :thresholdAmount 361200000 ;
+    :yearOfStandard 2024 ;
+    :appliesTo :NationalHousing ;
+    rdfs:comment "2024년 국민주택 총 자산 기준 - 3억 6,120만원"@ko ;
+    rdfs:label "2024년 국민주택 총자산기준"@ko .
+
+# 총 자산 기준 (민영주택 - 생애최초)
+:AssetThreshold_Total_Private_FirstTime_2024 rdf:type owl:NamedIndividual , :AssetThreshold ;
+    :assetType "총자산"^^xsd:string ;
+    :thresholdAmount 500000000 ;
+    :yearOfStandard 2024 ;
+    :appliesTo :FirstTimeHomeBuyerSupply ;
+    rdfs:comment "2024년 민영주택 생애최초 총 자산 기준 - 5억원"@ko ;
+    rdfs:label "2024년 민영 생애최초 총자산기준"@ko .
